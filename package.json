@@ -1,0 +1,23 @@
+{
+  "name": "senior_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mookntk/senior_project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mookntk/senior_project/issues"
+  },
+  "homepage": "https://github.com/mookntk/senior_project#readme",
+  "dependencies": {
+    "concurrently": "^5.1.0"
+  }
+}
