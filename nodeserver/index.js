@@ -1,12 +1,17 @@
 const express = require("express");
-const server = express();
+const app = express();
 const express_session = require("express-session");
 const bodyParser = require("body-parser");
 const { check, validationResult } = require("express-validator");
 // const config = require("./configs");
 const PORT = 3000;
 
-server.use(
+//test db
+const connect = require("./configs/db.js");
+// connect.query("show tables", (err, result) => {
+//   console.log(result);
+// });
+app.use(
   express_session({
     secret: "keyboard cat",
     resave: false,
@@ -15,9 +20,9 @@ server.use(
   })
 );
 
-server.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
-server.use(bodyParser.json());
+app.use(bodyParser.json());
 
 // server.post(
 //   "/",
@@ -39,11 +44,9 @@ server.use(bodyParser.json());
 //   req.session.item = "hello world";
 //   res.end("set session");
 // });
-// server.post("/", (req, res) => res.json(req.body));
-// server.get("*", (req, res) => {
-//   //   if (config.isProduction) return res.sendFile(`${__dirname}/www/index.html`);
+app.post("/", (req, res) => res.json(req.body));
+app.get("*", (req, res) => {
+  res.end(`<h1>Backend server is startd. session is ${req.session.item}</h1>`);
+});
 
-//   res.end(`<h1>Backend server is startd. session is ${req.session.item}</h1>`);
-// });
-
-server.listen(PORT, () => console.log(`Server is started, Port ${PORT}.`));
+app.listen(PORT, () => console.log(`Server is started, Port ${PORT}.`));
