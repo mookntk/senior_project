@@ -24,6 +24,41 @@ router.post(
   }
 );
 
+router.post(
+  "/newuser",
+  [
+    check("username")
+      .not()
+      .isEmpty(),
+    check("password")
+      .not()
+      .isEmpty(),
+    check("user_type")
+      .not()
+      .isEmpty(),
+    check("name")
+      .not()
+      .isEmpty(),
+    check("surname")
+      .not()
+      .isEmpty(),
+    check("telno")
+      .not()
+      .isEmpty(),
+    check("email")
+      .not()
+      .isEmpty()
+  ],
+  async (req, res) => {
+    try {
+      const newuser = await new_user(req.body);
+      res.json(newuser);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+);
+
 var Login = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
@@ -41,6 +76,15 @@ var Login = function(item) {
         reject(new Error("Invalid username or password"));
       }
     );
+  });
+};
+
+var new_user = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query("INSERT INTO users SET ?", item, (error, result) => {
+      if (error) return reject(error);
+      resolve({ message: "success" });
+    });
   });
 };
 
