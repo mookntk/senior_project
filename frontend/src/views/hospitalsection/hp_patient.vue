@@ -29,7 +29,7 @@
                       <v-text-field v-model="editedItem.gender" label="เพศ" outlined></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="2">
-                      <v-text-field v-model="editedItem.age" label="อายุ" outlined></v-text-field>
+                      <v-text-field v-model="age" label="อายุ" outlined></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field v-model="editedItem.DOB" label="วัน/เดือน/ปีเกิด" outlined></v-text-field>
@@ -43,11 +43,26 @@
                     <v-col cols="12" sm="12">
                       <v-text-field v-model="editedItem.address" label="ที่อยู่" outlined></v-text-field>
                     </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field v-model="editedItem.subdistrict" label="ตำบล/แขวง" outlined></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field v-model="editedItem.district" label="อำเภอ/เขต" outlined></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="4">
+                      <v-text-field v-model="editedItem.province" label="จังหวัด" outlined></v-text-field>
+                    </v-col>
                     <v-col cols="12" sm="12">
                       <v-select :items="disease" chips label="เลือกโรค" multiple outlined clearable></v-select>
                     </v-col>
                     <v-col cols="12" sm="8">
-                      <v-select label="ร้านขายยา" outlined v-model="editedItem.pharmacy"></v-select>
+                      <v-select
+                        :items="pharmacy"
+                        item-text="pharmacy_name"
+                        label="ร้านขายยา"
+                        outlined
+                        v-model="editedItem.pharmacy_id_patient"
+                      ></v-select>
                       <!-- <v-text-field v-model="editedItem.pharmacy" label="ร้านขายยา" outlined></v-text-field> -->
                     </v-col>
                   </v-row>
@@ -93,7 +108,7 @@
                   <v-text-field :value="patients[index].gender" label="เพศ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="4">
-                  <v-text-field :value="patients[index].age" label="อายุ" filled readonly></v-text-field>
+                  <v-text-field :value="age" label="อายุ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="8">
                   <v-text-field
@@ -200,26 +215,28 @@ export default {
         { text: "ความดันเลือด", align: "center", value: "pressure" },
         { text: "ผู้ตรวจ", align: "center", value: "pharmacist" }
       ],
-      patients: [      ],
+      patients: [],
+      pharmacy: [],
+      age: "",
       patient_selected: null,
       editedItem: {
-        HN: "",
+        patient_HN: "0011254",
         name: "",
         surname: "",
-        age: null,
         gender: "",
-        dob: "",
+        DOB: "",
         email: "",
-        phone: "",
-        pharmacy: "",
+        Telno: "",
+        pharmacy_id_patient: "",
         address: "",
-        record: []
+        subdistrict: "",
+        district: "",
+        province: ""
       },
       defaultItem: {
         HN: "",
         name: "",
         surname: "",
-        age: null,
         gender: "",
         dob: "",
         email: "",
@@ -244,6 +261,11 @@ export default {
     showItem(item) {
       this.patient_selected = item.name + " " + item.surname;
       this.index = this.patients.indexOf(item);
+      var date = new Date();
+      var dob = new Date(this.patients[this.index].DOB);
+      console.log("dob" + dob.getFullYear());
+      var age = date.getFullYear() + 543 - dob.getFullYear();
+      this.age = age;
       this.dialog_record = true;
     },
     editItem(item) {
@@ -255,20 +277,43 @@ export default {
     },
     deleteItem(item) {
       const index = this.patients.indexOf(item);
+      const hn = { patient_HN: this.patients[index].patient_HN };
       confirm(
         "คุณต้องการที่จะลบข้อมูลผู้ป่วยใช่หรือไม่?\nคุณ" +
           item.name +
           " " +
           item.surname
-      ) && this.patients.splice(index, 1);
+      ) &&
+        axios
+          .post("http://localhost:3000/api/patient/deletepatient", hn)
+          .then(res => {
+            this.patients.splice(index, 1);
+          })
+          .catch(e => {
+            console.log(e);
+          });
     },
     save() {
       console.log(this.editedItem);
       if (this.editedIndex > -1) {
         Object.assign(this.patients[this.editedIndex], this.editedItem);
       } else {
-        console.log(this.editedItem);
-        this.patients.push(this.editedItem);
+        for (var i = 0; i < this.pharmacy.length; i++) {
+          if (
+            this.editedItem.pharmacy_id_patient ==
+            this.pharmacy[i].pharmacy_name
+          ) {
+            this.editedItem.pharmacy_id_patient = this.pharmacy[i].pharmacy_id;
+          }
+        }
+        axios
+          .post("http://localhost:3000/api/patient/newpatient", this.editedItem)
+          .then(res => {
+            this.patients.push(this.editedItem);
+          })
+          .catch(e => {
+            console.log(e);
+          });
       }
       this.close();
     },
@@ -285,6 +330,17 @@ export default {
     axios.get("http://localhost:3000/api/patient/showpatients").then(res => {
       this.patients = res.data;
     });
+    axios.get("http://localhost:3000/api/user/showpharmacy").then(pharmacy => {
+      this.pharmacy = pharmacy.data;
+    });
+  },
+  watch: {
+    age() {
+      // var date = new Date();
+      // var dob = new Date(this.patients[index].DOB);
+      // var age = date.getFullYear - dob.getFullYear;
+      // console.log(age);
+    }
   }
 };
 </script>
