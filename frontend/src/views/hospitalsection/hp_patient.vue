@@ -136,36 +136,6 @@
         </v-card>
       </v-dialog>
 
-      <!-- <v-dialog v-model="dialog_edit" persistent max-width="600px">
-        <v-card>
-          <v-card-title>
-            <span class="headline">แก้ไขข้อมูลผู้ป่วย</span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field :value="patients[index].email" label="อีเมล" filled readonly></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    :value="patients[index].phone"
-                    label="เบอร์โทรศัพท์"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="12">
-                  <v-text-field :value="patients[index].address" label="ที่อยู่" filled readonly></v-text-field>
-                </v-col>
-              </v-row>
-              <v-data-table :headers="record_headers" :items="patients[index].record"></v-data-table>
-            </v-container>
-          </v-card-text>
-        </v-card>
-      </v-dialog>-->
-      <!-- end of edit patient imformation -->
-
       <!-- Data Table of patient page -->
       <v-data-table :headers="headers" :items="patients" :items-per-page="10" class="elevation-1">
         <template v-slot:body="{ items }">
@@ -230,169 +200,10 @@ export default {
         { text: "ความดันเลือด", align: "center", value: "pressure" },
         { text: "ผู้ตรวจ", align: "center", value: "pharmacist" }
       ],
-      patients: [
-        {
-          HN: "0041523",
-          name: "ณัชชา",
-          surname: "ยินดี",
-          age: 40,
-          gender: "หญิง",
-          dob: "9 สิงหาคม 2522",
-          email: "natcha_yindee@hotmail.com",
-          phone: "0851477526",
-          pharmacy: "บ้านเภสัชกร",
-          address: "2/2 ม.5 พุทธมณฑล จ.นครปฐม 73130",
-          record: [
-            {
-              no: 1,
-              date: "15 มีนาคม 2562",
-              weight: 60,
-              height: 167,
-              pressure: "130/85",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            },
-            {
-              no: 2,
-              date: "20 ตุลาคม 2562",
-              weight: 59,
-              height: 167,
-              pressure: "120/83",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            }
-          ]
-        },
-        {
-          HN: "0048543",
-          name: "วรพรรณ",
-          surname: "พุ่มประทุม",
-          age: 32,
-          gender: "หญิง",
-          dob: "8 สิงหาคม 2530",
-          email: "worrapan@gmail.com",
-          phone: "0864588223",
-          pharmacy: "ลิขิตฟาร์มาซี",
-          address: "2/2 ม.5 พุทธมณฑล จ.นครปฐม 73130",
-          record: [
-            {
-              no: 1,
-              date: "15 มีนาคม 2562",
-              weight: 60,
-              height: 167,
-              pressure: "130/85",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            },
-            {
-              no: 2,
-              date: "20 ตุลาคม 2562",
-              weight: 59,
-              height: 167,
-              pressure: "120/83",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            }
-          ]
-        },
-        {
-          HN: "0521483",
-          name: "ณัฐพล",
-          surname: "ตันเสวกวงษ์",
-          age: 41,
-          gender: "ชาย",
-          dob: "20 กุมภาพันธ์ 2521",
-          email: "nattapol.t@gmail.com",
-          phone: "0857773239",
-          pharmacy: "บ้านเภสัชกร",
-          address: "2/2 ม.5 พุทธมณฑล จ.นครปฐม 73130",
-          record: [
-            {
-              no: 1,
-              date: "15 มีนาคม 2562",
-              weight: 60,
-              height: 167,
-              pressure: "130/85",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            },
-            {
-              no: 2,
-              date: "20 ตุลาคม 2562",
-              weight: 59,
-              height: 167,
-              pressure: "120/83",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            }
-          ]
-        },
-        {
-          HN: "0065893",
-          name: "วริศรา",
-          surname: "ใจดี",
-          age: 30,
-          gender: "หญิง",
-          dob: "20 กรกฎาคม 2532",
-          email: "ploy_warisara@hotmail.com",
-          phone: "0852880026",
-          pharmacy: "เวิลด์ ฟาร์มาซี",
-          address: "2/2 ม.5 พุทธมณฑล จ.นครปฐม 73130",
-          record: [
-            {
-              no: 1,
-              date: "15 มีนาคม 2562",
-              weight: 60,
-              height: 167,
-              pressure: "130/85",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            },
-            {
-              no: 2,
-              date: "20 ตุลาคม 2562",
-              weight: 59,
-              height: 167,
-              pressure: "120/83",
-              pharmacist: "เอก เวสโกสิทธิ์"
-            }
-          ]
-        },
-        {
-          HN: "0011254",
-          name: "ภควัตน์",
-          surname: "อัศววิวัฒน์",
-          age: 28,
-          gender: "ชาย",
-          dob: "15 กันยายน 2534",
-          email: "phakawat@hotmail.com",
-          phone: "0851856921",
-          pharmacy: "ร้านฟาร์มาซี สาย2",
-          address: "2/2 ม.5 อ.พานทอง จ.ชลบุรี 20160",
-          record: [
-            {
-              no: 1,
-              date: "20 กุมภาพันธ์ 2562",
-              weight: 70,
-              height: 175,
-              pressure: "125/82",
-              pharmacist: "สลิลลา วีระรัตน์"
-            },
-            {
-              no: 2,
-              date: "20 กันยายน 2562",
-              weight: 69,
-              height: 175,
-              pressure: "120/80",
-              pharmacist: "สลิลลา วีระรัตน์"
-            },
-            {
-              no: 3,
-              date: "15 ธันวาคม 2562",
-              weight: 69,
-              height: 175,
-              pressure: "110/75",
-              pharmacist: "สลิลลา วีระรัตน์"
-            }
-          ]
-        }
-      ],
+      patients: [      ],
       patient_selected: null,
       editedItem: {
-        HN: "0011254",
+        HN: "",
         name: "",
         surname: "",
         age: null,
@@ -405,7 +216,7 @@ export default {
         record: []
       },
       defaultItem: {
-        HN: "0011254",
+        HN: "",
         name: "",
         surname: "",
         age: null,

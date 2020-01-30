@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Patient from "../views/hospitalsection/hp_patient";
-
+import hosstaff from "../views/adminsection/Hospitalstaff";
 Vue.use(VueRouter);
 
 const routes = [
@@ -9,6 +9,11 @@ const routes = [
     path: "/patient",
     name: "patient",
     component: Patient
+  },
+  {
+    path: "/hospitalstaff",
+    name: "hosstaff",
+    component: hosstaff
   }
 ];
 
