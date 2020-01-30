@@ -3,7 +3,7 @@ const connect = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "root",
-  database: "test",
+  database: "senior_project",
   charset: "utf8"
 });
 

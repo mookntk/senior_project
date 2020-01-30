@@ -59,6 +59,33 @@ router.post(
   }
 );
 
+router.get("/showpharmacy", async (req, res) => {
+  try {
+    const pharmacy = await show_pharmacy();
+    res.json(pharmacy);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.get("/showpharmacists", async (req, res) => {
+  try {
+    const pharmacists = await show_pharmacists();
+    res.json(pharmacists);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.get("/showhospital", async (req, res) => {
+  try {
+    const hos_staff = await show_hospital();
+    res.json(hos_staff);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 var Login = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
@@ -88,4 +115,38 @@ var new_user = function(item) {
   });
 };
 
+var show_pharmacy = function() {
+  return new Promise((resolve, reject) => {
+    db.query("SELECT * FROM pharmacy", (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+  });
+};
+
+var show_pharmacists = function() {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "SELECT * FROM users WHERE user_type=?",
+      ["pharmacist"],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+  });
+};
+
+var show_hospital = function() {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "SELECT * FROM users WHERE user_type=?",
+      ["hos_staff"],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+  });
+};
 module.exports = router;

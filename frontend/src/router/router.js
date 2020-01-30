@@ -1,10 +1,16 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-// import Home from "../views/Home.vue";
+import Patient from "../views/hospitalsection/hp_patient";
 
 Vue.use(VueRouter);
 
-const routes = [];
+const routes = [
+  {
+    path: "/patient",
+    name: "patient",
+    component: Patient
+  }
+];
 
 const router = new VueRouter({
   mode: "history",

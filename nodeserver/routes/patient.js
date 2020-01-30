@@ -56,10 +56,13 @@ router.post(
 
 var all_patients = function() {
   return new Promise((resolve, reject) => {
-    db.query("SELECT * FROM patients ", (error, result) => {
-      if (error) return reject(error);
-      return resolve(result);
-    });
+    db.query(
+      "SELECT * FROM patients LEFT JOIN pharmacy ON patients.pharmacy_id_patient = pharmacy.pharmacy_id",
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
   });
 };
 
