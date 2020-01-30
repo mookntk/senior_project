@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { check } = require("express-validator");
 const db = require("../configs/db");
-
+const patient = "patients";
 router.get("/showpatients", async (req, res) => {
   try {
     const patients = await all_patients();
@@ -54,10 +54,28 @@ router.post(
   }
 );
 
+router.post("/deletepatient", async (req, res) => {
+  try {
+    const patient = await delete_patient(req.body);
+    res.json(patient);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+router.post("/editpatient", async (req, res) => {
+  try {
+    const edited = await edit_patient(req.body);
+    res.json(edited);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 var all_patients = function() {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT * FROM patients LEFT JOIN pharmacy ON patients.pharmacy_id_patient = pharmacy.pharmacy_id",
+      `SELECT patients.* , pharmacy.pharmacy_id , pharmacy.pharmacy_name FROM ${patient} LEFT JOIN pharmacy ON patients.pharmacy_id_patient = pharmacy.pharmacy_id`,
       (error, result) => {
         if (error) return reject(error);
         return resolve(result);
@@ -68,10 +86,36 @@ var all_patients = function() {
 
 var new_patient = function(item) {
   return new Promise((resolve, reject) => {
-    db.query("INSERT INTO patients SET ?", item, (error, result) => {
+    db.query(`INSERT INTO ${patient} SET ?`, item, (error, result) => {
       if (error) return reject(error);
       resolve({ message: "success" });
     });
+  });
+};
+
+var delete_patient = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `DELETE FROM ${patient} WHERE patient_HN = ?`,
+      [item.patient_HN],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+
+var edit_patient = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `DELETE FROM ${patient} WHERE patient_HN = ?`,
+      [item.patient_HN],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
   });
 };
 module.exports = router;
