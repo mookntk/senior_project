@@ -59,6 +59,7 @@
                       <v-select
                         :items="pharmacy"
                         item-text="pharmacy_name"
+                        item-value="pharmacy_id"
                         label="ร้านขายยา"
                         outlined
                         v-model="editedItem.pharmacy_id_patient"
@@ -144,10 +145,6 @@
               <v-data-table :headers="record_headers" :items="patients[index].record"></v-data-table>
             </v-container>
           </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="dialog_record = false">Close</v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
 
@@ -220,7 +217,6 @@ export default {
       age: "",
       patient_selected: null,
       editedItem: {
-        patient_HN: "0011254",
         name: "",
         surname: "",
         gender: "",
@@ -234,7 +230,6 @@ export default {
         province: ""
       },
       defaultItem: {
-        HN: "",
         name: "",
         surname: "",
         gender: "",
@@ -290,38 +285,40 @@ export default {
             this.patients.splice(index, 1);
           })
           .catch(e => {
-            console.log(e);
+            console.log("delete error " + e);
           });
     },
     save() {
       console.log(this.editedItem);
       if (this.editedIndex > -1) {
-        Object.assign(this.patients[this.editedIndex], this.editedItem);
+        axios
+          .post(
+            "http://localhost:3000/api/patient/editpatient",
+            this.editedItem
+          )
+          .then(res => {
+            Object.assign(this.patients[this.editedIndex], this.editedItem);
+          })
+          .catch(e => {
+            console.log("edit error " + e);
+          });
       } else {
-        for (var i = 0; i < this.pharmacy.length; i++) {
-          if (
-            this.editedItem.pharmacy_id_patient ==
-            this.pharmacy[i].pharmacy_name
-          ) {
-            this.editedItem.pharmacy_id_patient = this.pharmacy[i].pharmacy_id;
-          }
-        }
         axios
           .post("http://localhost:3000/api/patient/newpatient", this.editedItem)
           .then(res => {
             this.patients.push(this.editedItem);
           })
           .catch(e => {
-            console.log(e);
+            console.log("newpatient error " + e);
           });
       }
       this.close();
     },
     close() {
-      console.log(this.editedIndex);
       this.dialog_edit = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
+        this.age = null;
         this.editedIndex = -1;
       }, 300);
     }
@@ -347,7 +344,7 @@ export default {
 
 <style>
 @import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.admin {
+.font {
   font-family: "Sarabun", sans-serif;
 }
 thead {

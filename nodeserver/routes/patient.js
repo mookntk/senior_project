@@ -109,8 +109,21 @@ var delete_patient = function(item) {
 var edit_patient = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `DELETE FROM ${patient} WHERE patient_HN = ?`,
-      [item.patient_HN],
+      `UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, pharmacy_id_patient = ?, email = ? WHERE patient_HN = ?`,
+      [
+        item.name,
+        item.surname,
+        item.gender,
+        item.DOB,
+        item.Telno,
+        item.address,
+        item.subdistrict,
+        item.district,
+        item.province,
+        item.pharmacy_id_patient,
+        item.email,
+        item.patient_HN
+      ],
       (error, result) => {
         if (error) return reject(error);
         resolve({ message: "success" });
@@ -118,4 +131,5 @@ var edit_patient = function(item) {
     );
   });
 };
+
 module.exports = router;
