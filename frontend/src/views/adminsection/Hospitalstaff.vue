@@ -4,14 +4,14 @@
       <Menuadmin />
     </div>
     <v-data-table
-        :search="search"
-        :headers="headers"
-        :items="hosstaff"
-        :items-per-page="10"
-        sort-by="name"
-        class="elevation-1"
-      >
-    <!-- <v-content class="main"> -->
+      :search="search"
+      :headers="headers"
+      :items="hosstaff"
+      :items-per-page="10"
+      sort-by="name"
+      class="elevation-1"
+    >
+      <!-- <v-content class="main"> -->
       <template v-slot:top>
         <v-toolbar flat color="white">
           <v-toolbar-title>เภสัชกรโรงพยาบาล</v-toolbar-title>
@@ -38,29 +38,30 @@
               <v-card-text>
                 <v-container>
                   <v-row>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field :value="hosstaff_selected[index].username" label="ชื่อ"></v-text-field>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field v-model="hosstaff_selected.name" label="ชื่อ"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        :value="hosstaff_selected[index].surname"
-                        label="นามสกุล"
-                      ></v-text-field>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field v-model="hosstaff_selected.surname" label="นามสกุล"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="4">
+                    <v-col cols="12" sm="6" md="6">
                       <v-text-field
-                        :value="hosstaff_selected[index].username"
+                        v-model="hosstaff_selected.username"
                         label="ชื่อผู้ใช้"
+                        
                       ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field :value="hosstaff_selected[index].email" label="อีเมล" ></v-text-field>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field v-model="hosstaff_selected.email" label="อีเมล"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        :value="hosstaff_selected[index].Telno"
-                        label="เบอร์ติดต่อ"
-                      ></v-text-field>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-text-field v-model="hosstaff_selected.telno" label="เบอร์ติดต่อ"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-radio-group v-model="hosstaff_selected.sex" label="เพศ">
+                        <v-radio label="ชาย"></v-radio>
+                        <v-radio label="หญิง"></v-radio>
+                      </v-radio-group>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -78,38 +79,38 @@
 
       <!-- Data Table of hosstaff page -->
       <!-- <v-data-table
-        :search="search"
-        :headers="headers"
-        :items="hosstaff"
-        :items-per-page="10"
-        sort-by="name"
-        class="elevation-1"
-      > -->
-        <template v-slot:item.action="{ item }">
-          <!-- <tbody>
-            <tr v-for="item in items" :key="item.name">
-              <td>{{ item.name }}</td>
-              <td>{{ item.surname }}</td>
-              <td style="text-align:center">{{ item.username }}</td>
-              <td style="text-align:center">{{ item.email }}</td>
-              <td style="text-align:center">{{ item.Telno}}</td>
-              <td style="text-align:center"> -->
-                <v-icon small class="mr-6" @click="editItem(item)">mdi-pencil</v-icon>
-                <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
-                <v-icon small class="mr-6" @click="forgetpw(item)">mdi-email-send</v-icon>
-              <!-- </td>
-            </tr>
-          </tbody> -->
-        </template>
-      </v-data-table>
-      <!-- Data Table of hosstaff page -->
-  
+      :search="search"
+      :headers="headers"
+      :items="hosstaff"
+      :items-per-page="10"
+      sort-by="name"
+      class="elevation-1"
+      >-->
+      <template v-slot:item.action="{ item }">
+        <!-- <tbody>
+          <tr v-for="item in items" :key="item.name">
+            <td>{{ item.name }}</td>
+            <td>{{ item.surname }}</td>
+            <td style="text-align:center">{{ item.username }}</td>
+            <td style="text-align:center">{{ item.email }}</td>
+            <td style="text-align:center">{{ item.Telno}}</td>
+        <td style="text-align:center">-->
+        <v-icon small class="mr-6" @click="editItem(item)">mdi-pencil</v-icon>
+        <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
+        <v-icon small class="mr-6" @click="save(item)">mdi-email-send</v-icon>
+        <!-- </td>
+          </tr>
+        </tbody>-->
+      </template>
+    </v-data-table>
+    <!-- Data Table of hosstaff page -->
   </v-app>
 </template>
 
 <script>
 import Menuadmin from "../../components/Menuadmin";
 import axios from "axios";
+import UpdateUserVue from "../../../../../WebPro_Assignment1/assignment1/src/components/UpdateUser.vue";
 export default {
   data: () => ({
     search: "",
@@ -119,7 +120,7 @@ export default {
       { text: "นามสกุล", value: "surname" },
       { text: "username", value: "username" },
       { text: "อีเมล", value: "email" },
-      { text: "เบอร์ติดต่อ", value: "Telno" },
+      { text: "เบอร์ติดต่อ", value: "telno" },
       // { text: "password", value: "password", sortable: false },
       {
         text: "แก้ไข / ลบ / ส่งรหัสผ่านใหม่ให้ผู้ใช้",
@@ -135,14 +136,14 @@ export default {
       surname: "",
       username: "",
       email: "",
-      Telno: ""
+      telno: ""
     },
     defaultItem: {
       name: "",
       surname: "",
       username: "",
       email: "",
-      Telno: ""
+      telno: ""
     }
   }),
   components: {
@@ -167,46 +168,94 @@ export default {
   //   this.initialize();
   // },
   methods: {
-    showItem(item) {
-      this.hosstaff_selected = item.name + " " + item.surname;
-      this.index = this.hosstaff.indexOf(item);
-      this.dialog_record = true;
-    },
+    // showItem(item) {
+    //   this.hosstaff_selected = item.name + " " + item.surname;
+    //   this.index = this.hosstaff.indexOf(item);
+    //   this.dialog_record = true;
+    // },
     editItem(item) {
-      this.index = this.hosstaff.indexOf(item);
+      // this.index = this.hosstaff.indexOf(item);
       this.editedIndex = this.hosstaff.indexOf(item);
-      this.hosstaff_selected = item.name + " " + item.surname;
-      this.editedItem = Object.assign({}, item);
-      this.dialog_edit = true;
+      // this.hosstaff_selected = item.name + " " + item.surname;
+      this.hosstaff_selected = Object.assign({}, item);
+      if (item.sex === "Male") {
+        this.hosstaff_selected.sex = 0;
+      } else {
+        this.hosstaff_selected.sex = 1;
+      }
+
+      this.dialog = true;
     },
     deleteItem(item) {
       const index = this.hosstaff.indexOf(item);
       confirm(
-        "คุณต้องการที่จะลบข้อมูลผู้ป่วยใช่หรือไม่?\nคุณ" +
+        "คุณต้องการที่จะลบข้อมูลเภสัชกรใช่หรือไม่?\nคุณ" +
           item.name +
           " " +
           item.surname
       ) && this.hosstaff.splice(index, 1);
     },
     save() {
-      console.log(this.editedItem);
+      console.log(this.hosstaff_selected);
       if (this.editedIndex > -1) {
-        Object.assign(this.hosstaff[this.editedIndex], this.editedItem);
+        Object.assign(this.hosstaff[this.editedIndex], this.hosstaff_selected);
+        this.hosstaff.push(this.hosstaff_selected);
+        axios
+          .post("http://localhost:3000/api/user/edituser", {
+            username: this.hosstaff_selected.username,
+            name: this.hosstaff_selected.name,
+            surname: this.hosstaff_selected.surname,
+            email: this.hosstaff_selected.email,
+            telno: this.hosstaff_selected.telno,
+            sex: this.hosstaff_selected.sex
+          })
+          .then(res => {
+            this.hosstaff = res.data;
+          });
       } else {
-        console.log(this.editedItem);
-        this.hosstaff.push(this.editedItem);
+        // console.log(this.hosstaff_selected);
+        this.hosstaff.push(this.hosstaff_selected);
+        axios
+          .post("http://localhost:3000/api/user/newuser", {
+            username: this.hosstaff_selected.username,
+            name: this.hosstaff_selected.name,
+            surname: this.hosstaff_selected.surname,
+            email: this.hosstaff_selected.email,
+            telno: this.hosstaff_selected.telno,
+            sex: this.hosstaff_selected.sex
+          })
+          .then(res => {
+            this.hosstaff = res.data;
+          });
       }
       this.close();
     },
     close() {
       console.log(this.editedIndex);
-      this.dialog_edit = false;
+      this.dialog = false;
+      // function click(element) {
+      //   location.reload();
+      // }
       setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
+        this.hosstaff_selected = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
-    }
-  },
+    },
+    updateStuff: function () {
+                    this.$http.get('/api/user').then((response) => {
+                        console.log(response.data.data);
+                        this.user = response.data.data;
+                    }, (response) => {
+                        console.log('ERROR');
+                        console.log(response);
+                    });
+                    setTimeout(this.updateStuff, 50);
+                }
+            },
+            ready() {
+                this.updateStuff();
+            }
+  ,
 
   mounted() {
     axios.get("http://localhost:3000/api/user/showhospital").then(res => {
@@ -235,3 +284,4 @@ thead {
   margin-top: 120px;
 }
 </style>
+

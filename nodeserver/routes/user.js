@@ -30,10 +30,36 @@ router.post(
     check("username")
       .not()
       .isEmpty(),
-    check("password")
+    check("name")
       .not()
       .isEmpty(),
-    check("user_type")
+    check("surname")
+      .not()
+      .isEmpty(),
+    check("telno")
+      .not()
+      .isEmpty(),
+    check("email")
+      .not()
+      .isEmpty(),
+    check("sex")
+      .not()
+      .isEmpty()
+  ],
+  async (req, res) => {
+    try {
+      const newuser = await new_user(req.body);
+      res.json(newuser);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+);
+
+router.post(
+  "/edituser",
+  [
+    check("username")
       .not()
       .isEmpty(),
     check("name")
@@ -47,17 +73,21 @@ router.post(
       .isEmpty(),
     check("email")
       .not()
+      .isEmpty(),
+    check("sex")
+      .not()
       .isEmpty()
   ],
   async (req, res) => {
     try {
-      const newuser = await new_user(req.body);
-      res.json(newuser);
+      const edituser = await edit_user(req.body);
+      res.json(edituser);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }
   }
 );
+
 
 router.get("/showpharmacy", async (req, res) => {
   try {
@@ -108,7 +138,26 @@ var Login = function(item) {
 
 var new_user = function(item) {
   return new Promise((resolve, reject) => {
-    db.query("INSERT INTO users SET ?", item, (error, result) => {
+    if (item.sex===0){ 
+      item.sex="Male";
+    } else {
+      item.sex="Female";
+    }
+    db.query("INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('"+item.username+"','1234','hos_staff','"+item.name+"','"+item.surname+"','"+item.telno+"','"+item.email+"','"+item.sex+"')", (error, result) => {
+      if (error) return reject(error);
+      resolve({ message: "success" });
+    });
+  });
+};
+
+var edit_user = function(item) {
+  return new Promise((resolve, reject) => {
+    if (item.sex===0){ 
+      item.sex="Male";
+    } else {
+      item.sex="Female";
+    }
+    db.query("UPDATE users SET name='"+item.name+"',surname='"+item.surname+"',email='"+item.email+"',telno='"+item.telno+"',sex='"+item.sex+"' WHERE username='"+item.username+"'", (error, result) => {
       if (error) return reject(error);
       resolve({ message: "success" });
     });
@@ -149,4 +198,5 @@ var show_hospital = function() {
     );
   });
 };
+
 module.exports = router;
