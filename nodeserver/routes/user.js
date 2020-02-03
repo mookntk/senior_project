@@ -88,6 +88,14 @@ router.post(
   }
 );
 
+router.post("/deleteuser", async (req, res) => {
+  try {
+    const deleteuser = await delete_user(req.body);
+    res.json(deleteuser);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
 router.get("/showpharmacy", async (req, res) => {
   try {
@@ -116,6 +124,15 @@ router.get("/showhospital", async (req, res) => {
   }
 });
 
+router.get("/showallstaff", async (req, res) => {
+  try {
+    const staff = await show_allstaff();
+    res.json(staff);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 var Login = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
@@ -138,29 +155,72 @@ var Login = function(item) {
 
 var new_user = function(item) {
   return new Promise((resolve, reject) => {
-    if (item.sex===0){ 
-      item.sex="Male";
+    if (item.sex === 0) {
+      item.sex = "Male";
     } else {
-      item.sex="Female";
+      item.sex = "Female";
     }
-    db.query("INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('"+item.username+"','1234','hos_staff','"+item.name+"','"+item.surname+"','"+item.telno+"','"+item.email+"','"+item.sex+"')", (error, result) => {
-      if (error) return reject(error);
-      resolve({ message: "success" });
-    });
+    db.query(
+      "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
+        item.username +
+        "','1234','hos_staff','" +
+        item.name +
+        "','" +
+        item.surname +
+        "','" +
+        item.telno +
+        "','" +
+        item.email +
+        "','" +
+        item.sex +
+        "')",
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
   });
 };
 
 var edit_user = function(item) {
   return new Promise((resolve, reject) => {
-    if (item.sex===0){ 
-      item.sex="Male";
+    if (item.sex === 0) {
+      item.sex = "Male";
     } else {
-      item.sex="Female";
+      item.sex = "Female";
     }
-    db.query("UPDATE users SET name='"+item.name+"',surname='"+item.surname+"',email='"+item.email+"',telno='"+item.telno+"',sex='"+item.sex+"' WHERE username='"+item.username+"'", (error, result) => {
-      if (error) return reject(error);
-      resolve({ message: "success" });
-    });
+    db.query(
+      "UPDATE users SET name='" +
+        item.name +
+        "',surname='" +
+        item.surname +
+        "',email='" +
+        item.email +
+        "',telno='" +
+        item.telno +
+        "',sex='" +
+        item.sex +
+        "' WHERE username='" +
+        item.username +
+        "'",
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+
+var delete_user = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `DELETE FROM users WHERE staff_id = ?`,
+      [item.staff_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
   });
 };
 
@@ -199,4 +259,12 @@ var show_hospital = function() {
   });
 };
 
+var show_allstaff = function() {
+  return new Promise((resolve, reject) => {
+    db.query("SELECT * FROM users ", (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+  });
+};
 module.exports = router;
