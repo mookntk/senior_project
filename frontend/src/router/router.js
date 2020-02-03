@@ -11,6 +11,13 @@ import TransportStatus from "../views/hospitalsection/hp_TransportStatus";
 import Recall from "../views/hospitalsection/hp_Recall";
 import OrderHistory from "../views/hospitalsection/hp_OrderHistory";
 import TransportHistory from "../views/hospitalsection/hp_TransportHistory";
+import ReadySell from "../views/pharmacistsection/ph_ReadySell";
+import ReceiveOrder from "../views/pharmacistsection/ph_ReceiveOrder";
+import ConfirmOrder from "../views/pharmacistsection/ph_ConfirmOrder";
+import Prepare from "../views/pharmacistsection/ph_Prepare";
+import SendbackOrder from "../views/pharmacistsection/ph_SendbackOrder";
+import SendbackStatus from "../views/pharmacistsection/ph_SendbackStatus";
+import OrderStatus from "../views/pharmacistsection/ph_OrderStatus";
 Vue.use(VueRouter);
 
 const routes = [
@@ -70,6 +77,41 @@ const routes = [
     path: "/transport_history",
     name: "TransportHistory",
     component: TransportHistory
+  },
+  {
+    path: "/ready_sell",
+    name: "ReadySell",
+    component: ReadySell
+  },
+  {
+    path: "/receive_order",
+    name: "ReceiveOrder",
+    component: ReceiveOrder
+  },
+  {
+    path: "/confirm_order",
+    name: "ConfirmOrder",
+    component: ConfirmOrder
+  },
+  {
+    path: "/prepare",
+    name: "Prepare",
+    component: Prepare
+  },
+  {
+    path: "/sendback_order",
+    name: "SendbackOrder",
+    component: SendbackOrder
+  },
+  {
+    path: "/sendback_status",
+    name: "SendbackStatus",
+    component: SendbackStatus
+  },
+  {
+    path: "/order_status",
+    name: "OrderStatus",
+    component: OrderStatus
   }
 ];
 
