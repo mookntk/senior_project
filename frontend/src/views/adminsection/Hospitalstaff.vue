@@ -93,7 +93,7 @@
         <td style="text-align:center">-->
         <v-icon small class="mr-6" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
-        <v-icon small class="mr-6" @click="save(item)">mdi-email-send</v-icon>
+        <v-icon small class="mr-6" @click="forgotpw(item)">mdi-email-send</v-icon>
         <!-- </td>
           </tr>
         </tbody>-->
@@ -119,7 +119,7 @@ export default {
       { text: "เบอร์ติดต่อ", value: "telno" },
       // { text: "password", value: "password", sortable: false },
       {
-        text: "แก้ไข / ลบ / ส่งรหัสผ่านใหม่ให้ผู้ใช้",
+        text: "แก้ไข / ลบ / ส่งรหัสผ่านให้ผู้ใช้",
         value: "action",
         sortable: false
       }
@@ -178,13 +178,37 @@ export default {
       ) &&
         axios
           .post("http://localhost:3000/api/user/deleteuser", {
-            staff_id: this.hosstaff[index].staff_id
+            staff_id: item.staff_id
           })
           .then(res => {
             this.hosstaff.splice(index, 1);
           })
           .catch(e => {
             console.log("delete error " + e);
+          });
+    },
+    forgotpw(item) {
+      const index = this.hosstaff.indexOf(item);
+      console.log(this.hosstaff[index].staff_id);
+      confirm(
+        "คุณต้องการที่จะส่งข้อมูลรหัสเภสัชกรใช่หรือไม่?\nคุณ" +
+          item.name +
+          " " +
+          item.surname +
+          "ไปที่อีเมล " +
+          item.email
+      ) &&
+        axios
+          .post("http://localhost:3000/api/user/sendmail", {
+            username: item.username,
+            password: item.password,
+            email:item.email
+          })
+          .then(res => {
+            this.hosstaff.splice(index, 1);
+          })
+          .catch(e => {
+            console.log("send email error " + e);
           });
     },
     save() {
@@ -212,6 +236,7 @@ export default {
             }
           }
           if (check == 0) {
+            // this.generate();
             axios
               .post("http://localhost:3000/api/user/newuser", {
                 username: this.hosstaff_selected.username,
@@ -219,7 +244,8 @@ export default {
                 surname: this.hosstaff_selected.surname,
                 email: this.hosstaff_selected.email,
                 telno: this.hosstaff_selected.telno,
-                sex: this.hosstaff_selected.sex
+                sex: this.hosstaff_selected.sex,
+                password: this.randomstring
               })
               .then(res => {
                 this.getallstaff();
@@ -234,6 +260,16 @@ export default {
         this.hosstaff = res.data;
       });
     },
+    // genarate() {
+    //   var chars =
+    //     "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    //   var string_length = 8;
+    //   var randomstring = "";
+    //   for (var i = 0; i < string_length; i++) {
+    //     var rnum = Math.floor(Math.random() * chars.length);
+    //     randomstring += chars.substring(rnum, rnum + 1);
+    //   }
+    // },
     close() {
       console.log(this.editedIndex);
       this.dialog = false;
@@ -242,19 +278,6 @@ export default {
         this.editedIndex = -1;
       }, 300);
     }
-    // updateStuff: function () {
-    //                 this.$http.get('/api/user').then((response) => {
-    //                     console.log(response.data.data);
-    //                     this.user = response.data.data;
-    //                 }, (response) => {
-    //                     console.log('ERROR');
-    //                     console.log(response);
-    //                 });
-    //                 setTimeout(this.updateStuff, 50);
-    //             }
-    // },
-    // ready() {
-    //     this.updateStuff();
   },
   mounted() {
     axios.get("http://localhost:3000/api/user/showhospital").then(res => {
