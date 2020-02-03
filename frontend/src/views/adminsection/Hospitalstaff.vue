@@ -45,11 +45,7 @@
                       <v-text-field v-model="hosstaff_selected.surname" label="นามสกุล"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="6">
-                      <v-text-field
-                        v-model="hosstaff_selected.username"
-                        label="ชื่อผู้ใช้"
-                        
-                      ></v-text-field>
+                      <v-text-field v-model="hosstaff_selected.username" label="ชื่อผู้ใช้"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="6">
                       <v-text-field v-model="hosstaff_selected.email" label="อีเมล"></v-text-field>
@@ -110,7 +106,7 @@
 <script>
 import Menuadmin from "../../components/Menuadmin";
 import axios from "axios";
-import UpdateUserVue from "../../../../../WebPro_Assignment1/assignment1/src/components/UpdateUser.vue";
+// import UpdateUserVue from "../../../../../WebPro_Assignment1/assignment1/src/components/UpdateUser.vue";
 export default {
   data: () => ({
     search: "",
@@ -143,7 +139,8 @@ export default {
       surname: "",
       username: "",
       email: "",
-      telno: ""
+      telno: "",
+      sex: ""
     }
   }),
   components: {
@@ -157,26 +154,10 @@ export default {
         : "แก้ไขข้อมูลเภสัชกรของโรงพยาบาล";
     }
   },
-
-  // watch: {
-  //   dialog(val) {
-  //     val || this.close();
-  //   }
-  // },
-
-  // created() {
-  //   this.initialize();
-  // },
   methods: {
-    // showItem(item) {
-    //   this.hosstaff_selected = item.name + " " + item.surname;
-    //   this.index = this.hosstaff.indexOf(item);
-    //   this.dialog_record = true;
-    // },
     editItem(item) {
-      // this.index = this.hosstaff.indexOf(item);
+      console.log(this.hosstaff);
       this.editedIndex = this.hosstaff.indexOf(item);
-      // this.hosstaff_selected = item.name + " " + item.surname;
       this.hosstaff_selected = Object.assign({}, item);
       if (item.sex === "Male") {
         this.hosstaff_selected.sex = 0;
@@ -188,75 +169,93 @@ export default {
     },
     deleteItem(item) {
       const index = this.hosstaff.indexOf(item);
+      console.log(this.hosstaff[index].staff_id);
       confirm(
         "คุณต้องการที่จะลบข้อมูลเภสัชกรใช่หรือไม่?\nคุณ" +
           item.name +
           " " +
           item.surname
-      ) && this.hosstaff.splice(index, 1);
+      ) &&
+        axios
+          .post("http://localhost:3000/api/user/deleteuser", {
+            staff_id: this.hosstaff[index].staff_id
+          })
+          .then(res => {
+            this.hosstaff.splice(index, 1);
+          })
+          .catch(e => {
+            console.log("delete error " + e);
+          });
     },
     save() {
-      console.log(this.hosstaff_selected);
       if (this.editedIndex > -1) {
-        Object.assign(this.hosstaff[this.editedIndex], this.hosstaff_selected);
-        this.hosstaff.push(this.hosstaff_selected);
         axios
-          .post("http://localhost:3000/api/user/edituser", {
-            username: this.hosstaff_selected.username,
-            name: this.hosstaff_selected.name,
-            surname: this.hosstaff_selected.surname,
-            email: this.hosstaff_selected.email,
-            telno: this.hosstaff_selected.telno,
-            sex: this.hosstaff_selected.sex
-          })
+          .post(
+            "http://localhost:3000/api/user/edituser",
+            this.hosstaff_selected
+          )
           .then(res => {
-            this.hosstaff = res.data;
+            // Object.assign(
+            //   this.hosstaff[this.editedIndex],
+            //   this.hosstaff_selected
+            // );
+            this.getallstaff();
           });
       } else {
-        // console.log(this.hosstaff_selected);
-        this.hosstaff.push(this.hosstaff_selected);
-        axios
-          .post("http://localhost:3000/api/user/newuser", {
-            username: this.hosstaff_selected.username,
-            name: this.hosstaff_selected.name,
-            surname: this.hosstaff_selected.surname,
-            email: this.hosstaff_selected.email,
-            telno: this.hosstaff_selected.telno,
-            sex: this.hosstaff_selected.sex
-          })
-          .then(res => {
-            this.hosstaff = res.data;
-          });
+        var check = 0;
+        axios.get("http://localhost:3000/api/user/showallstaff").then(res => {
+          for (var i = 0; i < res.data.length; i++) {
+            if (this.hosstaff_selected.username === res.data[i].username) {
+              check = 1;
+              console.log("มีชื่อผู้ใช้นี้แล้ว");
+              break;
+            }
+          }
+          if (check == 0) {
+            axios
+              .post("http://localhost:3000/api/user/newuser", {
+                username: this.hosstaff_selected.username,
+                name: this.hosstaff_selected.name,
+                surname: this.hosstaff_selected.surname,
+                email: this.hosstaff_selected.email,
+                telno: this.hosstaff_selected.telno,
+                sex: this.hosstaff_selected.sex
+              })
+              .then(res => {
+                this.getallstaff();
+              });
+          }
+        });
       }
       this.close();
+    },
+    getallstaff() {
+      axios.get("http://localhost:3000/api/user/showhospital").then(res => {
+        this.hosstaff = res.data;
+      });
     },
     close() {
       console.log(this.editedIndex);
       this.dialog = false;
-      // function click(element) {
-      //   location.reload();
-      // }
       setTimeout(() => {
         this.hosstaff_selected = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
-    },
-    updateStuff: function () {
-                    this.$http.get('/api/user').then((response) => {
-                        console.log(response.data.data);
-                        this.user = response.data.data;
-                    }, (response) => {
-                        console.log('ERROR');
-                        console.log(response);
-                    });
-                    setTimeout(this.updateStuff, 50);
-                }
-            },
-            ready() {
-                this.updateStuff();
-            }
-  ,
-
+    }
+    // updateStuff: function () {
+    //                 this.$http.get('/api/user').then((response) => {
+    //                     console.log(response.data.data);
+    //                     this.user = response.data.data;
+    //                 }, (response) => {
+    //                     console.log('ERROR');
+    //                     console.log(response);
+    //                 });
+    //                 setTimeout(this.updateStuff, 50);
+    //             }
+    // },
+    // ready() {
+    //     this.updateStuff();
+  },
   mounted() {
     axios.get("http://localhost:3000/api/user/showhospital").then(res => {
       this.hosstaff = res.data;
