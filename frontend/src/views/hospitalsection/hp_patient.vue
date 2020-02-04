@@ -53,7 +53,17 @@
                       <v-text-field v-model="editedItem.province" label="จังหวัด" outlined></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="12">
-                      <v-select :items="disease" chips label="เลือกโรค" multiple outlined clearable></v-select>
+                      <v-select
+                        :items="disease"
+                        item-text="name"
+                        item-value="disease_id"
+                        chips
+                        label="เลือกโรค"
+                        multiple
+                        outlined
+                        clearable
+                        v-model="disease_selected"
+                      ></v-select>
                     </v-col>
                     <v-col cols="12" sm="8">
                       <v-select
@@ -62,7 +72,6 @@
                         item-value="pharmacy_id"
                         label="ร้านขายยา"
                         outlined
-                        v-model="editedItem.pharmacy_id_patient"
                       ></v-select>
                       <!-- <v-text-field v-model="editedItem.pharmacy" label="ร้านขายยา" outlined></v-text-field> -->
                     </v-col>
@@ -179,8 +188,8 @@ import axios from "axios";
 export default {
   data() {
     return {
-      disease: ["เบาหวาน", "หอบหืด", "ความดันโลหิตสูง", "จิตเวช"],
-      dialog: false,
+      disease: {},
+      disease_selected: [],
       dialog_record: false,
       dialog_edit: false,
       index: 0,
@@ -229,17 +238,7 @@ export default {
         district: "",
         province: ""
       },
-      defaultItem: {
-        name: "",
-        surname: "",
-        gender: "",
-        dob: "",
-        email: "",
-        phone: "",
-        pharmacy: "",
-        address: "",
-        record: []
-      }
+      defaultItem: {}
     };
   },
   computed: {
@@ -266,7 +265,6 @@ export default {
     editItem(item) {
       this.index = this.patients.indexOf(item);
       this.editedIndex = this.patients.indexOf(item);
-      this.patient_selected = item.name + " " + item.surname;
       this.editedItem = Object.assign({}, item);
       this.dialog_edit = true;
     },
@@ -315,10 +313,12 @@ export default {
       this.close();
     },
     close() {
+      console.log(this.disease_selected);
       this.dialog_edit = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.age = null;
+        this.disease_selected = [];
         this.editedIndex = -1;
       }, 300);
     }
@@ -330,14 +330,9 @@ export default {
     axios.get("http://localhost:3000/api/user/showpharmacy").then(pharmacy => {
       this.pharmacy = pharmacy.data;
     });
-  },
-  watch: {
-    age() {
-      // var date = new Date();
-      // var dob = new Date(this.patients[index].DOB);
-      // var age = date.getFullYear - dob.getFullYear;
-      // console.log(age);
-    }
+    axios.get("http://localhost:3000/api/disease/getdiseases").then(disease => {
+      this.disease = disease.data;
+    });
   }
 };
 </script>
