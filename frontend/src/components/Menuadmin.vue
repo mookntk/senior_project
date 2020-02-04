@@ -13,11 +13,11 @@
         value="hosstaff"
         :color="btncolor"
       >เภสัชกรของโรงพยาบาล</v-btn>
-      <v-btn depressed @click="viewallphamacy" value="phamacy" :color="btncolor1">ร้านขายยา</v-btn>
+      <v-btn depressed @click="viewallphamacy" value="pharmacy" :color="btncolor1">ร้านขายยา</v-btn>
       <v-btn
         depressed
         @click="viewallphamacist"
-        value="phamacist"
+        value="pharmacist"
         :color="btncolor2"
       >เภสัชกรร้านขายยา</v-btn>
       <v-btn depressed @click="viewallmedicine" value="medicine" :color="btncolor3">ยา</v-btn>
@@ -65,13 +65,13 @@ export default {
         this.btncolor3 = "teal lighten-3";
         this.$router.push("/hospitalstaff");
         console.log(this.btncolor);
-      } else if (e.currentTarget.value == "phamacy") {
+      } else if (e.currentTarget.value == "pharmacy") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-1";
         this.btncolor2 = "teal lighten-3";
         this.btncolor3 = "teal lighten-3";
         console.log(this.btncolor);
-      } else if (e.currentTarget.value == "phamacist") {
+      } else if (e.currentTarget.value == "pharmacist") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-3";
         this.btncolor2 = "teal lighten-1";
@@ -95,7 +95,7 @@ export default {
 
     viewallphamacy: function(e) {
       console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "phamacy") {
+      if (e.currentTarget.value == "pharmacy") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-1";
         this.btncolor2 = "teal lighten-3";
@@ -120,12 +120,12 @@ export default {
         this.btncolor3 = "teal lighten-1";
         console.log(this.btncolor);
       }
-      this.$router.push("/phamacy");
+      this.$router.push("/pharmacy");
     },
 
     viewallphamacist: function(e) {
       console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "phamacist") {
+      if (e.currentTarget.value == "pharmacist") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-3";
         this.btncolor2 = "teal lighten-1";
@@ -137,7 +137,7 @@ export default {
         this.btncolor2 = "teal lighten-3";
         this.btncolor3 = "teal lighten-3";
         console.log(this.btncolor);
-      } else if (e.currentTarget.value == "phamacy") {
+      } else if (e.currentTarget.value == "pharmacy") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-1";
         this.btncolor2 = "teal lighten-3";
@@ -150,11 +150,11 @@ export default {
         this.btncolor3 = "teal lighten-1";
         console.log(this.btncolor);
       }
-      this.$router.push("/phamacist");
+      this.$router.push("/pharmacist");
     },
     viewallmedicine: function(e) {
       console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "phamacist") {
+      if (e.currentTarget.value == "pharmacist") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-3";
         this.btncolor2 = "teal lighten-1";
@@ -166,7 +166,7 @@ export default {
         this.btncolor2 = "teal lighten-3";
         this.btncolor3 = "teal lighten-3";
         console.log(this.btncolor);
-      } else if (e.currentTarget.value == "phamacy") {
+      } else if (e.currentTarget.value == "pharmacy") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-1";
         this.btncolor2 = "teal lighten-3";

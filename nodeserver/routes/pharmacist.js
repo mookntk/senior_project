@@ -6,29 +6,6 @@ const {
 const db = require("../configs/db");
 const nodemailer = require('nodemailer');
 
-//login
-router.post(
-  "/login",
-  [
-    check("username")
-    .not()
-    .isEmpty(),
-    check("password")
-    .not()
-    .isEmpty()
-  ],
-  async (req, res) => {
-    try {
-      const userLogin = await Login(req.body);
-      res.json(userLogin);
-    } catch (error) {
-      res.status(400).json({
-        message: error.message
-      });
-    }
-  }
-);
-
 router.post(
   "/newuser",
   [
@@ -111,10 +88,10 @@ router.post(
   }
 );
 
-router.get("/showhospital", async (req, res) => {
+router.get("/show_allpharmacist", async (req, res) => {
   try {
-    const hos_staff = await show_hospital();
-    res.json(hos_staff);
+    const pharmacist = await show_allpharmacist();
+    res.json(pharmacist);
   } catch (error) {
     res.status(400).json({
       message: error.message
@@ -147,34 +124,15 @@ router.post(
   }
 );
 
-router.get("/showallstaff", async (req, res) => {
+router.get("/showpharmacist", async (req, res) => {
   try {
-    const staff = await show_allstaff();
-    res.json(staff);
+    const pharmacist = await show_pharmacist();
+    res.json(pharmacist);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-var Login = function(item) {
-  return new Promise((resolve, reject) => {
-    db.query(
-      "SELECT * FROM users WHERE username=?",
-      [item.username],
-      (error, result) => {
-        if (error) return reject(error);
-        if (result.length > 0) {
-          const userLogin = result[0];
-          if (userLogin.password === item.password) {
-            delete userLogin.password;
-            return resolve(userLogin);
-          }
-        }
-        reject(new Error("Invalid username or password"));
-      }
-    );
-  });
-};
 
 var new_user = function (item) {
   return new Promise((resolve, reject) => {
@@ -270,11 +228,11 @@ var delete_user = function(item) {
   });
 };
 
-var show_hospital = function () {
+var show_allpharmacist = function () {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT * FROM users WHERE user_type=?",
-      ["hos_staff"],
+      ["pharmacist"],
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
@@ -304,9 +262,9 @@ var send_mail = function (item) {
   });
 };
 
-var show_allstaff = function() {
+var show_pharmacist = function() {
   return new Promise((resolve, reject) => {
-    db.query("SELECT * FROM users ", (error, result) => {
+    db.query("SELECT * FROM users INNER JOIN phamacist ON users.staff_id=phamacist.staff_id_phamacist  WHERE users.user_type='pharmacist' ", (error, result) => {
       if (error) return reject(error);
       resolve(result);
     });

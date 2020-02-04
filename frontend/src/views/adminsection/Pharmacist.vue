@@ -1,20 +1,16 @@
 <template>
   <v-app class="font cyan lighten-5">
-    <div class="menu-header">
-      <Menuadmin />
-    </div>
+    <Menuadmin />
     <v-data-table
       :search="search"
       :headers="headers"
-      :items="hosstaff"
-      :items-per-page="10"
+      :items="pharmacist"
       sort-by="name"
       class="elevation-1"
     >
-      <!-- <v-content class="main"> -->
       <template v-slot:top>
         <v-toolbar flat color="white">
-          <v-toolbar-title>เภสัชกรโรงพยาบาล</v-toolbar-title>
+          <v-toolbar-title>เภสัชกรร้านขายยา</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-text-field
             v-model="search"
@@ -25,10 +21,9 @@
           ></v-text-field>
           <v-divider class="mx-4" inset vertical></v-divider>
           <div class="flex-grow-1"></div>
-
-          <v-dialog v-model="dialog" max-width="500px">
+          <v-dialog v-model="dialog" max-width="1000px">
             <template v-slot:activator="{ on }">
-              <v-btn color="primary" dark class="mb-2" v-on="on">+ เพิ่มเภสัชกรของโรงพยาบาล</v-btn>
+              <v-btn color="primary" dark class="mb-2" v-on="on">+ เพิ่มเภสัชกรร้านขายยา</v-btn>
             </template>
             <v-card class="font">
               <v-card-title>
@@ -38,23 +33,26 @@
               <v-card-text>
                 <v-container>
                   <v-row>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.name" label="ชื่อ"></v-text-field>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="pharmacist_selected.name" label="ชื่อ"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.surname" label="นามสกุล"></v-text-field>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="pharmacist_selected.surname" label="นามสกุล"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.username" label="ชื่อผู้ใช้"></v-text-field>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="pharmacist_selected.username" label="ชื่อผู้ใช้"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.email" label="อีเมล"></v-text-field>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="pharmacist_selected.email" label="email"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.telno" label="เบอร์ติดต่อ"></v-text-field>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="pharmacist_selected.pharmacy_id_phamacist" label="ร้านขายยาที่ประจำ"></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-radio-group v-model="hosstaff_selected.sex" label="เพศ">
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="pharmacist_selected.expdate" label="เลขใบอนุญาตฯเภสัช"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" v-model="pharmacist_selected.sex" sm="6" md="4">
+                      <v-radio-group label="เพศ">
                         <v-radio label="ชาย"></v-radio>
                         <v-radio label="หญิง"></v-radio>
                       </v-radio-group>
@@ -72,41 +70,19 @@
           </v-dialog>
         </v-toolbar>
       </template>
-
-      <!-- Data Table of hosstaff page -->
-      <!-- <v-data-table
-      :search="search"
-      :headers="headers"
-      :items="hosstaff"
-      :items-per-page="10"
-      sort-by="name"
-      class="elevation-1"
-      >-->
       <template v-slot:item.action="{ item }">
-        <!-- <tbody>
-          <tr v-for="item in items" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.surname }}</td>
-            <td style="text-align:center">{{ item.username }}</td>
-            <td style="text-align:center">{{ item.email }}</td>
-            <td style="text-align:center">{{ item.Telno}}</td>
-        <td style="text-align:center">-->
         <v-icon small class="mr-6" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
-        <v-icon small class="mr-6" @click="forgotpw(item)">mdi-email-send</v-icon>
-        <!-- </td>
-          </tr>
-        </tbody>-->
+        <v-icon small class="mr-6" @click="forgetpw(item)">mdi-email-send</v-icon>
       </template>
+      
     </v-data-table>
-    <!-- Data Table of hosstaff page -->
   </v-app>
 </template>
 
 <script>
 import Menuadmin from "../../components/Menuadmin";
 import axios from "axios";
-// import UpdateUserVue from "../../../../../WebPro_Assignment1/assignment1/src/components/UpdateUser.vue";
 export default {
   data: () => ({
     search: "",
@@ -114,33 +90,39 @@ export default {
     headers: [
       { text: "ชื่อ", value: "name" },
       { text: "นามสกุล", value: "surname" },
-      { text: "username", value: "username" },
-      { text: "อีเมล", value: "email" },
-      { text: "เบอร์ติดต่อ", value: "telno" },
-      // { text: "password", value: "password", sortable: false },
+      { text: "username", value: "username", sortable: false },
+      { text: "อีเมล", value: "email", sortable: false },
+      { text: "ร้านขายยาที่ประจำ", value: "pharmacy_id_phamacist", sortable: false },
+      {
+        text: "เลขใบอนุญาตฯเภสัช",
+        value: "expdate",
+        align: "center",
+        sortable: false
+      },
       {
         text: "แก้ไข / ลบ / ส่งรหัสผ่านให้ผู้ใช้",
         value: "action",
         sortable: false
       }
     ],
-    hosstaff: [],
-    hosstaff_selected: [],
+    pharmacist: [],
+    pharmacist_selected : [],
     editedIndex: -1,
     editedItem: {
       name: "",
       surname: "",
       username: "",
       email: "",
-      telno: ""
+      pharmacy_id_phamacist: "",
+      expdate: ""
     },
     defaultItem: {
       name: "",
       surname: "",
       username: "",
       email: "",
-      telno: "",
-      sex: ""
+      pharmacy_id_phamacist: "",
+      expdate: ""
     }
   }),
   components: {
@@ -150,26 +132,27 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1
-        ? "เพิ่มเภสัชกรของโรงพยาบาล"
-        : "แก้ไขข้อมูลเภสัชกรของโรงพยาบาล";
+        ? "เพิ่มเภสัชกรร้านขายยา"
+        : "แก้ไขข้อมูลเภสัขกรร้านขายยา";
     }
   },
+
   methods: {
     editItem(item) {
-      console.log(this.hosstaff);
-      this.editedIndex = this.hosstaff.indexOf(item);
-      this.hosstaff_selected = Object.assign({}, item);
+      console.log(this.pharmacist);
+      this.editedIndex = this.pharmacist.indexOf(item);
+      this.pharmacist_selected = Object.assign({}, item);
       if (item.sex === "Male") {
-        this.hosstaff_selected.sex = 0;
+        this.pharmacist_selected.sex = 0;
       } else {
-        this.hosstaff_selected.sex = 1;
+        this.pharmacist_selected.sex = 1;
       }
 
       this.dialog = true;
     },
     deleteItem(item) {
-      const index = this.hosstaff.indexOf(item);
-      console.log(this.hosstaff[index].staff_id);
+      const index = this.pharmacist.indexOf(item);
+      console.log(this.pharmacist[index].staff_id);
       confirm(
         "คุณต้องการที่จะลบข้อมูลเภสัชกรใช่หรือไม่?\nคุณ" +
           item.name +
@@ -177,19 +160,19 @@ export default {
           item.surname
       ) &&
         axios
-          .post("http://localhost:3000/api/user/deleteuser", {
+          .post("http://localhost:3000/api/pharmacist/deleteuser", {
             staff_id: item.staff_id
           })
           .then(res => {
-            this.hosstaff.splice(index, 1);
+            this.pharmacist.splice(index, 1);
           })
           .catch(e => {
             console.log("delete error " + e);
           });
     },
     forgotpw(item) {
-      const index = this.hosstaff.indexOf(item);
-      console.log(this.hosstaff[index].staff_id);
+      const index = this.pharmacist.indexOf(item);
+      console.log(this.pharmacist[index].staff_id);
       confirm(
         "คุณต้องการที่จะส่งข้อมูลรหัสเภสัชกรใช่หรือไม่?\nคุณ" +
           item.name +
@@ -199,13 +182,13 @@ export default {
           item.email
       ) &&
         axios
-          .post("http://localhost:3000/api/user/sendmail", {
+          .post("http://localhost:3000/api/pharmacist/sendmail", {
             username: item.username,
             password: item.password,
             email:item.email
           })
           .then(res => {
-            this.hosstaff.splice(index, 1);
+            this.pharmacist.splice(index, 1);
           })
           .catch(e => {
             console.log("send email error " + e);
@@ -215,36 +198,36 @@ export default {
       if (this.editedIndex > -1) {
         axios
           .post(
-            "http://localhost:3000/api/user/edituser",
-            this.hosstaff_selected
+            "http://localhost:3000/api/pharmacist/edituser",
+            this.pharmacist_selected
           )
           .then(res => {
             // Object.assign(
-            //   this.hosstaff[this.editedIndex],
-            //   this.hosstaff_selected
+            //   this.pharmacist[this.editedIndex],
+            //   this.pharmacist_selected
             // );
             this.getallstaff();
           });
       } else {
         var check = 0;
-        axios.get("http://localhost:3000/api/user/showallstaff").then(res => {
-          for (var i = 0; i < res.data.length; i++) {
-            if (this.hosstaff_selected.username === res.data[i].username) {
-              check = 1;
-              console.log("มีชื่อผู้ใช้นี้แล้ว");
-              break;
-            }
-          }
+        axios.get("http://localhost:3000/api/pharmacist/showallpharmacist").then(res => {
+          // for (var i = 0; i < res.data.length; i++) {
+          //   if (this.pharmacist_selected.username === res.data[i].username) {
+          //     check = 1;
+          //     console.log("มีชื่อผู้ใช้นี้แล้ว");
+          //     break;
+          //   }
+          // }
           if (check == 0) {
             // this.generate();
             axios
-              .post("http://localhost:3000/api/user/newuser", {
-                username: this.hosstaff_selected.username,
-                name: this.hosstaff_selected.name,
-                surname: this.hosstaff_selected.surname,
-                email: this.hosstaff_selected.email,
-                telno: this.hosstaff_selected.telno,
-                sex: this.hosstaff_selected.sex,
+              .post("http://localhost:3000/api/pharmacist/newuser", {
+                username: this.pharmacist_selected.username,
+                name: this.pharmacist_selected.name,
+                surname: this.pharmacist_selected.surname,
+                email: this.pharmacist_selected.email,
+                telno: this.pharmacist_selected.telno,
+                sex: this.pharmacist_selected.sex,
                 password: this.randomstring
               })
               .then(res => {
@@ -256,8 +239,8 @@ export default {
       this.close();
     },
     getallstaff() {
-      axios.get("http://localhost:3000/api/user/showhospital").then(res => {
-        this.hosstaff = res.data;
+      axios.get("http://localhost:3000/api/pharmacist/showpharmacist").then(res => {
+        this.pharmacist = res.data;
       });
     },
     // genarate() {
@@ -274,14 +257,14 @@ export default {
       console.log(this.editedIndex);
       this.dialog = false;
       setTimeout(() => {
-        this.hosstaff_selected = Object.assign({}, this.defaultItem);
+        this.pharmacist_selected = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
     }
   },
-  mounted() {
-    axios.get("http://localhost:3000/api/user/showhospital").then(res => {
-      this.hosstaff = res.data;
+  mounted() {    
+    axios.get("http://localhost:3000/api/pharmacist/showpharmacist").then(res => {
+      this.pharmacist = res.data;
     });
   }
 };
@@ -294,16 +277,4 @@ export default {
 thead {
   background-color: #ffd54f;
 }
-.menu-header {
-  position: fixed;
-  width: 100%;
-  top: 0px;
-  right: 0px;
-  z-index: 1;
-}
-.main {
-  margin: 20px;
-  margin-top: 120px;
-}
 </style>
-
