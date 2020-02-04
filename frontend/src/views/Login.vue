@@ -73,7 +73,6 @@ export default {
     };
   },
   mounted() {
-    // console.log(localStorage.getItem(login))
     if (localStorage.getItem("login") == true) {
       this.$router.push("/about");
     }
@@ -95,17 +94,13 @@ export default {
         })
         .then(res => {
           this.data = res.data;
-          console.log(this.data);
+          localStorage.setItem("username", this.data.username);
+          localStorage.setItem(
+            "name",
+            this.data.name + " " + this.data.surname
+          );
+          localStorage.setItem("staff_id", this.data.staff_id);
           this.$router.push("/patient");
-          //check user type
-          // if (this.data[0].password == this.password) {
-          //   this.alert = false;
-          //   localStorage.setItem("login", true);
-          //   console.log(localStorage.getItem("login"));
-          //   this.$router.push("/about");
-          // } else {
-          //   this.alert = true;
-          // }
         })
         .catch(e => {
           console.log(e);
