@@ -69,18 +69,18 @@ export default {
         { value: "ประวัติออร์เดอร์", route: "/order_history" },
         {
           value: "ประวัติการจัดส่งยา",
-          route: "/transfer_history"
+          route: "/transport_history"
         }
       ],
       links_order: [
         { value: "สร้างออร์เดอร์", route: "/create_order" },
         {
           value: "ออร์เดอร์",
-          route: "/waiting_medicine"
+          route: "/order"
         },
         {
           value: "จัดยา",
-          route: "/prepare"
+          route: "/waiting_medicine"
         },
         {
           value: "จัดส่ง",
@@ -88,7 +88,7 @@ export default {
         },
         {
           value: "สถานะการจัดส่ง",
-          route: "/transfer_status"
+          route: "/transport_status"
         }
       ],
       btncolor: "teal lighten-3",

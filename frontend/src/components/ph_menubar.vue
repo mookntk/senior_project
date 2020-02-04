@@ -73,14 +73,14 @@ export default {
           value: "รายการที่ต้องส่งคืน",
           route: "/sendback_order"
         },
-        { value: "สถานะการจัดส่ง", route: "/sendback" }
+        { value: "สถานะการจัดส่ง", route: "/sendback_status" }
       ],
       confirm: [
         {
           value: "ยืนยันรับออร์เดอร์จากโรงพยาบาล",
           route: "/receive_order"
         },
-        { value: "ตรวจสอบและยืนยันจำนวนยา", route: "/check_confirm" }
+        { value: "ตรวจสอบและยืนยันจำนวนยา", route: "/confirm_order" }
       ],
       logged: localStorage.getItem("login"),
       items: ["ชื่อ-นามสกุล", "เลขใบอนุญาต", "Logout"],
@@ -120,7 +120,7 @@ export default {
         this.btncolor2 = "teal lighten-1";
         this.btncolor3 = "teal lighten-3";
         console.log(this.btncolor);
-        this.$router.push("/Orderdetail");
+        this.$router.push("/order_status");
       } else if (e.currentTarget.value == "notification") {
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-3";
@@ -128,21 +128,21 @@ export default {
         this.btncolor3 = "teal lighten-1";
         console.log(this.btncolor);
       } else if (e.currentTarget.value == "้home") {
-        this.$router.push("/about");
+        this.$router.push("/ready_sell");
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-3";
         this.btncolor2 = "teal lighten-3";
         this.btncolor3 = "teal lighten-1";
         console.log(this.btncolor);
       } else if (e.currentTarget.value == "orderstatus") {
-        this.$router.push("/Orderdetail");
+        this.$router.push("/order_status");
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-1";
         this.btncolor2 = "teal lighten-3";
         this.btncolor3 = "teal lighten-3";
         console.log(this.btncolor);
       } else if (e.currentTarget.value == "prepareorder") {
-        this.$router.push("/prepare_order");
+        this.$router.push("/prepare");
         this.btncolor = "teal lighten-3";
         this.btncolor1 = "teal lighten-1";
         this.btncolor2 = "teal lighten-3";
