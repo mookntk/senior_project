@@ -22,7 +22,7 @@
           ></v-text-field>
           <v-divider class="mx-4" inset vertical></v-divider>
           <div class="flex-grow-1"></div>
-          <v-dialog v-model="dialog" max-width="600px">
+          <v-dialog v-model="dialog" max-width="1000px">
             <template v-slot:activator="{ on }">
               <v-btn color="primary" dark class="mb-2" v-on="on">+ เพิ่มร้านขายยา</v-btn>
             </template>
@@ -40,6 +40,7 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="pharmacy_selected.address" label="ที่อยู่"></v-text-field>
                     </v-col>
+                    <!--
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="pharmacy_selected.subdistrict" label="ตำบล/แขวง"></v-text-field>
                     </v-col>
@@ -51,6 +52,39 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="pharmacy_selected.zipcode" label="รหัสไปรษณีย์"></v-text-field>
+                    </v-col>
+                    -->
+                    <v-col cols="12" sm="6" md="4">
+                      <ThailandAutoComplete
+                        v-model="pharmacy_selected.subdistrict"
+                        type="district"
+                        @select="select"
+                        label="ตำบล/แขวง"
+                      ></ThailandAutoComplete>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <ThailandAutoComplete
+                        v-model="pharmacy_selected.district"
+                        type="amphoe"
+                        @select="select"
+                        label="อำเภอ/เขต"
+                      ></ThailandAutoComplete>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <ThailandAutoComplete
+                        v-model="pharmacy_selected.province"
+                        type="province"
+                        @select="select"
+                        label="จังหวัด"
+                      ></ThailandAutoComplete>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <ThailandAutoComplete
+                        v-model="pharmacy_selected.zipcode"
+                        type="zipcode"
+                        @select="select"
+                        label="รหัสไปรษณีย์"
+                      ></ThailandAutoComplete>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
@@ -82,12 +116,17 @@
 
 <script>
 import Menuadmin from "../../components/Menuadmin";
+import ThailandAutoComplete from "vue-thailand-address-autocomplete";
 import axios from "axios";
 export default {
   data: () => ({
     search: "",
     dialog: false,
     maxtelno: 10,
+    district: "",
+    amphoe: "",
+    province: "",
+    zipcode: "",
     headers: [
       { text: "ชื่อร้านขายยา", value: "pharmacy_name" },
       { text: "ที่อยู่", value: "address" },
@@ -121,7 +160,8 @@ export default {
     }
   }),
   components: {
-    Menuadmin
+    Menuadmin,
+    ThailandAutoComplete
   },
 
   computed: {
@@ -133,6 +173,12 @@ export default {
   },
 
   methods: {
+    select(address) {
+      this.pharmacy_selected.subdistrict = address.district;
+      this.pharmacy_selected.district = address.amphoe;
+      this.pharmacy_selected.province = address.province;
+      this.pharmacy_selected.zipcode = address.zipcode;
+    },
     editItem(item) {
       console.log(this.pharmacy);
       this.editedIndex = this.pharmacy.indexOf(item);

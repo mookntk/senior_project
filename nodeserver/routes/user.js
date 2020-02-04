@@ -97,7 +97,6 @@ router.post(
   }
 );
 
-<<<<<<< HEAD
 router.post(
   "/deleteuser",
   async (req, res) => {
@@ -111,36 +110,6 @@ router.post(
     }
   }
 );
-=======
-router.post("/deleteuser", async (req, res) => {
-  try {
-    const deleteuser = await delete_user(req.body);
-    res.json(deleteuser);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
->>>>>>> master
-
-router.get("/showpharmacy", async (req, res) => {
-  try {
-    const pharmacy = await show_pharmacy();
-    res.json(pharmacy);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.get("/showpharmacists", async (req, res) => {
-  try {
-    const pharmacists = await show_pharmacists();
-    res.json(pharmacists);
-  } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
-  }
-});
 
 router.get("/showhospital", async (req, res) => {
   try {
@@ -153,7 +122,6 @@ router.get("/showhospital", async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 router.post(
   "/sendmail",
   [
@@ -179,8 +147,6 @@ router.post(
   }
 );
 
-var Login = function (item) {
-=======
 router.get("/showallstaff", async (req, res) => {
   try {
     const staff = await show_allstaff();
@@ -191,7 +157,6 @@ router.get("/showallstaff", async (req, res) => {
 });
 
 var Login = function(item) {
->>>>>>> master
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT * FROM users WHERE username=?",
@@ -213,7 +178,6 @@ var Login = function(item) {
 
 var new_user = function (item) {
   return new Promise((resolve, reject) => {
-<<<<<<< HEAD
     var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     var string_length = 8;
     var randomstring = '';
@@ -221,37 +185,11 @@ var new_user = function (item) {
       var rnum = Math.floor(Math.random() * chars.length);
       randomstring += chars.substring(rnum, rnum + 1);
     }
-=======
->>>>>>> master
     if (item.sex === 0) {
       item.sex = "Male";
     } else {
       item.sex = "Female";
     }
-<<<<<<< HEAD
-    db.query("INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" + item.username + "','" + randomstring + "','hos_staff','" + item.name + "','" + item.surname + "','" + item.telno + "','" + item.email + "','" + item.sex + "')", (error, result) => {
-      if (error) return reject(error);
-      resolve({
-        message: "success"
-      });
-    });
-    var transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: { // ข้อมูลการเข้าสู่ระบบ
-        user: 'seniorhospital111@gmail.com', // email user ของเรา
-        pass: 'hospital111' // email password
-      }
-    });
-    // เริ่มทำการส่งอีเมล
-    var info = transporter.sendMail({
-      from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
-      to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
-      text: 'Your username is ' + item.username + '\n' + 'Your password is ' + randomstring, // plain text body
-    });
-=======
     db.query(
       "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
         item.username +
@@ -271,7 +209,22 @@ var new_user = function (item) {
         resolve({ message: "success" });
       }
     );
->>>>>>> master
+    var transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: { // ข้อมูลการเข้าสู่ระบบ
+        user: 'seniorhospital111@gmail.com', // email user ของเรา
+        pass: 'hospital111' // email password
+      }
+    });
+    // เริ่มทำการส่งอีเมล
+    var info = transporter.sendMail({
+      from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
+      to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
+      subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
+      text: 'Your username is ' + item.username + '\n' + 'Your password is ' + randomstring, // plain text body
+    });
   });
 };
 
@@ -282,14 +235,6 @@ var edit_user = function (item) {
     } else {
       item.sex = "Female";
     }
-<<<<<<< HEAD
-    db.query("UPDATE users SET name='" + item.name + "',surname='" + item.surname + "',email='" + item.email + "',telno='" + item.telno + "',sex='" + item.sex + "' WHERE staff_id='" + item.staff_id + "'", (error, result) => {
-      if (error) return reject(error);
-      resolve({
-        message: "success"
-      });
-    });
-=======
     db.query(
       "UPDATE users SET name='" +
         item.name +
@@ -322,33 +267,8 @@ var delete_user = function(item) {
         resolve({ message: "success" });
       }
     );
->>>>>>> master
   });
 };
-
-var delete_user = function (item) {
-  return new Promise((resolve, reject) => {
-    db.query("DELETE FROM users WHERE staff_id='" + item.staff_id + "'", (error, result) => {
-      if (error) return reject(error);
-      resolve({
-        message: "success"
-      });
-    });
-  });
-};
-
-// var show_pharmacists = function() {
-//   return new Promise((resolve, reject) => {
-//     db.query(
-//       "SELECT * FROM users WHERE user_type=?",
-//       ["pharmacist"],
-//       (error, result) => {
-//         if (error) return reject(error);
-//         resolve(result);
-//       }
-//     );
-//   });
-// };
 
 var show_hospital = function () {
   return new Promise((resolve, reject) => {
@@ -384,9 +304,6 @@ var send_mail = function (item) {
   });
 };
 
-<<<<<<< HEAD
-module.exports = router;
-=======
 var show_allstaff = function() {
   return new Promise((resolve, reject) => {
     db.query("SELECT * FROM users ", (error, result) => {
@@ -396,4 +313,3 @@ var show_allstaff = function() {
   });
 };
 module.exports = router;
->>>>>>> master

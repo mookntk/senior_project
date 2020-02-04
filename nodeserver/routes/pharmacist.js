@@ -6,29 +6,6 @@ const {
 const db = require("../configs/db");
 const nodemailer = require('nodemailer');
 
-//login
-router.post(
-  "/login",
-  [
-    check("username")
-    .not()
-    .isEmpty(),
-    check("password")
-    .not()
-    .isEmpty()
-  ],
-  async (req, res) => {
-    try {
-      const userLogin = await Login(req.body);
-      res.json(userLogin);
-    } catch (error) {
-      res.status(400).json({
-        message: error.message
-      });
-    }
-  }
-);
-
 router.post(
   "/newuser",
   [
@@ -111,30 +88,10 @@ router.post(
   }
 );
 
-router.get("/showpharmacy", async (req, res) => {
+router.get("/show_allpharmacist", async (req, res) => {
   try {
-    const pharmacy = await show_pharmacy();
-    res.json(pharmacy);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-router.get("/showpharmacists", async (req, res) => {
-  try {
-    const pharmacists = await show_pharmacists();
-    res.json(pharmacists);
-  } catch (error) {
-    res.status(400).json({
-      message: error.message
-    });
-  }
-});
-
-router.get("/showhospital", async (req, res) => {
-  try {
-    const hos_staff = await show_hospital();
-    res.json(hos_staff);
+    const pharmacist = await show_allpharmacist();
+    res.json(pharmacist);
   } catch (error) {
     res.status(400).json({
       message: error.message
@@ -167,25 +124,15 @@ router.post(
   }
 );
 
-var Login = function (item) {
-  return new Promise((resolve, reject) => {
-    db.query(
-      "SELECT * FROM users WHERE username=?",
-      [item.username],
-      (error, result) => {
-        if (error) return reject(error);
-        if (result.length > 0) {
-          const userLogin = result[0];
-          if (userLogin.password === item.password) {
-            delete userLogin.password;
-            return resolve(userLogin);
-          }
-        }
-        reject(new Error("Invalid username or password"));
-      }
-    );
-  });
-};
+router.get("/showpharmacist", async (req, res) => {
+  try {
+    const pharmacist = await show_pharmacist();
+    res.json(pharmacist);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 
 var new_user = function (item) {
   return new Promise((resolve, reject) => {
@@ -201,12 +148,25 @@ var new_user = function (item) {
     } else {
       item.sex = "Female";
     }
-    db.query("INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" + item.username + "','" + randomstring + "','hos_staff','" + item.name + "','" + item.surname + "','" + item.telno + "','" + item.email + "','" + item.sex + "')", (error, result) => {
-      if (error) return reject(error);
-      resolve({
-        message: "success"
-      });
-    });
+    db.query(
+      "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
+        item.username +
+        "','1234','hos_staff','" +
+        item.name +
+        "','" +
+        item.surname +
+        "','" +
+        item.telno +
+        "','" +
+        item.email +
+        "','" +
+        item.sex +
+        "')",
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
     var transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
@@ -233,44 +193,46 @@ var edit_user = function (item) {
     } else {
       item.sex = "Female";
     }
-    db.query("UPDATE users SET name='" + item.name + "',surname='" + item.surname + "',email='" + item.email + "',telno='" + item.telno + "',sex='" + item.sex + "' WHERE staff_id='" + item.staff_id + "'", (error, result) => {
-      if (error) return reject(error);
-      resolve({
-        message: "success"
-      });
-    });
+    db.query(
+      "UPDATE users SET name='" +
+        item.name +
+        "',surname='" +
+        item.surname +
+        "',email='" +
+        item.email +
+        "',telno='" +
+        item.telno +
+        "',sex='" +
+        item.sex +
+        "' WHERE username='" +
+        item.username +
+        "'",
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
   });
 };
 
-var delete_user = function (item) {
+var delete_user = function(item) {
   return new Promise((resolve, reject) => {
-    db.query("DELETE FROM users WHERE staff_id='" + item.staff_id + "'", (error, result) => {
-      if (error) return reject(error);
-      resolve({
-        message: "success"
-      });
-    });
+    db.query(
+      `DELETE FROM users WHERE staff_id = ?`,
+      [item.staff_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
   });
 };
 
-// var show_pharmacists = function() {
-//   return new Promise((resolve, reject) => {
-//     db.query(
-//       "SELECT * FROM users WHERE user_type=?",
-//       ["pharmacist"],
-//       (error, result) => {
-//         if (error) return reject(error);
-//         resolve(result);
-//       }
-//     );
-//   });
-// };
-
-var show_hospital = function () {
+var show_allpharmacist = function () {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT * FROM users WHERE user_type=?",
-      ["hos_staff"],
+      ["pharmacist"],
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
@@ -300,4 +262,12 @@ var send_mail = function (item) {
   });
 };
 
+var show_pharmacist = function() {
+  return new Promise((resolve, reject) => {
+    db.query("SELECT * FROM users INNER JOIN phamacist ON users.staff_id=phamacist.staff_id_phamacist  WHERE users.user_type='pharmacist' ", (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+  });
+};
 module.exports = router;
