@@ -562,17 +562,6 @@ export default {
 };
 </script>
 <style scoped>
-/* @import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.font {
-  font-family: "Sarabun", sans-serif;
-} */
-@import url("https://fonts.googleapis.com/css?family=Prompt&display=swap");
-.font {
-  font-family: "Prompt", sans-serif;
-}
-thead {
-  background-color: antiquewhite;
-}
 .menu-header {
   position: fixed;
   width: 100%;

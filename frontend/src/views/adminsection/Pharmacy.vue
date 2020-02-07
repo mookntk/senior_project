@@ -269,12 +269,3 @@ export default {
   }
 };
 </script>
-<style >
-@import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.font {
-  font-family: "Sarabun", sans-serif;
-}
-thead {
-  background-color: #ffd54f;
-}
-</style>

@@ -707,13 +707,7 @@ export default {
 };
 </script>
 <style>
-@import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.font {
-  font-family: "Sarabun", sans-serif;
-}
-th {
-  background-color: #ffd54f;
-}
+
 .menu-header {
   position: fixed;
   width: 100%;

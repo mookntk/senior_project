@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app class=" font teal lighten-3">
+  <v-app-bar app class="font teal lighten-3">
     <v-toolbar-title>
       <span>การจัดการเจ้าหน้าที่และยา</span>
     </v-toolbar-title>
@@ -185,11 +185,3 @@ export default {
 };
 </script>
 <style >
-@import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.font {
-  font-family: "Sarabun", sans-serif;
-}
-thead {
-  background-color: #ffd54f;
-}
-</style>

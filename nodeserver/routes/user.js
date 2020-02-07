@@ -1,21 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const {
-  check
-} = require("express-validator");
+const { check } = require("express-validator");
 const db = require("../configs/db");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 //login
 router.post(
   "/login",
   [
     check("username")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("password")
-    .not()
-    .isEmpty()
+      .not()
+      .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -33,23 +31,23 @@ router.post(
   "/newuser",
   [
     check("username")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("name")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("surname")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("telno")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("email")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("sex")
-    .not()
-    .isEmpty()
+      .not()
+      .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -67,23 +65,23 @@ router.post(
   "/edituser",
   [
     check("username")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("name")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("surname")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("telno")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("email")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("sex")
-    .not()
-    .isEmpty()
+      .not()
+      .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -97,19 +95,16 @@ router.post(
   }
 );
 
-router.post(
-  "/deleteuser",
-  async (req, res) => {
-    try {
-      const deleteuser = await delete_user(req.body);
-      res.json(deleteuser);
-    } catch (error) {
-      res.status(400).json({
-        message: error.message
-      });
-    }
+router.post("/deleteuser", async (req, res) => {
+  try {
+    const deleteuser = await delete_user(req.body);
+    res.json(deleteuser);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
   }
-);
+});
 
 router.get("/showhospital", async (req, res) => {
   try {
@@ -126,14 +121,14 @@ router.post(
   "/sendmail",
   [
     check("username")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("email")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("password")
-    .not()
-    .isEmpty()
+      .not()
+      .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -176,11 +171,12 @@ var Login = function(item) {
   });
 };
 
-var new_user = function (item) {
+var new_user = function(item) {
   return new Promise((resolve, reject) => {
-    var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    var chars =
+      "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     var string_length = 8;
-    var randomstring = '';
+    var randomstring = "";
     for (var i = 0; i < string_length; i++) {
       var rnum = Math.floor(Math.random() * chars.length);
       randomstring += chars.substring(rnum, rnum + 1);
@@ -210,25 +206,31 @@ var new_user = function (item) {
       }
     );
     var transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: "smtp.gmail.com",
       port: 587,
       secure: false, // true for 465, false for other ports
-      auth: { // ข้อมูลการเข้าสู่ระบบ
-        user: 'seniorhospital111@gmail.com', // email user ของเรา
-        pass: 'hospital111' // email password
+      auth: {
+        // ข้อมูลการเข้าสู่ระบบ
+        user: "seniorhospital111@gmail.com", // email user ของเรา
+        pass: "hospital111" // email password
       }
     });
     // เริ่มทำการส่งอีเมล
     var info = transporter.sendMail({
       from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
       to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
-      text: 'Your username is ' + item.username + '\n' + 'Your password is ' + randomstring, // plain text body
+      subject: "Senior Hospital : This is your Password", // หัวข้ออีเมล
+      text:
+        "Your username is " +
+        item.username +
+        "\n" +
+        "Your password is " +
+        randomstring // plain text body
     });
   });
 };
 
-var edit_user = function (item) {
+var edit_user = function(item) {
   return new Promise((resolve, reject) => {
     if (item.sex === 0) {
       item.sex = "Male";
@@ -270,7 +272,7 @@ var delete_user = function(item) {
   });
 };
 
-var show_hospital = function () {
+var show_hospital = function() {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT * FROM users WHERE user_type=?",
@@ -283,23 +285,29 @@ var show_hospital = function () {
   });
 };
 
-var send_mail = function (item) {
+var send_mail = function(item) {
   return new Promise((resolve, reject) => {
     var transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: "smtp.gmail.com",
       port: 587,
       secure: false, // true for 465, false for other ports
-      auth: { // ข้อมูลการเข้าสู่ระบบ
-        user: 'seniorhospital111@gmail.com', // email user ของเรา
-        pass: 'hospital111' // email password
+      auth: {
+        // ข้อมูลการเข้าสู่ระบบ
+        user: "seniorhospital111@gmail.com", // email user ของเรา
+        pass: "hospital111" // email password
       }
     });
     // เริ่มทำการส่งอีเมล
     var info = transporter.sendMail({
       from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
       to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
-      text: 'Your username is ' + item.username + '\n' + 'Your password is ' + item.password, // plain text body
+      subject: "Senior Hospital : This is your Password", // หัวข้ออีเมล
+      text:
+        "Your username is " +
+        item.username +
+        "\n" +
+        "Your password is " +
+        item.password // plain text body
     });
   });
 };

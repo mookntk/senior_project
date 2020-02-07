@@ -1,6 +1,6 @@
 <template>
-  <v-app-bar class="teal lighten-3">
-    <v-toolbar-title class="font">
+  <v-app-bar class="font teal lighten-3">
+    <v-toolbar-title>
       <span>เภสัชกรโรงพยาบาล</span>
       <!-- <span class="font-weight-light">MATERIAL DESIGN</span> -->
     </v-toolbar-title>
@@ -99,8 +99,9 @@ export default {
   methods: {
     logout: function(e) {
       console.log(e.currentTarget.key);
-      localStorage.setItem("login", "false");
-      console.log(localStorage.getItem("login"));
+      localStorage.setItem("username", "");
+      this.$router.push("/");
+      // console.log(localStorage.setItem("username",null));
       // this.$router.push("/");
     },
     click(e) {
@@ -117,9 +118,3 @@ export default {
 };
 </script>
 
-<style scoped>
-@import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.font {
-  font-family: "Sarabun", sans-serif;
-}
-</style>

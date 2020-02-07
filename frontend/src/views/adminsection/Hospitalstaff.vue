@@ -202,7 +202,7 @@ export default {
           .post("http://localhost:3000/api/user/sendmail", {
             username: item.username,
             password: item.password,
-            email:item.email
+            email: item.email
           })
           .then(res => {
             this.hosstaff.splice(index, 1);
@@ -287,13 +287,6 @@ export default {
 };
 </script>
 <style >
-@import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.font {
-  font-family: "Sarabun", sans-serif;
-}
-thead {
-  background-color: #ffd54f;
-}
 .menu-header {
   position: fixed;
   width: 100%;

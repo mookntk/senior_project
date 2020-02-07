@@ -46,7 +46,10 @@
                       <v-text-field v-model="pharmacist_selected.email" label="email"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacist_selected.pharmacy_id_phamacist" label="ร้านขายยาที่ประจำ"></v-text-field>
+                      <v-text-field
+                        v-model="pharmacist_selected.pharmacy_id_phamacist"
+                        label="ร้านขายยาที่ประจำ"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="pharmacist_selected.expdate" label="เลขใบอนุญาตฯเภสัช"></v-text-field>
@@ -75,7 +78,6 @@
         <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
         <v-icon small class="mr-6" @click="forgetpw(item)">mdi-email-send</v-icon>
       </template>
-      
     </v-data-table>
   </v-app>
 </template>
@@ -92,7 +94,11 @@ export default {
       { text: "นามสกุล", value: "surname" },
       { text: "username", value: "username", sortable: false },
       { text: "อีเมล", value: "email", sortable: false },
-      { text: "ร้านขายยาที่ประจำ", value: "pharmacy_id_phamacist", sortable: false },
+      {
+        text: "ร้านขายยาที่ประจำ",
+        value: "pharmacy_id_phamacist",
+        sortable: false
+      },
       {
         text: "เลขใบอนุญาตฯเภสัช",
         value: "expdate",
@@ -106,7 +112,7 @@ export default {
       }
     ],
     pharmacist: [],
-    pharmacist_selected : [],
+    pharmacist_selected: [],
     editedIndex: -1,
     editedItem: {
       name: "",
@@ -185,7 +191,7 @@ export default {
           .post("http://localhost:3000/api/pharmacist/sendmail", {
             username: item.username,
             password: item.password,
-            email:item.email
+            email: item.email
           })
           .then(res => {
             this.pharmacist.splice(index, 1);
@@ -210,38 +216,42 @@ export default {
           });
       } else {
         var check = 0;
-        axios.get("http://localhost:3000/api/pharmacist/showallpharmacist").then(res => {
-          // for (var i = 0; i < res.data.length; i++) {
-          //   if (this.pharmacist_selected.username === res.data[i].username) {
-          //     check = 1;
-          //     console.log("มีชื่อผู้ใช้นี้แล้ว");
-          //     break;
-          //   }
-          // }
-          if (check == 0) {
-            // this.generate();
-            axios
-              .post("http://localhost:3000/api/pharmacist/newuser", {
-                username: this.pharmacist_selected.username,
-                name: this.pharmacist_selected.name,
-                surname: this.pharmacist_selected.surname,
-                email: this.pharmacist_selected.email,
-                telno: this.pharmacist_selected.telno,
-                sex: this.pharmacist_selected.sex,
-                password: this.randomstring
-              })
-              .then(res => {
-                this.getallstaff();
-              });
-          }
-        });
+        axios
+          .get("http://localhost:3000/api/pharmacist/showallpharmacist")
+          .then(res => {
+            // for (var i = 0; i < res.data.length; i++) {
+            //   if (this.pharmacist_selected.username === res.data[i].username) {
+            //     check = 1;
+            //     console.log("มีชื่อผู้ใช้นี้แล้ว");
+            //     break;
+            //   }
+            // }
+            if (check == 0) {
+              // this.generate();
+              axios
+                .post("http://localhost:3000/api/pharmacist/newuser", {
+                  username: this.pharmacist_selected.username,
+                  name: this.pharmacist_selected.name,
+                  surname: this.pharmacist_selected.surname,
+                  email: this.pharmacist_selected.email,
+                  telno: this.pharmacist_selected.telno,
+                  sex: this.pharmacist_selected.sex,
+                  password: this.randomstring
+                })
+                .then(res => {
+                  this.getallstaff();
+                });
+            }
+          });
       }
       this.close();
     },
     getallstaff() {
-      axios.get("http://localhost:3000/api/pharmacist/showpharmacist").then(res => {
-        this.pharmacist = res.data;
-      });
+      axios
+        .get("http://localhost:3000/api/pharmacist/showpharmacist")
+        .then(res => {
+          this.pharmacist = res.data;
+        });
     },
     // genarate() {
     //   var chars =
@@ -262,19 +272,12 @@ export default {
       }, 300);
     }
   },
-  mounted() {    
-    axios.get("http://localhost:3000/api/pharmacist/showpharmacist").then(res => {
-      this.pharmacist = res.data;
-    });
+  mounted() {
+    axios
+      .get("http://localhost:3000/api/pharmacist/showpharmacist")
+      .then(res => {
+        this.pharmacist = res.data;
+      });
   }
 };
 </script>
-<style >
-@import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
-.font {
-  font-family: "Sarabun", sans-serif;
-}
-thead {
-  background-color: #ffd54f;
-}
-</style>
