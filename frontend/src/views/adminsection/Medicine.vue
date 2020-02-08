@@ -86,19 +86,23 @@
 
           <v-dialog v-model="dialog2" max-width="500px">
             <v-card>
-              <v-container>
+              <v-container >
                 <v-card-title class="headline">จัดการข้อมูลโรค</v-card-title>
-                <v-row>
-                  <v-col cols="12" sm="6" md="6">
-                    <v-text-field v-model="dis_selected.dis_name" label="ระบุชื่อโรคที่ต้องการเพิ่ม"></v-text-field>
+                <v-row class="ml-12">
+                  <v-col cols="12" sm="7" md="7">
+                    <v-text-field
+                      v-model="dis_selected.dis_name"
+                      label="ระบุชื่อโรคที่ต้องการเพิ่ม"
+                    ></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="6">
-                    <v-btn class="ma-3" fab small  @click="save2()" color="primary">
-                      <v-icon color="white" large >{{ icons.mdiPlus }}</v-icon></v-btn>
+                  <v-col cols="12" sm="5" md="5">
+                    <v-btn class="ma-3" fab small @click="save2()" color="primary">
+                      <v-icon color="white" large>{{ icons.mdiPlus }}</v-icon>
+                    </v-btn>
                   </v-col>
                 </v-row>
-                <v-row>
-                  <v-col cols="12" sm="6" md="6">
+                <v-row class="ml-12">
+                  <v-col cols="12" sm="7" md="7">
                     <v-autocomplete
                       :items="disease"
                       item-text="disease_name"
@@ -106,9 +110,9 @@
                       label="เลือกชื่อโรคที่ต้องการลบ"
                     ></v-autocomplete>
                   </v-col>
-                  <v-col cols="12" sm="6" md="6">
-                    <v-btn class="ma-3" fab small @click="delete2()" color="red" >
-                      <v-icon color = "white" large>{{ icons.mdiMinus }}</v-icon>
+                  <v-col cols="12" sm="5" md="5">
+                    <v-btn class="ma-3" fab small @click="delete2()" color="red">
+                      <v-icon color="white" large>{{ icons.mdiMinus }}</v-icon>
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -135,7 +139,7 @@
 <script>
 import Menuadmin from "../../components/Menuadmin";
 import axios from "axios";
-import { mdiDelete,mdiPlus,mdiMinus } from "@mdi/js";
+import { mdiDelete, mdiPlus, mdiMinus } from "@mdi/js";
 export default {
   data: () => ({
     search: "",
@@ -144,7 +148,6 @@ export default {
       mdiPlus,
       mdiMinus
     },
-    dialog: false,
     dialog1: false,
     dialog2: false,
     headers: [
@@ -199,8 +202,8 @@ export default {
     defaultItem2: {
       dis_name: ""
     }
-
   }),
+
   components: {
     Menuadmin
   },
@@ -240,7 +243,7 @@ export default {
 
     close() {
       this.dialog1 = false;
-    
+
       setTimeout(() => {
         this.medicine_selected = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
@@ -251,23 +254,27 @@ export default {
       this.dialog2 = true;
     },
 
-    save2() {     
-        axios.post("http://localhost:3000/api/medicine/newdisease", {
-          dis_name: this.dis_selected.dis_name
-        });
-        this.close2();
+    save2() {
+      // var length = String[this.dis_selected.dis_name].length();
+      // if (length === "") {
+      //   console.log("null value");
+      // } else {
+      axios.post("http://localhost:3000/api/medicine/newdisease", {
+        dis_name: this.dis_selected.dis_name
+      });
+      this.close2();
+
+      // }
     },
 
     delete2() {
-      
-        axios.post("http://localhost:3000/api/medicine/deletedisease", {
-          delete_name: this.medicine_selected.disease_name
-        });
-        this.close2();
-      
+      axios.post("http://localhost:3000/api/medicine/deletedisease", {
+        delete_name: this.medicine_selected.disease_name
+      });
+      this.close2();
     },
 
-    close2() {  
+    close2() {
       this.dialog2 = false;
       setTimeout(() => {
         this.dis_selected = Object.assign({}, this.defaultItem2);
