@@ -43,19 +43,24 @@
                       <v-text-field v-model="pharmacist_selected.username" label="ชื่อผู้ใช้"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacist_selected.email" label="email"></v-text-field>
+                      <v-text-field v-model="pharmacist_selected.email" label="อีเมล"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="pharmacist_selected.pharmacy_id_phamacist"
+                      <v-autocomplete
+                        :items="pharmacy"
+                        item-text="pharmacy_name"
+                        v-model="pharmacist_selected.pharmacy_name"
                         label="ร้านขายยาที่ประจำ"
-                      ></v-text-field>
+                      ></v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="pharmacist_selected.expdate" label="เลขใบอนุญาตฯเภสัช"></v-text-field>
                     </v-col>
-                    <v-col cols="12" v-model="pharmacist_selected.sex" sm="6" md="4">
-                      <v-radio-group label="เพศ">
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="pharmacist_selected.telno" :maxlength="maxtelno" label="เบอร์ติดต่อ"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-radio-group v-model="pharmacist_selected.sex" label="เพศ">
                         <v-radio label="ชาย"></v-radio>
                         <v-radio label="หญิง"></v-radio>
                       </v-radio-group>
@@ -76,7 +81,7 @@
       <template v-slot:item.action="{ item }">
         <v-icon small class="mr-6" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
-        <v-icon small class="mr-6" @click="forgetpw(item)">mdi-email-send</v-icon>
+        <v-icon small class="mr-6" @click="forgotpw(item)">mdi-email-send</v-icon>
       </template>
     </v-data-table>
   </v-app>
@@ -89,6 +94,7 @@ export default {
   data: () => ({
     search: "",
     dialog: false,
+    maxtelno: 10,
     headers: [
       { text: "ชื่อ", value: "name" },
       { text: "นามสกุล", value: "surname" },
@@ -96,7 +102,7 @@ export default {
       { text: "อีเมล", value: "email", sortable: false },
       {
         text: "ร้านขายยาที่ประจำ",
-        value: "pharmacy_id_phamacist",
+        value: "pharmacy_name",
         sortable: false
       },
       {
@@ -106,11 +112,17 @@ export default {
         sortable: false
       },
       {
+        text: "เบอร์ติดต่อ",
+        value: "telno",
+        sortable: false
+      },
+      {
         text: "แก้ไข / ลบ / ส่งรหัสผ่านให้ผู้ใช้",
         value: "action",
         sortable: false
       }
     ],
+    pharmacy: [],
     pharmacist: [],
     pharmacist_selected: [],
     editedIndex: -1,
@@ -119,16 +131,20 @@ export default {
       surname: "",
       username: "",
       email: "",
-      pharmacy_id_phamacist: "",
-      expdate: ""
+      pharmacy_name: "",
+      expdate: "",
+      telno:"",
+      sex: ""
     },
     defaultItem: {
       name: "",
       surname: "",
       username: "",
       email: "",
-      pharmacy_id_phamacist: "",
-      expdate: ""
+      pharmacy_name: "",
+      expdate: "",
+      telno:"",
+      sex: ""
     }
   }),
   components: {
@@ -145,9 +161,10 @@ export default {
 
   methods: {
     editItem(item) {
-      console.log(this.pharmacist);
+      
       this.editedIndex = this.pharmacist.indexOf(item);
       this.pharmacist_selected = Object.assign({}, item);
+      console.log(this.pharmacist_selected);
       if (item.sex === "Male") {
         this.pharmacist_selected.sex = 0;
       } else {
@@ -160,7 +177,7 @@ export default {
       const index = this.pharmacist.indexOf(item);
       console.log(this.pharmacist[index].staff_id);
       confirm(
-        "คุณต้องการที่จะลบข้อมูลเภสัชกรใช่หรือไม่?\nคุณ" +
+        "คุณต้องการที่จะลบข้อมูลเภสัชกรร้านขายยาใช่หรือไม่?\nคุณ" +
           item.name +
           " " +
           item.surname
@@ -219,13 +236,13 @@ export default {
         axios
           .get("http://localhost:3000/api/pharmacist/showallpharmacist")
           .then(res => {
-            // for (var i = 0; i < res.data.length; i++) {
-            //   if (this.pharmacist_selected.username === res.data[i].username) {
-            //     check = 1;
-            //     console.log("มีชื่อผู้ใช้นี้แล้ว");
-            //     break;
-            //   }
-            // }
+            for (var i = 0; i < res.data.length; i++) {
+              if (this.pharmacist_selected.username === res.data[i].username) {
+                check = 1;
+                console.log("มีชื่อผู้ใช้นี้แล้ว");
+                break;
+              }
+            }
             if (check == 0) {
               // this.generate();
               axios
@@ -236,7 +253,8 @@ export default {
                   email: this.pharmacist_selected.email,
                   telno: this.pharmacist_selected.telno,
                   sex: this.pharmacist_selected.sex,
-                  password: this.randomstring
+                  pharmacy_name: this.pharmacist_selected.pharmacy_name,
+                  expdate: this.pharmacist_selected.expdate,
                 })
                 .then(res => {
                   this.getallstaff();
@@ -278,6 +296,9 @@ export default {
       .then(res => {
         this.pharmacist = res.data;
       });
+    axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
+      this.pharmacy = res.data;
+    });
   }
 };
 </script>

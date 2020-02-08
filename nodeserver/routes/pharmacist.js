@@ -6,6 +6,8 @@ const {
 const db = require("../configs/db");
 const nodemailer = require('nodemailer');
 
+
+//
 router.post(
   "/newuser",
   [
@@ -25,6 +27,9 @@ router.post(
     .not()
     .isEmpty(),
     check("sex")
+    .not()
+    .isEmpty(),
+    check("expdate")
     .not()
     .isEmpty()
   ],
@@ -148,41 +153,68 @@ var new_user = function (item) {
     } else {
       item.sex = "Female";
     }
+    var pharmacy_id = '';
     db.query(
-      "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
-        item.username +
-        "','1234','hos_staff','" +
-        item.name +
-        "','" +
-        item.surname +
-        "','" +
-        item.telno +
-        "','" +
-        item.email +
-        "','" +
-        item.sex +
-        "')",
+      "SELECT * FROM pharmacy WHERE pharmacy_name='"+item.pharmacy_name+"'",
       (error, result) => {
-        if (error) return reject(error);
-        resolve({ message: "success" });
+        pharmacy_id = result[0].pharmacy_id;
+
+        db.query(
+          "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
+            item.username +
+            "','" +
+            randomstring +
+            "','pharmacist','" +
+            item.name +
+            "','" +
+            item.surname +
+            "','" +
+            item.telno +
+            "','" +
+            item.email +
+            "','" +
+            item.sex +
+            "')",
+          (error, result) => {       
+            if (error) return reject(error);
+               
+            db.query(
+              "INSERT INTO phamacist (expdate, staff_id_pharmacist, pharmacy_id_pharmacist) VALUES ('" +          
+              item.expdate +
+              "','" +
+              result.insertId +
+              "','" +
+              pharmacy_id +
+              "')",
+              (error, result) => {       
+                if (error) return reject(error);
+                resolve(
+                  {               
+                    message: "success"  
+                  });        
+              }
+            );              
+          }
+        );
+        
+        var transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false, // true for 465, false for other ports
+          auth: { // ข้อมูลการเข้าสู่ระบบ
+            user: 'seniorhospital111@gmail.com', // email user ของเรา
+            pass: 'hospital111' // email password
+          }
+        });
+        // เริ่มทำการส่งอีเมล
+        var info = transporter.sendMail({
+          from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
+          to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
+          subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
+          text: 'Your username is ' + item.username + '\n' + 'Your password is ' + randomstring, // plain text body
+        });
       }
     );
-    var transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: { // ข้อมูลการเข้าสู่ระบบ
-        user: 'seniorhospital111@gmail.com', // email user ของเรา
-        pass: 'hospital111' // email password
-      }
-    });
-    // เริ่มทำการส่งอีเมล
-    var info = transporter.sendMail({
-      from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
-      to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
-      text: 'Your username is ' + item.username + '\n' + 'Your password is ' + randomstring, // plain text body
-    });
   });
 };
 
@@ -193,6 +225,11 @@ var edit_user = function (item) {
     } else {
       item.sex = "Female";
     }
+    var pharmacy_id = '';
+    db.query(
+      "SELECT * FROM pharmacy WHERE pharmacy_name='"+item.pharmacy_name+"'",
+      (error, result) => {
+        pharmacy_id = result[0].pharmacy_id;
     db.query(
       "UPDATE users SET name='" +
         item.name +
@@ -204,21 +241,40 @@ var edit_user = function (item) {
         item.telno +
         "',sex='" +
         item.sex +
-        "' WHERE username='" +
-        item.username +
+        "' WHERE staff_id='" +
+        item.staff_id +
+        "'",
+      (error, result) => {
+        if (error) return reject(error);
+        db.query(
+        "UPDATE phamacist SET expdate='" +
+        item.expdate +
+        "',pharmacy_id_pharmacist='" +
+        pharmacy_id +
+        "' WHERE staff_id_pharmacist='" +
+        item.staff_id +
         "'",
       (error, result) => {
         if (error) return reject(error);
         resolve({ message: "success" });
-      }
-    );
+      });
+    });
+  });
   });
 };
-
+//DELETE users, phamacist FROM users inner join phamacist on phamacist.staff_id_pharmacist=users.staff_id WHERE staff_id = ?
 var delete_user = function(item) {
   return new Promise((resolve, reject) => {
+    // db.query(
+    //   "DELETE users, phamacist FROM users inner join phamacist on phamacist.staff_id_pharmacist=users.staff_id WHERE staff_id = ?",
+    //   [item.staff_id],
+    //   (error, result) => {
+    //     if (error) return reject(error);
+    //     resolve({ message: "success" });
+    //   }
+    // );
     db.query(
-      `DELETE FROM users WHERE staff_id = ?`,
+      "DELETE FROM users WHERE staff_id = ?",
       [item.staff_id],
       (error, result) => {
         if (error) return reject(error);
@@ -256,15 +312,16 @@ var send_mail = function (item) {
     var info = transporter.sendMail({
       from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
       to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
-      text: 'Your username is ' + item.username + '\n' + 'Your password is ' + item.password, // plain text body
+      subject: 'Senior Hospital : Pharmacist of Pharmacy (Username and Password) ', // หัวข้ออีเมล
+      text: 'You are Pharmacist of Pharmacy\n'+'Your username is ' + item.username + '\n' + 'Your password is ' + item.password, // plain text body
     });
   });
 };
 
+//SELECT * FROM users INNER JOIN phamacist ON users.staff_id=phamacist.staff_id_phamacist  WHERE users.user_type='pharmacist' 
 var show_pharmacist = function() {
   return new Promise((resolve, reject) => {
-    db.query("SELECT * FROM users INNER JOIN phamacist ON users.staff_id=phamacist.staff_id_phamacist  WHERE users.user_type='pharmacist' ", (error, result) => {
+    db.query("SELECT * FROM users AS d1 INNER JOIN phamacist AS d2 ON (d2.staff_id_pharmacist=d1.staff_id) INNER JOIN pharmacy AS d3 ON (d2.pharmacy_id_pharmacist=d3.pharmacy_id) where d1.user_type='pharmacist'", (error, result) => {
       if (error) return reject(error);
       resolve(result);
     });
