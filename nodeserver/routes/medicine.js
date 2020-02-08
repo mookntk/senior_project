@@ -10,7 +10,7 @@ const db = require("../configs/db");
 router.post(
     "/editmedicine",
     [
-        check("medicine_id")
+        check("medicine_tmt")
         .not()
         .isEmpty(),
         check("medicine_generic")
@@ -47,30 +47,38 @@ router.post(
 var edit_medicine = function (item) {
     return new Promise((resolve, reject) => {
 
-        var disease_id = '';
+
+
         db.query(
-            "UPDATE medicine SET medicine_id='" +
-              item.medicine_id +
-              "',medicine_generic='" +
-              item.medicine_generic +
-              "',medicine_trade='" +
-              item.medicine_trade +
-              "',strenght='" +
-              item.strenght +
-              "',price='" +
-              item.price +
-              "',unit='" +
-              item.unit +
-              "',price='" +
-              item.price +
-              "' WHERE medicine_id='" +
-              item.medicine_id +
-              "'",
+            "SELECT * FROM diseases WHERE disease_name='" + item.disease_name + "'",
             (error, result) => {
-              if (error) return reject(error);
-              resolve({ message: "success" });
-            }
-          );
+                db.query(
+                    "UPDATE medicine SET medicine_tmt='" +
+                    item.medicine_tmt +
+                    "',medicine_generic='" +
+                    item.medicine_generic +
+                    "',medicine_trade='" +
+                    item.medicine_trade +
+                    "',strenght='" +
+                    item.strenght +
+                    "',price='" +
+                    item.price +
+                    "',unit='" +
+                    item.unit +
+                    "',disease_id_medicine='" +
+                    result[0].disease_id +
+                    "' WHERE medicine_id='" +
+                    item.medicine_id +
+                    "'",
+                    (error, result) => {
+                        if (error) return reject(error);
+
+                        resolve({
+                            message: "success"
+                        });
+
+                    });
+            });
     });
 };
 
@@ -121,7 +129,7 @@ var select_disease = function () {
 router.post(
     "/newmedicine",
     [
-        check("medicine_id")
+        check("medicine_tmt")
         .not()
         .isEmpty(),
         check("medicine_generic")
@@ -166,7 +174,7 @@ var new_medicine = function (item) {
                 if (disease_id == "") {
                     db.query("INSERT INTO diseases (disease_name) VALUES ('" + item.disease_name + "')", (error, result) => {
                         if (error) return reject(error);
-                        db.query("INSERT INTO medicine (medicine_id, medicine_generic, medicine_trade, strenght, price, unit, disease_id_medicine) VALUES ('" + item.medicine_id + "','" + item.medicine_generic + "','" + item.medicine_trade + "','" + item.strenght + "','" + item.price + "','" + item.unit + "','" + result.insertId + "')", (error, result) => {
+                        db.query("INSERT INTO medicine (medicine_tmt, medicine_generic, medicine_trade, strenght, price, unit, disease_id_medicine) VALUES ('" + item.medicine_tmt + "','" + item.medicine_generic + "','" + item.medicine_trade + "','" + item.strenght + "','" + item.price + "','" + item.unit + "','" + result.insertId + "')", (error, result) => {
                             if (error) return reject(error);
                             resolve({
                                 message: "success"
@@ -175,7 +183,7 @@ var new_medicine = function (item) {
                     });
                 } else {
 
-                    db.query("INSERT INTO medicine (medicine_id, medicine_generic, medicine_trade, strenght, price, unit, disease_id_medicine) VALUES ('" + item.medicine_id + "','" + item.medicine_generic + "','" + item.medicine_trade + "','" + item.strenght + "','" + item.price + "','" + item.unit + "','" + disease_id + "')", (error, result) => {
+                    db.query("INSERT INTO medicine (medicine_tmt, medicine_generic, medicine_trade, strenght, price, unit, disease_id_medicine) VALUES ('" + item.medicine_tmt + "','" + item.medicine_generic + "','" + item.medicine_trade + "','" + item.strenght + "','" + item.price + "','" + item.unit + "','" + disease_id + "')", (error, result) => {
                         if (error) return reject(error);
                         resolve({
                             message: "success"
@@ -217,7 +225,11 @@ var delete_medicine = function (item) {
 
 //newdisease
 router.post(
-    "/newdisease",
+    "/newdisease",[
+        check("dis_name")
+        .not()
+        .isEmpty()     
+    ],
     async (req, res) => {
         try {
             const newdisease = await new_disease(req.body);
@@ -232,6 +244,7 @@ router.post(
 
 var new_disease = function (item) {
     return new Promise((resolve, reject) => {
+        
         db.query("INSERT INTO diseases (disease_name) VALUES ('" + item.dis_name + "')", (error, result) => {
             if (error) return reject(error);
             resolve({

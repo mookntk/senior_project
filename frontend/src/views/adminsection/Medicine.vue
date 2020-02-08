@@ -38,7 +38,7 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="medicine_selected.medicine_id" label="รหัสยา (TMT)"></v-text-field>
+                      <v-text-field v-model="medicine_selected.medicine_tmt" label="รหัสยา (TMT)"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="medicine_selected.medicine_generic" label="ชื่อสามัญ"></v-text-field>
@@ -90,7 +90,7 @@
                 <v-card-title class="headline">จัดการข้อมูลโรค</v-card-title>
                 <v-row>
                   <v-col cols="12" sm="6" md="6">
-                    <v-text-field v-model="dis_name" label="ระบุชื่อโรคที่ต้องการเพิ่ม"></v-text-field>
+                    <v-text-field v-model="dis_selected.dis_name" label="ระบุชื่อโรคที่ต้องการเพิ่ม"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" md="6">
                     <v-btn class="ma-3" fab small  @click="save2()" color="primary">
@@ -148,7 +148,7 @@ export default {
     dialog1: false,
     dialog2: false,
     headers: [
-      { text: "รหัสยา (TMT)", value: "medicine_id" },
+      { text: "รหัสยา (TMT)", value: "medicine_tmt" },
       { text: "ชื่อสามัญ", value: "medicine_generic", align: "center" },
       { text: "ชื่อทางการค้า", value: "medicine_trade", align: "center" },
       { text: "โรค", value: "disease_name", align: "center" },
@@ -178,7 +178,7 @@ export default {
     medicine_selected: [],
     editedIndex: -1,
     editedIndex: {
-      medicine_id: "",
+      medicine_tmt: "",
       medicine_generic: "",
       medicine_trade: "",
       disease_name: "",
@@ -187,14 +187,19 @@ export default {
       unit: ""
     },
     defaultItem: {
-      medicine_id: "",
+      medicine_tmt: "",
       medicine_generic: "",
       medicine_trade: "",
       disease_name: "",
       strenght: "",
       price: "",
       unit: ""
+    },
+    dis_selected: [],
+    defaultItem2: {
+      dis_name: ""
     }
+
   }),
   components: {
     Menuadmin
@@ -246,12 +251,10 @@ export default {
       this.dialog2 = true;
     },
 
-    save2() {
-
+    save2() {     
         axios.post("http://localhost:3000/api/medicine/newdisease", {
-          dis_name: this.dis_name
+          dis_name: this.dis_selected.dis_name
         });
-        this.dis_name = '';
         this.close2();
     },
 
@@ -266,6 +269,10 @@ export default {
 
     close2() {  
       this.dialog2 = false;
+      setTimeout(() => {
+        this.dis_selected = Object.assign({}, this.defaultItem2);
+        this.medicine_selected = Object.assign({}, this.defaultItem);
+      }, 300);
     },
 
     save() {
@@ -281,7 +288,7 @@ export default {
       } else {
         axios
           .post("http://localhost:3000/api/medicine/newmedicine", {
-            medicine_id: this.medicine_selected.medicine_id,
+            medicine_tmt: this.medicine_selected.medicine_tmt,
             medicine_generic: this.medicine_selected.medicine_generic,
             medicine_trade: this.medicine_selected.medicine_trade,
             strenght: this.medicine_selected.strenght,

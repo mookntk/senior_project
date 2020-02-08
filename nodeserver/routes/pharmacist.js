@@ -134,7 +134,9 @@ router.get("/showpharmacist", async (req, res) => {
     const pharmacist = await show_pharmacist();
     res.json(pharmacist);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({
+      message: error.message
+    });
   }
 });
 
@@ -155,48 +157,47 @@ var new_user = function (item) {
     }
     var pharmacy_id = '';
     db.query(
-      "SELECT * FROM pharmacy WHERE pharmacy_name='"+item.pharmacy_name+"'",
+      "SELECT * FROM pharmacy WHERE pharmacy_name='" + item.pharmacy_name + "'",
       (error, result) => {
         pharmacy_id = result[0].pharmacy_id;
 
         db.query(
           "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
-            item.username +
-            "','" +
-            randomstring +
-            "','pharmacist','" +
-            item.name +
-            "','" +
-            item.surname +
-            "','" +
-            item.telno +
-            "','" +
-            item.email +
-            "','" +
-            item.sex +
-            "')",
-          (error, result) => {       
+          item.username +
+          "','" +
+          randomstring +
+          "','pharmacist','" +
+          item.name +
+          "','" +
+          item.surname +
+          "','" +
+          item.telno +
+          "','" +
+          item.email +
+          "','" +
+          item.sex +
+          "')",
+          (error, result) => {
             if (error) return reject(error);
-               
+
             db.query(
-              "INSERT INTO phamacist (expdate, staff_id_pharmacist, pharmacy_id_pharmacist) VALUES ('" +          
+              "INSERT INTO phamacist (expdate, staff_id_pharmacist, pharmacy_id_pharmacist) VALUES ('" +
               item.expdate +
               "','" +
               result.insertId +
               "','" +
               pharmacy_id +
               "')",
-              (error, result) => {       
+              (error, result) => {
                 if (error) return reject(error);
-                resolve(
-                  {               
-                    message: "success"  
-                  });        
+                resolve({
+                  message: "success"
+                });
               }
-            );              
+            );
           }
         );
-        
+
         var transporter = nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 587,
@@ -227,43 +228,45 @@ var edit_user = function (item) {
     }
     var pharmacy_id = '';
     db.query(
-      "SELECT * FROM pharmacy WHERE pharmacy_name='"+item.pharmacy_name+"'",
+      "SELECT * FROM pharmacy WHERE pharmacy_name='" + item.pharmacy_name + "'",
       (error, result) => {
         pharmacy_id = result[0].pharmacy_id;
-    db.query(
-      "UPDATE users SET name='" +
-        item.name +
-        "',surname='" +
-        item.surname +
-        "',email='" +
-        item.email +
-        "',telno='" +
-        item.telno +
-        "',sex='" +
-        item.sex +
-        "' WHERE staff_id='" +
-        item.staff_id +
-        "'",
-      (error, result) => {
-        if (error) return reject(error);
         db.query(
-        "UPDATE phamacist SET expdate='" +
-        item.expdate +
-        "',pharmacy_id_pharmacist='" +
-        pharmacy_id +
-        "' WHERE staff_id_pharmacist='" +
-        item.staff_id +
-        "'",
-      (error, result) => {
-        if (error) return reject(error);
-        resolve({ message: "success" });
+          "UPDATE users SET name='" +
+          item.name +
+          "',surname='" +
+          item.surname +
+          "',email='" +
+          item.email +
+          "',telno='" +
+          item.telno +
+          "',sex='" +
+          item.sex +
+          "' WHERE staff_id='" +
+          item.staff_id +
+          "'",
+          (error, result) => {
+            if (error) return reject(error);
+            db.query(
+              "UPDATE phamacist SET expdate='" +
+              item.expdate +
+              "',pharmacy_id_pharmacist='" +
+              pharmacy_id +
+              "' WHERE staff_id_pharmacist='" +
+              item.staff_id +
+              "'",
+              (error, result) => {
+                if (error) return reject(error);
+                resolve({
+                  message: "success"
+                });
+              });
+          });
       });
-    });
-  });
   });
 };
 //DELETE users, phamacist FROM users inner join phamacist on phamacist.staff_id_pharmacist=users.staff_id WHERE staff_id = ?
-var delete_user = function(item) {
+var delete_user = function (item) {
   return new Promise((resolve, reject) => {
     // db.query(
     //   "DELETE users, phamacist FROM users inner join phamacist on phamacist.staff_id_pharmacist=users.staff_id WHERE staff_id = ?",
@@ -278,7 +281,9 @@ var delete_user = function(item) {
       [item.staff_id],
       (error, result) => {
         if (error) return reject(error);
-        resolve({ message: "success" });
+        resolve({
+          message: "success"
+        });
       }
     );
   });
@@ -313,13 +318,13 @@ var send_mail = function (item) {
       from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
       to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
       subject: 'Senior Hospital : Pharmacist of Pharmacy (Username and Password) ', // หัวข้ออีเมล
-      text: 'You are Pharmacist of Pharmacy\n'+'Your username is ' + item.username + '\n' + 'Your password is ' + item.password, // plain text body
+      text: 'You are Pharmacist of Pharmacy\n' + 'Your username is ' + item.username + '\n' + 'Your password is ' + item.password, // plain text body
     });
   });
 };
 
 //SELECT * FROM users INNER JOIN phamacist ON users.staff_id=phamacist.staff_id_phamacist  WHERE users.user_type='pharmacist' 
-var show_pharmacist = function() {
+var show_pharmacist = function () {
   return new Promise((resolve, reject) => {
     db.query("SELECT * FROM users AS d1 INNER JOIN phamacist AS d2 ON (d2.staff_id_pharmacist=d1.staff_id) INNER JOIN pharmacy AS d3 ON (d2.pharmacy_id_pharmacist=d3.pharmacy_id) where d1.user_type='pharmacist'", (error, result) => {
       if (error) return reject(error);
