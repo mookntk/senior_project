@@ -63,8 +63,8 @@
                           required
                           :rules="[(v) => !!v || 'กรุณาเลือกเพศ']"
                         >
-                          <v-radio label="ชาย" value="ชาย"></v-radio>
-                          <v-radio label="หญิง" value="หญิง"></v-radio>
+                          <v-radio label="ชาย" value="ชาย" style="margin-left:25px;"></v-radio>
+                          <v-radio label="หญิง" value="หญิง" style="margin-left:25px;"></v-radio>
                         </v-radio-group>
                       </v-col>
                       <v-col cols="12" lg="6" sm="6">
@@ -78,12 +78,11 @@
                         >
                           <template v-slot:activator="{ on }">
                             <v-text-field
-                              v-model="dateFormatted"
+                              v-model="editedItem.DOB"
                               label="วัน/เดือน/ปีเกิด"
                               outlined
                               persistent-hint
                               readonly
-                              @blur="date = parseDate(dateFormatted)"
                               v-on="on"
                               :rules="addressrules"
                             ></v-text-field>
@@ -97,9 +96,6 @@
                           ></v-date-picker>
                         </v-menu>
                       </v-col>
-                      <!-- <v-col cols="12" sm="6">
-                        <v-text-field v-model="editedItem.DOB" label="วัน/เดือน/ปีเกิด" outlined></v-text-field>
-                      </v-col>-->
                       <v-col cols="12" sm="6">
                         <v-text-field
                           v-model="editedItem.email"
@@ -129,35 +125,47 @@
                           required
                         ></v-text-field>
                       </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
+                      <v-col cols="12" sm="6">
+                        <ThailandAutoComplete
                           v-model="editedItem.subdistrict"
-                          label="ตำบล/แขวง"
-                          outlined
-                          :rules="inputrules"
-                          required
-                        ></v-text-field>
+                          type="district"
+                          @select="select"
+                          color="#42b883"
+                          size="medium"
+                          placeholder="ตำบล"
+                        />
                       </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
+                      <v-col cols="12" sm="6">
+                        <ThailandAutoComplete
                           v-model="editedItem.district"
-                          label="อำเภอ/เขต"
-                          outlined
-                          :rules="inputrules"
-                          required
-                        ></v-text-field>
+                          type="amphoe"
+                          @select="select"
+                          size="medium"
+                          placeholder="อำเภอ"
+                        />
                       </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
+                      <v-col cols="12" sm="6">
+                        <ThailandAutoComplete
                           v-model="editedItem.province"
-                          label="จังหวัด"
-                          outlined
-                          :rules="inputrules"
-                          required
-                        ></v-text-field>
+                          type="province"
+                          @select="select"
+                          size="medium"
+                          color="#35495e"
+                          placeholder="จังหวัด"
+                        />
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <ThailandAutoComplete
+                          v-model="editedItem.zipcode"
+                          type="zipcode"
+                          @select="select"
+                          size="medium"
+                          color="#00a4e4"
+                          placeholder="รหัสไปรษณีย์"
+                        />
                       </v-col>
                       <v-col cols="12" sm="12">
-                        <v-select
+                        <v-autocomplete
                           :items="disease"
                           item-text="name"
                           item-value="disease_id"
@@ -168,10 +176,10 @@
                           v-model="disease_selected"
                           :rules="[(v) => !!v || 'กรุณาเลือกโรค']"
                           required
-                        ></v-select>
+                        ></v-autocomplete>
                       </v-col>
                       <v-col cols="12" sm="8">
-                        <v-select
+                        <v-autocomplete
                           :items="pharmacy"
                           item-text="pharmacy_name"
                           item-value="pharmacy_id"
@@ -180,9 +188,7 @@
                           outlined
                           :rules="[(v) => !!v || 'กรุณาเลือกร้านขายยา']"
                           required
-                        ></v-select>
-                        <!-- <v-text-field v-model="editedItem.pharmacy" label="ร้านขายยา" outlined></v-text-field> -->
-                        <!-- {{ result }} -->
+                        ></v-autocomplete>
                       </v-col>
                     </v-row>
                   </v-form>
@@ -197,6 +203,15 @@
           </v-dialog>
         </v-col>
       </v-row>
+      <!-- <v-col>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="ค้นหา"
+          single-line
+          hide-details
+        ></v-text-field>
+      </v-col>-->
       <!-- End of Add new patient -->
 
       <!-- watch patient history -->
@@ -261,7 +276,11 @@
                   <v-text-field value="Januvia 100 mg 2 tablets" label="ยา" filled readonly></v-text-field>
                 </v-col>
               </v-row>
-              <v-data-table :headers="record_headers" :items="patients[index].record"></v-data-table>
+              <v-data-table
+                :search="search"
+                :headers="record_headers"
+                :items="patients[index].record"
+              ></v-data-table>
             </v-container>
           </v-card-text>
         </v-card>
@@ -294,6 +313,7 @@
 </template>
 <script>
 import Menu from "../../components/hp_menubar";
+import ThailandAutoComplete from "../../components/vue-thailand-autocomplete";
 import {
   searchAddressByDistrict,
   searchAddressByAmphoe,
@@ -310,7 +330,7 @@ export default {
       dialog_edit: false,
       index: 0,
       date: null,
-      dateFormatted: null,
+      search: "",
       menu1: false,
       editedIndex: -1,
       headers: [
@@ -374,10 +394,11 @@ export default {
         address: "",
         subdistrict: "",
         district: "",
-        province: ""
+        province: "",
+        zipcode: ""
       },
       defaultItem: {},
-      disease_selected: ""
+      disease_selected: []
     };
   },
   computed: {
@@ -386,33 +407,34 @@ export default {
         ? "ข้อมูลผู้ป่วยรายใหม่"
         : "แก้ไขข้อมูลผู้ป่วย";
     },
-    result() {
-      return searchAddressByDistrict(this.editedItem.province);
-    },
+
     computedDateFormatted() {
       return this.formatDate(this.date);
     }
   },
   watch: {
     date(val) {
-      this.dateFormatted = this.formatDate(this.date);
+      this.editedItem.DOB = this.formatDate(this.date);
     }
   },
   components: {
-    Menu
+    Menu,
+    ThailandAutoComplete
   },
   methods: {
+    select(address) {
+      console.log(address);
+      this.editedItem.subdistrict = address.district;
+      this.editedItem.district = address.amphoe;
+      this.editedItem.province = address.province;
+      this.editedItem.zipcode = address.zipcode;
+    },
     formatDate(date) {
       if (!date) return null;
 
-      const [year, month, day] = date.split("-");
+      var [year, month, day] = date.split("-");
+      year = parseInt(year) + 543;
       return `${day}/${month}/${year}`;
-    },
-    parseDate(date) {
-      if (!date) return null;
-
-      const [month, day, year] = date.split("/");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
     },
     showItem(item) {
       this.patient_selected = item.name + " " + item.surname;
@@ -421,14 +443,26 @@ export default {
       this.dialog_record = true;
     },
     editItem(item) {
-      this.calulate_age();
-      this.index = this.patients.indexOf(item);
-      this.editedIndex = this.patients.indexOf(item);
+      axios
+        .post("http://localhost:3000/api/disease-patient/getdiseasebyhn", {
+          patient_HN: item.patient_HN
+        })
+        .then(res => {
+          console.log(res.data);
+          for (var i = 0; i < res.data.length; i++) {
+            this.disease_selected.push(res.data[i].disease_id);
+            console.log(this.disease_selected);
+          }
 
-      this.editedItem = Object.assign({}, item);
-      console.log(searchAddressByDistrict("แสนสุข"));
-      // console.log(this.editedItem);
-      this.dialog_edit = true;
+          this.calulate_age();
+          this.index = this.patients.indexOf(item);
+          this.editedIndex = this.patients.indexOf(item);
+          this.editedItem = Object.assign({}, item);
+          this.dialog_edit = true;
+        })
+        .catch(e => {
+          console.log("getdisease error " + e);
+        });
     },
     deleteItem(item) {
       const index = this.patients.indexOf(item);
@@ -450,34 +484,46 @@ export default {
     },
     save() {
       if (this.$refs.form.validate()) {
+        delete this.editedItem.pharmacy_id;
+        delete this.editedItem.pharmacy_name;
+        delete this.editedItem.create_date;
+        delete this.editedItem.lastupdate;
         if (this.editedIndex > -1) {
-          // axios
-          //   .post(
-          //     "http://localhost:3000/api/patient/editpatient",
-          //     this.editedItem
-          //   )
-          //   .then(res => {
-          //     Object.assign(this.patients[this.editedIndex], this.editedItem);
-          //   })
-          //   .catch(e => {
-          //     console.log("edit error " + e);
-          //   });
+          axios
+            .post(
+              "http://localhost:3000/api/patient/editpatient",
+              this.editedItem
+            )
+            .then(res => {
+              this.deletedisease();
+            })
+            .catch(e => {
+              console.log("edit error " + e);
+            });
         } else {
-          // axios
-          //   .post("http://localhost:3000/api/patient/newpatient", this.editedItem)
-          //   .then(res => {
-          //     this.patients.push(this.editedItem);
-          //   })
-          //   .catch(e => {
-          //     console.log("newpatient error " + e);
-          //   });
+          axios
+            .post(
+              "http://localhost:3000/api/patient/newpatient",
+              this.editedItem
+            )
+            .then(res => {
+              this.adddisease();
+            })
+            .catch(e => {
+              console.log("newpatient error " + e);
+            });
+          console.log(this.editedItem);
         }
+        console.log(this.editedItem);
         this.close();
       }
     },
     close() {
-      this.$refs.form.reset();
       this.dialog_edit = false;
+      setTimeout(() => {
+        this.$refs.form.reset();
+        this.editedIndex = -1;
+      }, 400);
     },
     calulate_age() {
       var item = this.patients[this.index].DOB;
@@ -489,6 +535,42 @@ export default {
       var dob = new Date(item);
       var age = date.getFullYear() + 543 - dob.getFullYear();
       this.age = age;
+    },
+    getallpatient() {
+      axios.get("http://localhost:3000/api/patient/showpatients").then(res => {
+        this.patients = res.data;
+      });
+    },
+    adddisease() {
+      var count = 0;
+      for (var i = 0; i < this.disease_selected.length; i++) {
+        axios
+          .post("http://localhost:3000/api/disease-patient/addd_p", {
+            disease_id: this.disease_selected[i],
+            patient_HN: this.editedItem.patient_HN
+          })
+          .then(res => {
+            count++;
+            if (count == this.disease_selected.length) {
+              this.getallpatient();
+            }
+          })
+          .catch(e => {
+            console.log("edit error " + e);
+          });
+      }
+    },
+    deletedisease() {
+      axios
+        .post("http://localhost:3000/api/disease-patient/deleted_p", {
+          patient_HN: this.editedItem.patient_HN
+        })
+        .then(res => {
+          this.adddisease();
+        })
+        .catch(e => {
+          console.log("edit error " + e);
+        });
     }
   },
 
@@ -508,7 +590,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+@import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
 .menu-header {
   position: fixed;
   width: 100%;

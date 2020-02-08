@@ -8,6 +8,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@mdi/js": "^4.9.95",
     "axios": "^0.19.2",
     "core-js": "^3.4.4",
     "thai-address-database": "0.0.25",

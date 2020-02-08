@@ -109,7 +109,7 @@ var delete_patient = function(item) {
 var edit_patient = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, pharmacy_id_patient = ?, email = ? WHERE patient_HN = ?`,
+      `UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, zipcode = ?,pharmacy_id_patient = ?, email = ?, lastupdate_date = NOW() WHERE patient_HN = ?`,
       [
         item.name,
         item.surname,
@@ -120,6 +120,7 @@ var edit_patient = function(item) {
         item.subdistrict,
         item.district,
         item.province,
+        item.zipcode,
         item.pharmacy_id_patient,
         item.email,
         item.patient_HN
