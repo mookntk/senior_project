@@ -8,6 +8,9 @@ const diseasepatient = require("./disease_patient");
 
 const pharmacy = require("./pharmacy");
 const pharmacist = require("./pharmacist");
+const order = require("./order");
+const log = require("./orderlog");
+
 router.use("/user", user);
 router.use("/patient", patient);
 router.use("/disease", disease);
@@ -16,4 +19,7 @@ router.use("/disease-patient", diseasepatient);
 
 router.use("/pharmacy", pharmacy);
 router.use("/pharmacist", pharmacist);
+router.use("/order", order);
+router.use("/log", log);
+
 module.exports = router;

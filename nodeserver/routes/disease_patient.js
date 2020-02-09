@@ -65,6 +65,15 @@ router.post("/getdiseasebyhn", async (req, res) => {
   }
 });
 
+router.post("/getdiseasenamebyhn", async (req, res) => {
+  try {
+    const disease = await getdiseasename_hn(req.body);
+    res.json(disease);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 var adddisease_patient = function(item) {
   console.log(item);
   return new Promise((resolve, reject) => {
@@ -122,4 +131,18 @@ var getdisease_hn = function(item) {
     );
   });
 };
+
+var getdiseasename_hn = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT dp.* , diseases.* FROM ${table} as dp LEFT JOIN diseases ON dp.disease_id = diseases.disease_id WHERE patient_HN = ?`,
+      [item.patient_HN],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = router;
