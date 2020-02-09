@@ -14,13 +14,22 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item v-for="item in links_order" :key="item.value" router :to="item.route">
+          <v-list-item
+            v-for="item in links_order"
+            :key="item.value"
+            router
+            :to="item.route"
+          >
             <v-list-item-title>{{ item.value }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn depressed @click="click" value="return" :color="btncolor">การคืนยา</v-btn>
-      <v-btn depressed @click="click" value="patient" :color="btncolor">ข้อมูลผู้ป่วย</v-btn>
+      <v-btn depressed @click="click" value="return" :color="btncolor"
+        >การคืนยา</v-btn
+      >
+      <v-btn depressed @click="click" value="patient" :color="btncolor"
+        >ข้อมูลผู้ป่วย</v-btn
+      >
       <v-menu offset-y open-on-hover>
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" text>
@@ -29,7 +38,12 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item v-for="item in links" :key="item.value" router :to="item.route">
+          <v-list-item
+            v-for="item in links"
+            :key="item.value"
+            router
+            :to="item.route"
+          >
             <v-list-item-title>{{ item.value }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -117,4 +131,3 @@ export default {
   }
 };
 </script>
-

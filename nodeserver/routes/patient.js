@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { check } = require("express-validator");
+const {
+  check
+} = require("express-validator");
 const db = require("../configs/db");
 const patient = "patients";
 router.get("/showpatients", async (req, res) => {
@@ -8,7 +10,9 @@ router.get("/showpatients", async (req, res) => {
     const patients = await all_patients();
     res.json(patients);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({
+      message: error.message
+    });
   }
 });
 
@@ -16,32 +20,32 @@ router.post(
   "/newpatient",
   [
     check("patient_HN")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("name")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("surname")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("DOB")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("gender")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("address")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("subdistrinct")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("distrinct")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("province")
-      .not()
-      .isEmpty()
+    .not()
+    .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -49,7 +53,9 @@ router.post(
       const newpatient = await new_patient(req.body);
       res.json(newpatient);
     } catch (error) {
-      res.status(400).json({ message: error.message });
+      res.status(400).json({
+        message: error.message
+      });
     }
   }
 );
@@ -59,7 +65,9 @@ router.post("/deletepatient", async (req, res) => {
     const patient = await delete_patient(req.body);
     res.json(patient);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({
+      message: error.message
+    });
   }
 });
 
@@ -68,11 +76,13 @@ router.post("/editpatient", async (req, res) => {
     const edited = await edit_patient(req.body);
     res.json(edited);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({
+      message: error.message
+    });
   }
 });
 
-var all_patients = function() {
+var all_patients = function () {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT patients.* , pharmacy.pharmacy_id , pharmacy.pharmacy_name FROM ${patient} LEFT JOIN pharmacy ON patients.pharmacy_id_patient = pharmacy.pharmacy_id`,
@@ -84,32 +94,36 @@ var all_patients = function() {
   });
 };
 
-var new_patient = function(item) {
+var new_patient = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${patient} SET ?`, item, (error, result) => {
       if (error) return reject(error);
-      resolve({ message: "success" });
+      resolve({
+        message: "success"
+      });
     });
   });
 };
 
-var delete_patient = function(item) {
+var delete_patient = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `DELETE FROM ${patient} WHERE patient_HN = ?`,
+      'DELETE FROM ${patient} WHERE patient_HN = ?',
       [item.patient_HN],
       (error, result) => {
         if (error) return reject(error);
-        resolve({ message: "success" });
+        resolve({
+          message: "success"
+        });
       }
     );
   });
 };
 
-var edit_patient = function(item) {
+var edit_patient = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, zipcode = ?,pharmacy_id_patient = ?, email = ?, lastupdate_date = NOW() WHERE patient_HN = ?`,
+      'UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, zipcode = ?,pharmacy_id_patient = ?, email = ?, lastupdate_date = NOW() WHERE patient_HN = ?',
       [
         item.name,
         item.surname,
@@ -127,7 +141,9 @@ var edit_patient = function(item) {
       ],
       (error, result) => {
         if (error) return reject(error);
-        resolve({ message: "success" });
+        resolve({
+          message: "success"
+        });
       }
     );
   });

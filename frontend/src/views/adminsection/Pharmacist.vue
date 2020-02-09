@@ -6,7 +6,7 @@
       :headers="headers"
       :items="pharmacist"
       sort-by="name"
-      class="elevation-1"
+      class="font elevation-1"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
@@ -21,7 +21,7 @@
           ></v-text-field>
           <v-divider class="mx-4" inset vertical></v-divider>
           <div class="flex-grow-1"></div>
-          <v-dialog v-model="dialog" max-width="1000px">
+          <v-dialog v-model="dialog" max-width="1000px" persistent>
             <template v-slot:activator="{ on }">
               <v-btn color="primary" dark class="mb-2" v-on="on">+ เพิ่มเภสัชกรร้านขายยา</v-btn>
             </template>
@@ -96,24 +96,27 @@ export default {
     dialog: false,
     maxtelno: 10,
     headers: [
-      { text: "ชื่อ", value: "name" },
-      { text: "นามสกุล", value: "surname" },
-      { text: "username", value: "username", sortable: false },
-      { text: "อีเมล", value: "email", sortable: false },
+      { text: "ชื่อ", value: "name",width:"13%" },
+      { text: "นามสกุล", value: "surname",width:"13%" },
+      { text: "username", value: "username",width:"10%" ,sortable: false },
+      { text: "อีเมล", value: "email",width:"18%", sortable: false },
       {
         text: "ร้านขายยาที่ประจำ",
         value: "pharmacy_name",
+        width:"10%",
         sortable: false
       },
       {
         text: "เลขใบอนุญาตฯเภสัช",
         value: "expdate",
         align: "center",
+        width:"13%",
         sortable: false
       },
       {
         text: "เบอร์ติดต่อ",
         value: "telno",
+        width:"10%",
         sortable: false
       },
       {

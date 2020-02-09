@@ -9,13 +9,15 @@
       :items="hosstaff"
       :items-per-page="10"
       sort-by="name"
-      class="elevation-1"
+      class="font elevation-1"
     >
       <!-- <v-content class="main"> -->
       <template v-slot:top>
         <v-toolbar flat color="white">
-          <v-toolbar-title>เภสัชกรโรงพยาบาล</v-toolbar-title>
+          <v-toolbar-title class="font">เภสัชกรโรงพยาบาล</v-toolbar-title>
           <v-spacer></v-spacer>
+
+          <!-- ช่อง search -->
           <v-text-field
             v-model="search"
             append-icon="mdi-magnify"
@@ -23,12 +25,15 @@
             single-line
             hide-details
           ></v-text-field>
+
           <v-divider class="mx-4" inset vertical></v-divider>
           <div class="flex-grow-1"></div>
 
-          <v-dialog v-model="dialog" max-width="500px">
+          <v-dialog v-model="dialog" max-width="500px" persistent>
             <template v-slot:activator="{ on }">
-              <v-btn color="primary" dark class="mb-2" v-on="on">+ เพิ่มเภสัชกรของโรงพยาบาล</v-btn>
+              <v-btn class="font mb-2" color="primary" dark v-on="on"
+                >+ เพิ่มเภสัชกรของโรงพยาบาล</v-btn
+              >
             </template>
             <v-card class="font">
               <v-card-title>
@@ -39,22 +44,40 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.name" label="ชื่อ"></v-text-field>
+                      <v-text-field
+                        v-model="hosstaff_selected.name"
+                        label="ชื่อ"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.surname" label="นามสกุล"></v-text-field>
+                      <v-text-field
+                        v-model="hosstaff_selected.surname"
+                        label="นามสกุล"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.username" label="ชื่อผู้ใช้"></v-text-field>
+                      <v-text-field
+                        v-model="hosstaff_selected.username"
+                        label="ชื่อผู้ใช้"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.email" label="อีเมล"></v-text-field>
+                      <v-text-field
+                        v-model="hosstaff_selected.email"
+                        label="อีเมล"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="6">
-                      <v-text-field v-model="hosstaff_selected.telno" label="เบอร์ติดต่อ"></v-text-field>
+                      <v-text-field
+                        v-model="hosstaff_selected.telno"
+                        label="เบอร์ติดต่อ"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="6">
-                      <v-radio-group v-model="hosstaff_selected.sex" label="เพศ">
+                      <v-radio-group
+                        v-model="hosstaff_selected.sex"
+                        label="เพศ"
+                      >
                         <v-radio label="ชาย"></v-radio>
                         <v-radio label="หญิง"></v-radio>
                       </v-radio-group>
@@ -66,7 +89,9 @@
               <v-card-actions>
                 <div class="flex-grow-1"></div>
                 <v-btn color="blue darken-1" text @click="close">ยกเลิก</v-btn>
-                <v-btn color="blue darken-1" text @click="save">เสร็จสิ้น</v-btn>
+                <v-btn color="blue darken-1" text @click="save"
+                  >เสร็จสิ้น</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -82,6 +107,7 @@
       sort-by="name"
       class="elevation-1"
       >-->
+
       <template v-slot:item.action="{ item }">
         <!-- <tbody>
           <tr v-for="item in items" :key="item.name">
@@ -93,7 +119,9 @@
         <td style="text-align:center">-->
         <v-icon small class="mr-6" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
-        <v-icon small class="mr-6" @click="forgotpw(item)">mdi-email-send</v-icon>
+        <v-icon small class="mr-6" @click="forgotpw(item)"
+          >mdi-email-send</v-icon
+        >
         <!-- </td>
           </tr>
         </tbody>-->
@@ -112,11 +140,11 @@ export default {
     search: "",
     dialog: false,
     headers: [
-      { text: "ชื่อ", value: "name" },
-      { text: "นามสกุล", value: "surname" },
-      { text: "username", value: "username" },
-      { text: "อีเมล", value: "email" },
-      { text: "เบอร์ติดต่อ", value: "telno" },
+      { text: "ชื่อ", value: "name",width:"15%" },
+      { text: "นามสกุล", value: "surname",width:"15%" },
+      { text: "username", value: "username",width:"15%" },
+      { text: "อีเมล", value: "email",width:"25%" },
+      { text: "เบอร์ติดต่อ", value: "telno",width:"15%" },
       // { text: "password", value: "password", sortable: false },
       {
         text: "แก้ไข / ลบ / ส่งรหัสผ่านให้ผู้ใช้",
@@ -232,6 +260,7 @@ export default {
             if (this.hosstaff_selected.username === res.data[i].username) {
               check = 1;
               console.log("มีชื่อผู้ใช้นี้แล้ว");
+              alert("มีชื่อผู้ใช้นี้แล้ว โปรดใช้ชื่ออื่น");
               break;
             }
           }
@@ -286,7 +315,7 @@ export default {
   }
 };
 </script>
-<style >
+<style>
 .menu-header {
   position: fixed;
   width: 100%;
@@ -299,4 +328,3 @@ export default {
   margin-top: 120px;
 }
 </style>
-

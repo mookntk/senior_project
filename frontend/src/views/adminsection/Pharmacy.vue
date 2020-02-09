@@ -7,7 +7,7 @@
       :items="pharmacy"
       :items-per-page="10"
       sort-by="name"
-      class="elevation-1"
+      class="font elevation-1"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
@@ -22,7 +22,7 @@
           ></v-text-field>
           <v-divider class="mx-4" inset vertical></v-divider>
           <div class="flex-grow-1"></div>
-          <v-dialog v-model="dialog" max-width="1000px">
+          <v-dialog v-model="dialog" max-width="1000px" persistent>
             <template v-slot:activator="{ on }">
               <v-btn color="primary" dark class="mb-2" v-on="on">+ เพิ่มร้านขายยา</v-btn>
             </template>
@@ -35,10 +35,10 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.pharmacy_name" label="ชื่อร้านขายยา"></v-text-field>
+                      <v-text-field v-model="pharmacy_selected.pharmacy_name" label="ชื่อร้านขายยา" outlined></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.address" label="ที่อยู่"></v-text-field>
+                      <v-text-field v-model="pharmacy_selected.address" label="ที่อยู่" outlined></v-text-field>
                     </v-col>
                     <!--
                     <v-col cols="12" sm="6" md="4">
@@ -59,7 +59,7 @@
                         v-model="pharmacy_selected.subdistrict"
                         type="district"
                         @select="select"
-                        label="ตำบล/แขวง"
+                        placeholder="ตำบล/แขวง"
                       ></ThailandAutoComplete>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -67,7 +67,7 @@
                         v-model="pharmacy_selected.district"
                         type="amphoe"
                         @select="select"
-                        label="อำเภอ/เขต"
+                        placeholder="อำเภอ/เขต"
                       ></ThailandAutoComplete>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -75,7 +75,7 @@
                         v-model="pharmacy_selected.province"
                         type="province"
                         @select="select"
-                        label="จังหวัด"
+                        placeholder="จังหวัด"
                       ></ThailandAutoComplete>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -83,14 +83,15 @@
                         v-model="pharmacy_selected.zipcode"
                         type="zipcode"
                         @select="select"
-                        label="รหัสไปรษณีย์"
+                        placeholder="รหัสไปรษณีย์"
                       ></ThailandAutoComplete>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
                         v-model="pharmacy_selected.Telno"
                         label="เบอร์ติดต่อ"
-                        :maxlength="maxtelno"
+                        :maxlength="10"
+                        outlined
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -116,25 +117,24 @@
 
 <script>
 import Menuadmin from "../../components/Menuadmin";
-import ThailandAutoComplete from "vue-thailand-address-autocomplete";
+import ThailandAutoComplete from "../../components/vue-thailand-autocomplete";
 import axios from "axios";
 export default {
   data: () => ({
     search: "",
     dialog: false,
-    maxtelno: 10,
     district: "",
     amphoe: "",
     province: "",
     zipcode: "",
     headers: [
-      { text: "ชื่อร้านขายยา", value: "pharmacy_name" },
-      { text: "ที่อยู่", value: "address" },
-      { text: "ตำบล / แขวง", value: "subdistrict" },
-      { text: "อำเภอ/เขต", value: "district" },
-      { text: "จังหวัด", value: "province" },
-      { text: "เบอร์ติดต่อ", value: "Telno" },
-      { text: "รหัสไปรษณีย์", value: "zipcode" },
+      { text: "ชื่อร้านขายยา", value: "pharmacy_name",width:"13%" },
+      { text: "ที่อยู่", value: "address",width:"25%" },
+      { text: "ตำบล / แขวง", value: "subdistrict",width:"11%" },
+      { text: "อำเภอ/เขต", value: "district",width:"11%" },
+      { text: "จังหวัด", value: "province",width:"13%" },
+      { text: "เบอร์ติดต่อ", value: "Telno",width:"10%" },
+      { text: "รหัสไปรษณีย์", value: "zipcode" ,width:"8%" },
       { text: "แก้ไข / ลบ", value: "action", align: "center" }
     ],
     pharmacy: [],

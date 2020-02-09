@@ -7,7 +7,9 @@
     <v-spacer></v-spacer>
 
     <v-toolbar-items>
-      <v-btn depressed @click="click" value="้home" :color="btncolor">ออร์เดอร์พร้อมจำหน่าย</v-btn>
+      <v-btn depressed @click="click" value="้home" :color="btncolor"
+        >ออร์เดอร์พร้อมจำหน่าย</v-btn
+      >
 
       <!-- ยืนยันออร์เดอร์ -->
       <v-menu offset-y open-on-hover>
@@ -19,14 +21,21 @@
         </template>
 
         <v-list>
-          <v-list-item v-for="item in confirm" :key="item.value" router :to="item.route">
+          <v-list-item
+            v-for="item in confirm"
+            :key="item.value"
+            router
+            :to="item.route"
+          >
             <v-list-item-title>{{ item.value }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
       <!-- ยืนยันออร์เดอร์ -->
 
-      <v-btn depressed @click="click" value="prepareorder" :color="btncolor4">จัดยาตามออร์เดอร์</v-btn>
+      <v-btn depressed @click="click" value="prepareorder" :color="btncolor4"
+        >จัดยาตามออร์เดอร์</v-btn
+      >
 
       <!-- <v-btn depressed @click="click" value="returnmedicine" :color="btncolor">การคืนยา</v-btn> -->
       <v-menu offset-y open-on-hover>
@@ -38,13 +47,20 @@
         </template>
 
         <v-list>
-          <v-list-item v-for="item in links" :key="item.value" router :to="item.route">
+          <v-list-item
+            v-for="item in links"
+            :key="item.value"
+            router
+            :to="item.route"
+          >
             <v-list-item-title>{{ item.value }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
 
-      <v-btn depressed @click="click" value="orderstatus" :color="btncolor2">สถานะออร์เดอร์</v-btn>
+      <v-btn depressed @click="click" value="orderstatus" :color="btncolor2"
+        >สถานะออร์เดอร์</v-btn
+      >
       <v-btn depressed @click="click" value="notification" :color="btncolor3">
         <v-icon>mdi-bell</v-icon>
       </v-btn>
@@ -56,7 +72,9 @@
       </template>
       <v-list>
         <v-list-item v-for="(item, index) in items" :key="index">
-          <v-list-item-title :value="index" @click="logout">{{ item }}</v-list-item-title>
+          <v-list-item-title :value="index" @click="logout">{{
+            item
+          }}</v-list-item-title>
           <!-- {{ item }} -->
         </v-list-item>
       </v-list>

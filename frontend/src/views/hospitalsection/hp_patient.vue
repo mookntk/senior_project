@@ -9,7 +9,9 @@
         <v-col align="right">
           <v-dialog v-model="dialog_edit" persistent max-width="700px">
             <template v-slot:activator="{ on }">
-              <v-btn color="primary" dark v-on="on">+ เพิ่มข้อมูลผู้ป่วยรายใหม่</v-btn>
+              <v-btn color="primary" dark v-on="on"
+                >+ เพิ่มข้อมูลผู้ป่วยรายใหม่</v-btn
+              >
             </template>
             <v-card class="blue-grey lighten-5 font">
               <v-card-title>
@@ -54,17 +56,23 @@
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6">
-                        <!-- <v-text-field v-model="editedItem.gender" label="เพศ" outlined></v-text-field> -->
-
                         <v-radio-group
                           v-model="editedItem.gender"
                           label="เพศ"
                           row
                           required
-                          :rules="[(v) => !!v || 'กรุณาเลือกเพศ']"
+                          :rules="[v => !!v || 'กรุณาเลือกเพศ']"
                         >
-                          <v-radio label="ชาย" value="ชาย" style="margin-left:25px;"></v-radio>
-                          <v-radio label="หญิง" value="หญิง" style="margin-left:25px;"></v-radio>
+                          <v-radio
+                            label="ชาย"
+                            value="ชาย"
+                            style="margin-left:25px;"
+                          ></v-radio>
+                          <v-radio
+                            label="หญิง"
+                            value="หญิง"
+                            style="margin-left:25px;"
+                          ></v-radio>
                         </v-radio-group>
                       </v-col>
                       <v-col cols="12" lg="6" sm="6">
@@ -174,7 +182,7 @@
                           outlined
                           clearable
                           v-model="disease_selected"
-                          :rules="[(v) => !!v || 'กรุณาเลือกโรค']"
+                          :rules="[v => !!v || 'กรุณาเลือกโรค']"
                           required
                         ></v-autocomplete>
                       </v-col>
@@ -186,7 +194,7 @@
                           label="ร้านขายยา"
                           v-model="editedItem.pharmacy_id_patient"
                           outlined
-                          :rules="[(v) => !!v || 'กรุณาเลือกร้านขายยา']"
+                          :rules="[v => !!v || 'กรุณาเลือกร้านขายยา']"
                           required
                         ></v-autocomplete>
                       </v-col>
@@ -196,8 +204,12 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn @click="close" rounded color="red lighten-1" large>ปิด</v-btn>
-                <v-btn rounded color="green lighten-1" large @click="save">เสร็จสิ้น</v-btn>
+                <v-btn @click="close" rounded color="red lighten-1" large
+                  >ปิด</v-btn
+                >
+                <v-btn rounded color="green lighten-1" large @click="save"
+                  >เสร็จสิ้น</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -240,10 +252,20 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field :value="patients[index].gender" label="เพศ" filled readonly></v-text-field>
+                  <v-text-field
+                    :value="patients[index].gender"
+                    label="เพศ"
+                    filled
+                    readonly
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="4">
-                  <v-text-field :value="age" label="อายุ" filled readonly></v-text-field>
+                  <v-text-field
+                    :value="age"
+                    label="อายุ"
+                    filled
+                    readonly
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="8">
                   <v-text-field
@@ -254,7 +276,12 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field :value="patients[index].email" label="อีเมล" filled readonly></v-text-field>
+                  <v-text-field
+                    :value="patients[index].email"
+                    label="อีเมล"
+                    filled
+                    readonly
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
@@ -273,7 +300,12 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field value="Januvia 100 mg 2 tablets" label="ยา" filled readonly></v-text-field>
+                  <v-text-field
+                    value="Januvia 100 mg 2 tablets"
+                    label="ยา"
+                    filled
+                    readonly
+                  ></v-text-field>
                 </v-col>
               </v-row>
               <v-data-table
@@ -287,7 +319,12 @@
       </v-dialog>
 
       <!-- Data Table of patient page -->
-      <v-data-table :headers="headers" :items="patients" :items-per-page="10" class="elevation-1">
+      <v-data-table
+        :headers="headers"
+        :items="patients"
+        :items-per-page="10"
+        class="elevation-1"
+      >
         <template v-slot:body="{ items }">
           <tbody>
             <tr v-for="item in items" :key="item.name">
@@ -297,11 +334,17 @@
               <td style="text-align:center">{{ item.Telno }}</td>
               <td style="text-align:center">{{ item.pharmacy_name }}</td>
               <td style="text-align:center">
-                <v-icon small class="mr-2" @click="showItem(item)">mdi-eye</v-icon>
+                <v-icon small class="mr-2" @click="showItem(item)"
+                  >mdi-eye</v-icon
+                >
               </td>
               <td style="text-align:center">
-                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-                <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
+                <v-icon small class="mr-2" @click="editItem(item)"
+                  >mdi-pencil</v-icon
+                >
+                <v-icon small class="mr-2" @click="deleteItem(item)"
+                  >mdi-delete</v-icon
+                >
               </td>
             </tr>
           </tbody>
@@ -314,12 +357,6 @@
 <script>
 import Menu from "../../components/hp_menubar";
 import ThailandAutoComplete from "../../components/vue-thailand-autocomplete";
-import {
-  searchAddressByDistrict,
-  searchAddressByAmphoe,
-  searchAddressByProvince,
-  searchAddressByZipcode
-} from "thai-address-database";
 import axios from "axios";
 export default {
   data() {
@@ -368,8 +405,8 @@ export default {
       ],
       inputrules: [
         v => !!v || "กรุณากรอกข้อมูล",
-        v =>
-          !/[`~,.<>;':"\/\[\]\|{}()=_+-?!@#$%^&*]/.test(v) ||
+        v => 
+          !/^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/.test(v) ||
           "ห้ามใช้อักขระพิเศษ(!@#$%^&*()_+|~-=`{}[]:" + `"` + ";'<>?,./)"
       ],
       numberrules: [
@@ -406,10 +443,6 @@ export default {
       return this.editedIndex === -1
         ? "ข้อมูลผู้ป่วยรายใหม่"
         : "แก้ไขข้อมูลผู้ป่วย";
-    },
-
-    computedDateFormatted() {
-      return this.formatDate(this.date);
     }
   },
   watch: {
@@ -578,9 +611,7 @@ export default {
     axios.get("http://localhost:3000/api/patient/showpatients").then(res => {
       this.patients = res.data;
     });
-    axios
-      .get("http://localhost:3000/api/pharmacy/showpharmacy")
-      .then(pharmacy => {
+    axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(pharmacy => {
         this.pharmacy = pharmacy.data;
       });
     axios.get("http://localhost:3000/api/disease/getdiseases").then(disease => {
