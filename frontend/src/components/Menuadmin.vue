@@ -5,22 +5,21 @@
     </v-toolbar-title>
     <div class="flex-grow-1"></div>
 
-    <v-toolbar-items>
-      <v-btn depressed @click="viewallhosstaff" value="home" :color="btncolor">หน้าหลัก</v-btn>
-      <v-btn
-        depressed
-        @click="viewallhosstaff"
-        value="hosstaff"
-        :color="btncolor"
-      >เภสัชกรของโรงพยาบาล</v-btn>
-      <v-btn depressed @click="viewallphamacy" value="pharmacy" :color="btncolor1">ร้านขายยา</v-btn>
-      <v-btn
-        depressed
-        @click="viewallphamacist"
-        value="pharmacist"
-        :color="btncolor2"
-      >เภสัชกรร้านขายยา</v-btn>
-      <v-btn depressed @click="viewallmedicine" value="medicine" :color="btncolor3">ยา</v-btn>
+    <!-- <v-toolbar-items> -->
+      <!-- <v-btn depressed @click="viewallhosstaff" value="home" :color="btncolor">หน้าหลัก</v-btn> -->
+      <v-btn-toggle v-model="toggle_exclusive"  color="deep-grey accent-3" group>
+        <v-btn depressed @click="viewallhosstaff" value="hosstaff"
+          >เภสัชกรของโรงพยาบาล</v-btn
+        >
+
+        <v-btn depressed @click="viewallphamacy" value="pharmacy"
+          >ร้านขายยา</v-btn
+        >
+        <v-btn depressed @click="viewallphamacist" value="pharmacist"
+          >เภสัชกรร้านขายยา</v-btn
+        >
+        <v-btn depressed @click="viewallmedicine" value="medicine">ยา</v-btn>
+      </v-btn-toggle>
 
       <v-menu offset-y>
         <template v-slot:activator="{ on }">
@@ -29,11 +28,13 @@
         </template>
         <v-list>
           <v-list-item v-for="(item, index) in items" :key="index">
-            <v-list-item :value="index" @click="logout($event)">{{ item }}</v-list-item>
+            <v-list-item :value="index" @click="logout($event)">{{
+              item
+            }}</v-list-item>
           </v-list-item>
         </v-list>
       </v-menu>
-    </v-toolbar-items>
+    <!-- </v-toolbar-items> -->
   </v-app-bar>
 </template>
 
@@ -43,6 +44,8 @@ export default {
     return {
       logged: localStorage.getItem("login"),
       items: ["ชื่อ-สกุล", "Logout"],
+      text: 'center',
+      toggle_exclusive: undefined,
       btncolor: "teal lighten-3",
       btncolor1: "teal lighten-3",
       btncolor2: "teal lighten-3",
@@ -58,130 +61,27 @@ export default {
 
     viewallhosstaff: function(e) {
       console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "hosstaff") {
-        this.btncolor = "teal lighten-1";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        this.$router.push("/hospitalstaff");
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "pharmacy") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-1";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "pharmacist") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-1";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "medicine") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-1";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "home") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-1";
-        this.$router.push("/admin");
-        console.log(this.btncolor);
-      }
+      this.$router.push("/hospitalstaff");
     },
 
     viewallphamacy: function(e) {
       console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "pharmacy") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-1";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "้hosstaff") {
-        this.btncolor = "teal lighten-1";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "้phamacist") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-1";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "medicine") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-1";
-        console.log(this.btncolor);
-      }
+      
       this.$router.push("/pharmacy");
     },
 
     viewallphamacist: function(e) {
       console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "pharmacist") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-1";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "hosstaff") {
-        this.btncolor = "teal lighten-1";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "pharmacy") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-1";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "medicine") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-1";
-        console.log(this.btncolor);
-      }
+      
       this.$router.push("/pharmacist");
     },
     viewallmedicine: function(e) {
       console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "pharmacist") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-1";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "hosstaff") {
-        this.btncolor = "teal lighten-1";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "pharmacy") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-1";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "medicine") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-1";
-        console.log(this.btncolor);
-      }
       this.$router.push("/medicine");
     }
   }
 };
 </script>
-<style >
+
+<style lang="stylus" scoped>
+</style>

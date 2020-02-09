@@ -24,4 +24,5 @@ export default {
 thead.v-data-table-header {
   background-color: #ffd54f;
 }
+
 </style>

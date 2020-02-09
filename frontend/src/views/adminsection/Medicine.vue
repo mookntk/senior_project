@@ -6,7 +6,7 @@
       :headers="headers"
       :items="medicine"
       sort-by="generic"
-      class="elevation-1"
+      class="font elevation-1"
     >
       <template v-slot:top>
         <v-toolbar flat color="white">
@@ -23,12 +23,16 @@
           <div class="flex-grow-1"></div>
           <!-- <v-dialog v-model="dialog1" max-width="1000px"> -->
           <!-- <template v-slot:activator="{ on }"> -->
-          <v-btn color="primary" class="ma-2" @click="editItem(item)">+ เพิ่มข้อมูลยา</v-btn>
+          <v-btn color="primary" class="ma-2" @click="editItem(item)"
+            >+ เพิ่มข้อมูลยา</v-btn
+          >
 
-          <v-btn color="success" dark class="ma-2" @click="editItem2()">จัดการข้อมูลโรค</v-btn>
+          <v-btn color="success" dark class="ma-2" @click="editItem2()"
+            >จัดการข้อมูลโรค</v-btn
+          >
           <!-- </template> -->
 
-          <v-dialog v-model="dialog1" max-width="1000px">
+          <v-dialog v-model="dialog1" max-width="1000px" persistent>
             <v-card class="font">
               <v-card-title>
                 <span class="headline">{{ formTitle }}</span>
@@ -38,10 +42,16 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="medicine_selected.medicine_tmt" label="รหัสยา (TMT)"></v-text-field>
+                      <v-text-field
+                        v-model="medicine_selected.medicine_tmt"
+                        label="รหัสยา (TMT)"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="medicine_selected.medicine_generic" label="ชื่อสามัญ"></v-text-field>
+                      <v-text-field
+                        v-model="medicine_selected.medicine_generic"
+                        label="ชื่อสามัญ"
+                      ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
@@ -70,7 +80,10 @@
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="medicine_selected.unit" label="รูปแบบยา (unit)"></v-text-field>
+                      <v-text-field
+                        v-model="medicine_selected.unit"
+                        label="รูปแบบยา (unit)"
+                      ></v-text-field>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -78,50 +91,76 @@
 
               <v-card-actions>
                 <div class="flex-grow-1"></div>
-                <v-btn color="blue darken-1" text @click="close()">ยกเลิก</v-btn>
-                <v-btn color="blue darken-1" text @click="save()">เสร็จสิ้น</v-btn>
+                <v-btn color="blue darken-1" text @click="close()"
+                  >ยกเลิก</v-btn
+                >
+                <v-btn color="blue darken-1" text @click="save()"
+                  >เสร็จสิ้น</v-btn
+                >
               </v-card-actions>
             </v-card>
           </v-dialog>
 
-          <v-dialog v-model="dialog2" max-width="500px">
+          <v-dialog v-model="dialog2" max-width="500px" persistent>
             <v-card>
-              <v-container >
+              <v-container>
                 <v-card-title class="headline">จัดการข้อมูลโรค</v-card-title>
-                <v-row class="ml-12">
-                  <v-col cols="12" sm="7" md="7">
-                    <v-text-field
-                      v-model="dis_selected.dis_name"
-                      label="ระบุชื่อโรคที่ต้องการเพิ่ม"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="5" md="5">
-                    <v-btn class="ma-3" fab small @click="save2()" color="primary">
-                      <v-icon color="white" large>{{ icons.mdiPlus }}</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-                <v-row class="ml-12">
-                  <v-col cols="12" sm="7" md="7">
-                    <v-autocomplete
-                      :items="disease"
-                      item-text="disease_name"
-                      v-model="medicine_selected.disease_name"
-                      label="เลือกชื่อโรคที่ต้องการลบ"
-                    ></v-autocomplete>
-                  </v-col>
-                  <v-col cols="12" sm="5" md="5">
-                    <v-btn class="ma-3" fab small @click="delete2()" color="red">
-                      <v-icon color="white" large>{{ icons.mdiMinus }}</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
+                <v-form ref="form">
+                  <v-row class="ml-12">
+                    <v-col cols="12" sm="7" md="7">
+                      <v-text-field
+                        v-model="dis_selected.dis_name"
+                        :rules="[
+                          v =>!!v || 'This field is required'
+                        ]"
+                        label="ระบุชื่อโรคที่ต้องการเพิ่ม"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="5" md="5">
+                      <v-btn
+                        class="ma-3"
+                        fab
+                        small
+                        @click="save2()"
+                        color="primary"
+                      >
+                        <v-icon color="white" large>{{ icons.mdiPlus }}</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  <v-row class="ml-12">
+                    <v-col cols="12" sm="7" md="7">
+                      <v-autocomplete
+                        :items="disease"
+                        item-text="disease_name"
+                        v-model="medicine_selected.disease_name"
+                        label="เลือกชื่อโรคที่ต้องการลบ"
+                      ></v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" sm="5" md="5">
+                      <v-btn
+                        class="ma-3"
+                        fab
+                        small
+                        @click="delete2()"
+                        color="red"
+                      >
+                        <v-icon color="white" large>{{
+                          icons.mdiMinus
+                        }}</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
 
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="green darken-1" text @click="close2()">ยกเลิก</v-btn>
-                  <!-- <v-btn color="green darken-1" text @click="save2()">เสร็จสิ้น</v-btn> -->
-                </v-card-actions>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" text @click="close2()"
+                      >ยกเลิก</v-btn
+                    >
+                    <!-- <v-btn color="green darken-1" text @click="save2()">เสร็จสิ้น</v-btn> -->
+                  </v-card-actions>
+                </v-form>
               </v-container>
             </v-card>
           </v-dialog>
@@ -215,6 +254,10 @@ export default {
   },
 
   methods: {
+    reset() {
+      this.$refs.form.reset();
+    },
+
     editItem(item) {
       this.getallmedicine();
       this.editedIndex = this.medicine.indexOf(item);
@@ -249,6 +292,7 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
+
     editItem2() {
       this.getallmedicine();
       this.dialog2 = true;
@@ -275,6 +319,7 @@ export default {
     },
 
     close2() {
+      this.reset();
       this.dialog2 = false;
       setTimeout(() => {
         this.dis_selected = Object.assign({}, this.defaultItem2);
@@ -309,6 +354,7 @@ export default {
       }
       this.close();
     },
+
     getallmedicine() {
       axios.get("http://localhost:3000/api/medicine/showmedicine").then(res => {
         this.medicine = res.data;
@@ -318,6 +364,7 @@ export default {
       });
     }
   },
+
   mounted() {
     axios.get("http://localhost:3000/api/medicine/showmedicine").then(res => {
       this.medicine = res.data;
@@ -328,7 +375,7 @@ export default {
   }
 };
 </script>
-<style >
+<style>
 @import url("https://fonts.googleapis.com/css?family=Sarabun&display=swap");
 .font {
   font-family: "Sarabun", sans-serif;
