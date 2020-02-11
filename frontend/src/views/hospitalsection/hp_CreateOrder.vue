@@ -1,11 +1,7 @@
 <template>
   <v-app class="font cyan lighten-5">
-    <v-alert class="alert font" type="success" :value="success_alert">
-      บันทึกข้อมูลสำเร็จ
-    </v-alert>
-    <v-alert class="alert font" type="warning" :value="error_alert">
-      บันทึกข้อมูลไม่สำเร็จ
-    </v-alert>
+    <v-alert class="alert font" type="success" :value="success_alert">บันทึกข้อมูลสำเร็จ</v-alert>
+    <v-alert class="alert font" type="warning" :value="error_alert">บันทึกข้อมูลไม่สำเร็จ</v-alert>
     <div class="menu-header">
       <Menu />
     </div>
@@ -19,7 +15,7 @@
           <v-container>
             <!-- <v-row>
               <v-col cols="12" sm="6" md="12" align="right">order id : {{order_id}}</v-col>
-            </v-row> -->
+            </v-row>-->
             <v-form ref="form">
               <v-row>
                 <v-col cols="12" sm="6" md="6">
@@ -50,20 +46,18 @@
                   >
                     <template v-slot:item="data">
                       <template v-if="typeof data.item !== 'object'">
-                        <v-list-item-content
-                          v-text="data.item"
-                        ></v-list-item-content>
+                        <v-list-item-content v-text="data.item"></v-list-item-content>
                       </template>
                       <template v-else>
                         <v-list-item-content>
-                          <v-list-item-title class="font"
-                            >{{ data.item.name }}
-                            {{ data.item.surname }}</v-list-item-title
-                          >
+                          <v-list-item-title class="font">
+                            {{ data.item.name }}
+                            {{ data.item.surname }}
+                          </v-list-item-title>
                         </v-list-item-content>
                       </template>
-                    </template></v-autocomplete
-                  >
+                    </template>
+                  </v-autocomplete>
                   <!--components = ชื่อผู้ป่วยที่ดึงจากDB-->
                 </v-col>
 
@@ -84,7 +78,7 @@
                   required
                   v-model="picker"
                   outlined
-                ></v-text-field>-->
+                  ></v-text-field>-->
                   <v-menu
                     ref="menu"
                     v-model="menu"
@@ -106,20 +100,10 @@
                         required
                       ></v-text-field>
                     </template>
-                    <v-date-picker
-                      v-model="date"
-                      no-title
-                      scrollable
-                      locale="th"
-                      :min="today"
-                    >
+                    <v-date-picker v-model="date" no-title scrollable locale="th" :min="today">
                       <v-spacer></v-spacer>
-                      <v-btn text color="primary" @click="menu = false"
-                        >Cancel</v-btn
-                      >
-                      <v-btn text color="primary" @click="$refs.menu.save(date)"
-                        >OK</v-btn
-                      >
+                      <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+                      <v-btn text color="primary" @click="$refs.menu.save(date)">OK</v-btn>
                     </v-date-picker>
                   </v-menu>
                 </v-col>
@@ -144,27 +128,19 @@
                         <!-- <v-checkbox v-model="checkbox1"></v-checkbox> -->
                       </v-col>
                       <v-col cols="12" sm="3" md="3">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          โรค
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">โรค</p>
                       </v-col>
 
                       <v-col cols="12" sm="3" md="3">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          ยา
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">ยา</p>
                       </v-col>
 
                       <v-col cols="12" sm="4" md="3">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          วิธีการรับประทานยา
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">วิธีการรับประทานยา</p>
                       </v-col>
 
                       <v-col cols="12" sm="2" md="2">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          จำนวน
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">จำนวน</p>
                       </v-col>
                     </v-row>
 
@@ -174,10 +150,7 @@
                       </v-col>
 
                       <v-col cols="12" sm="3" md="3">
-                        <v-text-field
-                          v-model="disease[index].name"
-                          readonly
-                        ></v-text-field>
+                        <v-text-field v-model="disease[index].disease_name" readonly></v-text-field>
                       </v-col>
 
                       <v-col cols="12" sm="3" md="3">
@@ -281,6 +254,9 @@ export default {
     date(val) {
       this.dateformat = this.formatDate(this.date);
       console.log(this.dateformat);
+    },
+    checkbox() {
+      console.log(this.checkbox);
     }
   },
   methods: {
@@ -293,7 +269,8 @@ export default {
         due_date: this.parseDate(this.dateformat),
         status: "create-order",
         patient_HN_order: this.patient_selected.patient_HN,
-        staff_id_order: localStorage.getItem("staff_id")
+        staff_id_order: localStorage.getItem("staff_id"),
+        pharmacy_id: this.patient_selected.pharmacy_id
       };
     },
     formatDate(date) {
@@ -334,7 +311,7 @@ export default {
                     this.reset();
                     setTimeout(() => {
                       this.success_alert = false;
-                    }, 5000);
+                    }, 2500);
                   })
                   .catch(e => {
                     console.log(e);
@@ -359,7 +336,7 @@ export default {
             this.error_alert = true;
             setTimeout(() => {
               this.error_alert = false;
-            }, 5000);
+            }, 2500);
           });
       }
     },

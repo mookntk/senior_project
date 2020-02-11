@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {
-  check
-} = require("express-validator");
+const { check } = require("express-validator");
 const db = require("../configs/db");
 const patient = "patients";
 router.get("/showpatients", async (req, res) => {
@@ -20,32 +18,32 @@ router.post(
   "/newpatient",
   [
     check("patient_HN")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("name")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("surname")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("DOB")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("gender")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("address")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("subdistrinct")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("distrinct")
-    .not()
-    .isEmpty(),
+      .not()
+      .isEmpty(),
     check("province")
-    .not()
-    .isEmpty()
+      .not()
+      .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -82,7 +80,7 @@ router.post("/editpatient", async (req, res) => {
   }
 });
 
-var all_patients = function () {
+var all_patients = function() {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT patients.* , pharmacy.pharmacy_id , pharmacy.pharmacy_name FROM ${patient} LEFT JOIN pharmacy ON patients.pharmacy_id_patient = pharmacy.pharmacy_id`,
@@ -94,7 +92,7 @@ var all_patients = function () {
   });
 };
 
-var new_patient = function (item) {
+var new_patient = function(item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${patient} SET ?`, item, (error, result) => {
       if (error) return reject(error);
@@ -105,10 +103,10 @@ var new_patient = function (item) {
   });
 };
 
-var delete_patient = function (item) {
+var delete_patient = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      'DELETE FROM ${patient} WHERE patient_HN = ?',
+      "DELETE FROM ${patient} WHERE patient_HN = ?",
       [item.patient_HN],
       (error, result) => {
         if (error) return reject(error);
@@ -120,10 +118,10 @@ var delete_patient = function (item) {
   });
 };
 
-var edit_patient = function (item) {
+var edit_patient = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      'UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, zipcode = ?,pharmacy_id_patient = ?, email = ?, lastupdate_date = NOW() WHERE patient_HN = ?',
+      `UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, zipcode = ?,pharmacy_id_patient = ?, email = ?, lastupdate_date = NOW() WHERE patient_HN = ?`,
       [
         item.name,
         item.surname,

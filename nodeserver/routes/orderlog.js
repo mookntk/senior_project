@@ -22,7 +22,7 @@ router.post(
   ],
   async (req, res) => {
     try {
-      const neworder = await new_log(req.body);
+      const neworder = await NewLog(req.body);
       res.json(neworder);
     } catch (error) {
       res.status(400).json({ message: error.message });
@@ -30,7 +30,7 @@ router.post(
   }
 );
 
-var new_log = function(item) {
+var NewLog = function(item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${log} SET ?`, item, (error, result) => {
       if (error) return reject(error);

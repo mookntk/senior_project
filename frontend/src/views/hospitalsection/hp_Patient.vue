@@ -140,7 +140,7 @@
                           @select="select"
                           color="#42b883"
                           size="medium"
-                          placeholder="ตำบล"
+                          placeholder="ตำบล/แขวง"
                         />
                       </v-col>
                       <v-col cols="12" sm="6">
@@ -149,7 +149,7 @@
                           type="amphoe"
                           @select="select"
                           size="medium"
-                          placeholder="อำเภอ"
+                          placeholder="อำเภอ/เขต"
                         />
                       </v-col>
                       <v-col cols="12" sm="6">
@@ -175,7 +175,7 @@
                       <v-col cols="12" sm="12">
                         <v-autocomplete
                           :items="disease"
-                          item-text="name"
+                          item-text="disease_name"
                           item-value="disease_id"
                           label="เลือกโรค"
                           multiple
@@ -300,12 +300,17 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field
-                    value="Januvia 100 mg 2 tablets"
-                    label="ยา"
+                  <v-autocomplete
+                    :items="disease"
+                    item-text="disease_name"
+                    item-value="disease_id"
+                    v-model="disease_selected"
+                    label="โรค"
                     filled
+                    multiple
                     readonly
-                  ></v-text-field>
+                    append-icon="mdi-blank"
+                  ></v-autocomplete>
                 </v-col>
               </v-row>
               <v-data-table
@@ -397,7 +402,20 @@ export default {
         { text: "ความดันเลือด", align: "center", value: "pressure" },
         { text: "ผู้ตรวจ", align: "center", value: "pharmacist" }
       ],
-      patients: [],
+      patients: {
+        name: "",
+        surname: "",
+        gender: "",
+        DOB: "",
+        email: "",
+        Telno: "",
+        pharmacy_id_patient: "",
+        address: "",
+        subdistrict: "",
+        district: "",
+        province: "",
+        zipcode: ""
+      },
       pharmacy: [],
       emailrules: [
         v => !!v || "กรุณากรอกข้อมูล",
@@ -405,7 +423,7 @@ export default {
       ],
       inputrules: [
         v => !!v || "กรุณากรอกข้อมูล",
-        v => 
+        v =>
           !/^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/.test(v) ||
           "ห้ามใช้อักขระพิเศษ(!@#$%^&*()_+|~-=`{}[]:" + `"` + ";'<>?,./)"
       ],
@@ -470,12 +488,28 @@ export default {
       return `${day}/${month}/${year}`;
     },
     showItem(item) {
-      this.patient_selected = item.name + " " + item.surname;
-      this.index = this.patients.indexOf(item);
-      this.calulate_age();
-      this.dialog_record = true;
+      this.disease_selected = [];
+      axios
+        .post("http://localhost:3000/api/disease-patient/getdiseasebyhn", {
+          patient_HN: item.patient_HN
+        })
+        .then(res => {
+          console.log(res.data);
+          for (var i = 0; i < res.data.length; i++) {
+            this.disease_selected.push(res.data[i].disease_id);
+            console.log(this.disease_selected);
+          }
+          this.patient_selected = item.name + " " + item.surname;
+          this.index = this.patients.indexOf(item);
+          this.calulate_age();
+          this.dialog_record = true;
+        })
+        .catch(e => {
+          console.log("getdisease error " + e);
+        });
     },
     editItem(item) {
+      this.disease_selected = [];
       axios
         .post("http://localhost:3000/api/disease-patient/getdiseasebyhn", {
           patient_HN: item.patient_HN
@@ -611,7 +645,9 @@ export default {
     axios.get("http://localhost:3000/api/patient/showpatients").then(res => {
       this.patients = res.data;
     });
-    axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(pharmacy => {
+    axios
+      .get("http://localhost:3000/api/pharmacy/showpharmacy")
+      .then(pharmacy => {
         this.pharmacy = pharmacy.data;
       });
     axios.get("http://localhost:3000/api/disease/getdiseases").then(disease => {
