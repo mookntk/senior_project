@@ -386,6 +386,7 @@ export default {
     reset() {
       this.$refs.form.reset();
       this.patient_selected = {};
+      this.disease = [];
     },
     JSONformat() {
       this.JSON = {
@@ -408,35 +409,54 @@ export default {
       year = parseInt(year) - 543;
       return `${year}/${month}/${day}`;
     },
+    check_medicine() {
+      var medicine = [];
+      var medicine_id = this.medicine_selected.filter(
+        (item, index) => this.medicine_selected.indexOf(item) === index
+      );
+      for (var i = 0; i < medicine_id.length; i++) {
+        var qty = 0;
+        var this_ = this;
+        medicine[i] = { medicine_id: medicine_id[i] };
+        this.medicine_selected.filter(function(elem, index, array) {
+          if (elem == medicine_id[i]) {
+            console.log(index);
+            qty += parseInt(this_.qty_selected[index]);
+            medicine[i].administration = this_.taking_selected[index];
+          }
+        });
+        medicine[i].qty = qty;
+      }
+      return medicine;
+    },
     save() {
       if (this.$refs.form.validate() && this.check_checkbox()) {
         this.JSONformat();
+        var medicine = this.check_medicine();
         //new order
         axios
           .post("http://localhost:3000/api/order/neworder", this.JSON)
           .then(res => {
-            for (var i = 0; i < this.disease.length; i++) {
-              if (this.checkbox[i] == true) {
-                //add  detail each medicine (only selected)
-                axios
-                  .post("http://localhost:3000/api/order/neworder_detail", {
-                    order_id: res.data.insertId,
-                    medicine_id: this.medicine_selected[i],
-                    qty: this.qty_selected[i],
-                    administration: this.parseString(this.taking_selected[i])
-                  })
-                  .then(detail => {
-                    this.success_alert = true;
-                    this.reset();
-                    setTimeout(() => {
-                      this.success_alert = false;
-                    }, 2000);
-                  })
-                  .catch(e => {
-                    console.log(e);
-                    this.delete_order(res.data.insertId);
-                  });
-              }
+            for (var i = 0; i < medicine.length; i++) {
+              //add  detail each medicine (only selected)
+              axios
+                .post("http://localhost:3000/api/order/neworder_detail", {
+                  order_id: res.data.insertId,
+                  medicine_id: medicine[i].medicine_id,
+                  qty: medicine[i].qty,
+                  administration: this.parseString(medicine[i].administration)
+                })
+                .then(detail => {
+                  this.success_alert = true;
+                  this.reset();
+                  setTimeout(() => {
+                    this.success_alert = false;
+                  }, 2000);
+                })
+                .catch(e => {
+                  console.log(e);
+                  this.delete_order(res.data.insertId);
+                });
             }
             //add log :status create-order
             axios
@@ -483,17 +503,11 @@ export default {
     axios.get("http://localhost:3000/api/medicine/showmedicine").then(res => {
       var data = res.data;
       for (var i = 0; i < data.length; i++) {
-        // this.medicine_selected[i] = ["s"];
         if (this.medicine[data[i].disease_id_medicine] == null) {
           this.medicine[data[i].disease_id_medicine] = [];
-          // this.taking_selected[data[i].disease_id_medicine] = [];
-          // this.qty_selected[data[i].disease_id_medicine] = [[]];
-          // this.medicine_selected[data[i].disease_id_medicine] = { m: [] };
         }
         this.medicine[data[i].disease_id_medicine].push(data[i]);
       }
-      // console.log(this.medicine_selected[2].m);
-      console.log(this.medicine_selected);
     });
   }
 };
