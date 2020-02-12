@@ -202,4 +202,26 @@ var GetOrderByStatus = function(item) {
   });
 };
 
+router.post("/edit_nummed", async (req, res) => {
+  try {
+    const item = await EditNumMedicine(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var EditNumMedicine = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE ${detail} SET qty = ? WHERE order_id = ? AND medicine_id = ?`,
+      [item.qty, item.order_id, item.medicine_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+
 module.exports = router;
