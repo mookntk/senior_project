@@ -3,14 +3,8 @@ const app = express();
 const express_session = require("express-session");
 const bodyParser = require("body-parser");
 const { check, validationResult } = require("express-validator");
-// const config = require("./configs");
 const PORT = 3000;
 
-//test db
-const connect = require("./configs/db.js");
-// connect.query("show tables", (err, result) => {
-//   console.log(result);
-// });
 app.use(
   express_session({
     secret: "keyboard cat",
@@ -44,7 +38,7 @@ app.use("/api", require("./routes/routes"));
 //   req.session.item = "hello world";
 //   res.end("set session");
 // });
-app.post("/", (req, res) => res.json(req.body));
+// app.post("/", (req, res) => res.json(req.body));
 app.get("*", (req, res) => {
   res.end(`<h1>Backend server is startd. session is ${req.session.item}</h1>`);
 });

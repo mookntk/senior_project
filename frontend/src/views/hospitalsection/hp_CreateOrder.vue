@@ -1,7 +1,11 @@
 <template>
   <v-app class="font cyan lighten-5">
-    <v-alert class="alert font" type="success" :value="success_alert">บันทึกข้อมูลสำเร็จ</v-alert>
-    <v-alert class="alert font" type="warning" :value="error_alert">บันทึกข้อมูลไม่สำเร็จ</v-alert>
+    <v-alert class="alert font" type="success" :value="success_alert"
+      >บันทึกข้อมูลสำเร็จ</v-alert
+    >
+    <v-alert class="alert font" type="warning" :value="error_alert"
+      >บันทึกข้อมูลไม่สำเร็จ</v-alert
+    >
     <div class="menu-header">
       <Menu />
     </div>
@@ -46,7 +50,9 @@
                   >
                     <template v-slot:item="data">
                       <template v-if="typeof data.item !== 'object'">
-                        <v-list-item-content v-text="data.item"></v-list-item-content>
+                        <v-list-item-content
+                          v-text="data.item"
+                        ></v-list-item-content>
                       </template>
                       <template v-else>
                         <v-list-item-content>
@@ -100,10 +106,20 @@
                         required
                       ></v-text-field>
                     </template>
-                    <v-date-picker v-model="date" no-title scrollable locale="th" :min="today">
+                    <v-date-picker
+                      v-model="date"
+                      no-title
+                      scrollable
+                      locale="th"
+                      :min="today"
+                    >
                       <v-spacer></v-spacer>
-                      <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
-                      <v-btn text color="primary" @click="$refs.menu.save(date)">OK</v-btn>
+                      <v-btn text color="primary" @click="menu = false"
+                        >Cancel</v-btn
+                      >
+                      <v-btn text color="primary" @click="$refs.menu.save(date)"
+                        >OK</v-btn
+                      >
                     </v-date-picker>
                   </v-menu>
                 </v-col>
@@ -127,30 +143,41 @@
                       <v-col cols="12" sm="1" md="1">
                         <!-- <v-checkbox v-model="checkbox1"></v-checkbox> -->
                       </v-col>
-                      <v-col cols="12" sm="3" md="3">
-                        <p class="subtitle-1 text-xl-center font-weight-black">โรค</p>
+                      <v-col cols="12" sm="2" md="2">
+                        <p class="subtitle-1 text-xl-center font-weight-black">
+                          โรค
+                        </p>
                       </v-col>
 
-                      <v-col cols="12" sm="3" md="3">
-                        <p class="subtitle-1 text-xl-center font-weight-black">ยา</p>
+                      <v-col cols="12" sm="4" md="4">
+                        <p class="subtitle-1 text-xl-center font-weight-black">
+                          ยา
+                        </p>
                       </v-col>
 
                       <v-col cols="12" sm="4" md="3">
-                        <p class="subtitle-1 text-xl-center font-weight-black">วิธีการรับประทานยา</p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">
+                          วิธีการรับประทานยา
+                        </p>
                       </v-col>
 
                       <v-col cols="12" sm="2" md="2">
-                        <p class="subtitle-1 text-xl-center font-weight-black">จำนวน</p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">
+                          จำนวน
+                        </p>
                       </v-col>
                     </v-row>
 
-                    <v-row v-for="(k, index) in disease.length" :key="k">
+                    <!-- <v-row v-for="(k, index) in disease.length" :key="k">
                       <v-col cols="12" sm="1" md="1">
                         <v-checkbox v-model="checkbox[index]"></v-checkbox>
                       </v-col>
 
-                      <v-col cols="12" sm="3" md="3">
-                        <v-text-field v-model="disease[index].disease_name" readonly></v-text-field>
+                      <v-col cols="12" sm="2" md="2">
+                        <v-text-field
+                          v-model="disease[index].disease_name"
+                          readonly
+                        ></v-text-field>
                       </v-col>
 
                       <v-col cols="12" sm="3" md="3">
@@ -160,9 +187,18 @@
                           item-value="medicine_id"
                           v-model="medicine_selected[disease[index].disease_id]"
                           outlined
-                        ></v-autocomplete>
+                        >
+                        </v-autocomplete>
                       </v-col>
-
+                      <v-col
+                        cols="12"
+                        sm="1"
+                        md="1"
+                        style="padding:10px;margin:auto;margin-bottom:45px"
+                      >
+                        <v-icon @click="remove(k)">mdi-minus-circle</v-icon>
+                        <v-icon @click="add(k)">mdi-plus-circle</v-icon>
+                      </v-col>
                       <v-col cols="12" sm="3" md="3">
                         <v-autocomplete
                           :items="taking"
@@ -178,6 +214,60 @@
                           solo
                           clearable
                           v-model="qty_selected[disease[index].disease_id]"
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>-->
+                    <v-row v-for="(k, index) in disease" :key="index">
+                      <v-col cols="12" sm="1" md="1">
+                        <v-checkbox
+                          v-model="checkbox[index]"
+                          v-if="countItem[index]"
+                        ></v-checkbox>
+                      </v-col>
+
+                      <v-col cols="12" sm="2" md="2">
+                        <v-text-field
+                          v-if="countItem[index]"
+                          v-model="disease[index].disease_name"
+                          readonly
+                        ></v-text-field>
+                      </v-col>
+
+                      <v-col cols="12" sm="3" md="3">
+                        <v-autocomplete
+                          :items="medicine[disease[index].disease_id]"
+                          item-text="medicine_generic"
+                          item-value="medicine_id"
+                          outlined
+                          v-model="medicine_selected[index]"
+                        ></v-autocomplete>
+                      </v-col>
+                      <v-col
+                        cols="12"
+                        sm="1"
+                        md="1"
+                        style="padding:10px;margin:auto;margin-bottom:45px"
+                      >
+                        <v-icon @click="remove(index)">mdi-minus-circle</v-icon>
+                        <v-icon @click="add(k)" v-if="countItem[index]"
+                          >mdi-plus-circle</v-icon
+                        >
+                      </v-col>
+                      <v-col cols="12" sm="3" md="3">
+                        <v-autocomplete
+                          :items="taking"
+                          multiple
+                          outlined
+                          clearable
+                          v-model="taking_selected[index]"
+                        ></v-autocomplete>
+                      </v-col>
+
+                      <v-col cols="12" sm="2" md="2">
+                        <v-text-field
+                          solo
+                          clearable
+                          v-model="qty_selected[index]"
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -231,7 +321,8 @@ export default {
       success_alert: false,
       error_alert: false,
       inputrules: [v => !!v || "กรุณากรอกข้อมูล"],
-      checkbox: []
+      checkbox: [],
+      countItem: [true]
     };
   },
   components: {
@@ -239,27 +330,59 @@ export default {
   },
   watch: {
     patient_selected() {
-      axios
-        .post("http://localhost:3000/api/disease-patient/getdiseasenamebyhn", {
-          patient_HN: this.patient_selected.patient_HN
-        })
-        .then(res => {
-          this.disease = res.data;
-          // console.log(this.disease);
-        })
-        .catch(e => {
-          console.log("getdisease error " + e);
-        });
+      if (this.patient_selected.patient_HN != null) {
+        axios
+          .post(
+            "http://localhost:3000/api/disease-patient/getdiseasenamebyhn",
+            {
+              patient_HN: this.patient_selected.patient_HN
+            }
+          )
+          .then(res => {
+            this.disease = res.data;
+            for (let index = 0; index < this.disease.length; index++) {
+              this.countItem[index] = true;
+            }
+          })
+          .catch(e => {
+            console.log("getdisease error " + e);
+          });
+      }
     },
     date(val) {
       this.dateformat = this.formatDate(this.date);
-      console.log(this.dateformat);
+      // console.log(this.dateformat);
     },
     checkbox() {
       console.log(this.checkbox);
+      for (let i = 0; i < this.disease.length; i++) {
+        if (this.countItem[i] == true) {
+          var checked = this.checkbox[i];
+        }
+        this.checkbox[i] = checked;
+      }
     }
   },
   methods: {
+    add(item) {
+      var index = this.disease.indexOf(item);
+      console.log(index);
+      this.disease.splice(index + 1, 0, item);
+      this.count();
+    },
+    remove(index) {
+      this.disease.splice(index, 1);
+      this.count();
+    },
+    count() {
+      for (let i = 1; i < this.disease.length; i++) {
+        if (this.disease[i].disease_name != this.disease[i - 1].disease_name) {
+          this.countItem[i] = true;
+        } else {
+          this.countItem[i] = false;
+        }
+      }
+    },
     reset() {
       this.$refs.form.reset();
       this.patient_selected = {};
@@ -298,20 +421,16 @@ export default {
                 axios
                   .post("http://localhost:3000/api/order/neworder_detail", {
                     order_id: res.data.insertId,
-                    medicine_id: this.medicine_selected[
-                      this.disease[i].disease_id
-                    ],
-                    qty: this.qty_selected[this.disease[i].disease_id],
-                    administration: this.parseString(
-                      this.taking_selected[this.disease[i].disease_id]
-                    )
+                    medicine_id: this.medicine_selected[i],
+                    qty: this.qty_selected[i],
+                    administration: this.parseString(this.taking_selected[i])
                   })
                   .then(detail => {
                     this.success_alert = true;
                     this.reset();
                     setTimeout(() => {
                       this.success_alert = false;
-                    }, 2500);
+                    }, 2000);
                   })
                   .catch(e => {
                     console.log(e);
@@ -336,7 +455,7 @@ export default {
             this.error_alert = true;
             setTimeout(() => {
               this.error_alert = false;
-            }, 2500);
+            }, 2000);
           });
       }
     },
@@ -346,6 +465,7 @@ export default {
       });
     },
     parseString(item) {
+      //join administration to string
       return item.join(",");
     },
     delete_order(id) {
@@ -363,15 +483,17 @@ export default {
     axios.get("http://localhost:3000/api/medicine/showmedicine").then(res => {
       var data = res.data;
       for (var i = 0; i < data.length; i++) {
+        // this.medicine_selected[i] = ["s"];
         if (this.medicine[data[i].disease_id_medicine] == null) {
           this.medicine[data[i].disease_id_medicine] = [];
-          this.taking_selected[data[i].disease_id_medicine] = [];
-          this.medicine_selected[data[i].disease_id_medicine] = [];
-          this.qty_selected[data[i].disease_id_medicine] = [];
+          // this.taking_selected[data[i].disease_id_medicine] = [];
+          // this.qty_selected[data[i].disease_id_medicine] = [[]];
+          // this.medicine_selected[data[i].disease_id_medicine] = { m: [] };
         }
         this.medicine[data[i].disease_id_medicine].push(data[i]);
       }
-      // console.log(this.medicine);
+      // console.log(this.medicine_selected[2].m);
+      console.log(this.medicine_selected);
     });
   }
 };
