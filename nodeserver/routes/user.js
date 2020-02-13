@@ -189,7 +189,9 @@ var new_user = function(item) {
     db.query(
       "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
         item.username +
-        "','1234','hos_staff','" +
+        "','" +
+        randomstring +
+        "','hos_staff','"+
         item.name +
         "','" +
         item.surname +

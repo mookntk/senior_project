@@ -32,7 +32,7 @@
           >
           <!-- </template> -->
 
-          <v-form ref="form" v-model="valid">
+          <v-form ref="form">
             <v-dialog v-model="dialog1" max-width="1000px" persistent>
               <v-card class="font">
                 <v-card-title>
@@ -44,20 +44,32 @@
                     <v-row>
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field
+                          ref="input"
                           v-model="medicine_selected.medicine_tmt"
                           label="รหัสยา (TMT)"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field
+                          ref="input"
                           v-model="medicine_selected.medicine_generic"
                           label="ชื่อสามัญ"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field
+                          ref="input"
                           v-model="medicine_selected.medicine_trade"
                           label="ชื่อทางการค้า"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
@@ -70,20 +82,32 @@
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field
+                          ref="input"
                           v-model="medicine_selected.strenght"
                           label="ปริมาณยา (strenght)"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field
+                          ref="input"
                           v-model="medicine_selected.price"
                           label="ราคาต่อหนึ่งปริมาณยา (price/strenght)"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
                         ></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field
+                          ref="input"
                           v-model="medicine_selected.unit"
                           label="รูปแบบยา (unit)"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -103,7 +127,7 @@
             </v-dialog>
           </v-form>
 
-          <v-form ref="form" v-model="valid">
+          <v-form>
             <v-dialog v-model="dialog2" max-width="500px" persistent>
               <v-card>
                 <v-container>
@@ -111,15 +135,19 @@
                   <v-row class="ml-12">
                     <v-col cols="12" sm="7" md="7">
                       <v-text-field
+                        ref="input"
                         v-model="dis_selected.dis_icd"
-                        label="ระบุรหัส ICD-10-TM"
-                        :error-messages="Rules"
+                        label="ระบุรหัส ICD-10-TM "
+                        :rules="[rules.required]"
+                        :error-messages="errorMessages"
                         required
                       ></v-text-field>
                       <v-text-field
+                        ref="input"
                         v-model="dis_selected.dis_name"
                         label="ระบุชื่อโรคที่ต้องการเพิ่ม"
-                        :error-messages="Rules"
+                        :rules="[rules.required]"
+                        :error-messages="errorMessages"
                         required
                       ></v-text-field>
                     </v-col>
@@ -130,6 +158,9 @@
                         small
                         @click="save2()"
                         color="primary"
+                        :disabled="
+                          !dis_selected.dis_icd || !dis_selected.dis_name
+                        "
                       >
                         <v-icon color="white" large>{{ icons.mdiPlus }}</v-icon>
                       </v-btn>
@@ -150,6 +181,7 @@
                         fab
                         small
                         @click="delete2()"
+                        :disabled="!medicine_selected.disease_name"
                         color="red"
                       >
                         <v-icon color="white" large>{{
@@ -194,10 +226,14 @@ export default {
       mdiPlus,
       mdiMinus
     },
-    Rules: [
-      v => !!v || "โปรดใส่ข้อมูล"
-      // v => v.length <= 10 || 'Name must be less than 10 characters',
-    ],
+    input: null,
+    errorMessages: "",
+    formHasErrors: false,
+    rules: {
+      required: input => !!input || "โปรดใส่ข้อมูล"
+      // ,
+      // counter: input => input.length >= 1 || "โปรดใส่ข้อมูล",
+    },
     dialog1: false,
     dialog2: false,
     headers: [
@@ -260,14 +296,34 @@ export default {
   },
 
   computed: {
+    form() {
+      return {
+        input: this.input
+      };
+    },
     formTitle() {
       return this.editedIndex === -1 ? "เพิ่มข้อมูลยา" : "แก้ไขข้อมูลยา";
+    }
+  },
+
+  watch: {
+    input() {
+      this.errorMessages = "";
     }
   },
 
   methods: {
     reset() {
       this.$refs.form.reset();
+    },
+
+    resetForm() {
+      this.errorMessages = [];
+      this.formHasErrors = false;
+
+      Object.keys(this.form).forEach(f => {
+        this.$refs[f].reset();
+      });
     },
 
     editItem(item) {
@@ -321,13 +377,15 @@ export default {
             break;
           }
         }
-        if (check == 0) {
-          axios.post("http://localhost:3000/api/medicine/newdisease", {
-            dis_name: this.dis_selected.dis_name,
-            dis_icd: this.dis_selected.dis_icd
-          });
-          this.reset();
-          this.close2();
+        if (this.$refs.form.validate()) {
+          if (check == 0) {
+            axios.post("http://localhost:3000/api/medicine/newdisease", {
+              dis_name: this.dis_selected.dis_name,
+              dis_icd: this.dis_selected.dis_icd
+            });
+            this.resetForm();
+            this.close2();
+          }
         }
       });
     },
@@ -350,31 +408,33 @@ export default {
     },
 
     save() {
-      if (this.editedIndex > -1) {
-        axios
-          .post(
-            "http://localhost:3000/api/medicine/editmedicine",
-            this.medicine_selected
-          )
-          .then(res => {
-            this.getallmedicine();
-          });
-      } else {
-        axios
-          .post("http://localhost:3000/api/medicine/newmedicine", {
-            medicine_tmt: this.medicine_selected.medicine_tmt,
-            medicine_generic: this.medicine_selected.medicine_generic,
-            medicine_trade: this.medicine_selected.medicine_trade,
-            strenght: this.medicine_selected.strenght,
-            price: this.medicine_selected.price,
-            unit: this.medicine_selected.unit,
-            disease_name: this.medicine_selected.disease_name
-          })
-          .then(res => {
-            this.getallmedicine();
-          });
+      if (this.$refs.form.validate()) {
+        if (this.editedIndex > -1) {
+          axios
+            .post(
+              "http://localhost:3000/api/medicine/editmedicine",
+              this.medicine_selected
+            )
+            .then(res => {
+              this.getallmedicine();
+            });
+        } else {
+          axios
+            .post("http://localhost:3000/api/medicine/newmedicine", {
+              medicine_tmt: this.medicine_selected.medicine_tmt,
+              medicine_generic: this.medicine_selected.medicine_generic,
+              medicine_trade: this.medicine_selected.medicine_trade,
+              strenght: this.medicine_selected.strenght,
+              price: this.medicine_selected.price,
+              unit: this.medicine_selected.unit,
+              disease_name: this.medicine_selected.disease_name
+            })
+            .then(res => {
+              this.getallmedicine();
+            });
+        }
+        this.close();
       }
-      this.close();
     },
 
     getallmedicine() {

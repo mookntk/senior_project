@@ -34,65 +34,90 @@
                 >+ เพิ่มเภสัชกรของโรงพยาบาล</v-btn
               >
             </template>
-            <v-card class="font">
-              <v-card-title>
-                <span>{{ formTitle }}</span>
-              </v-card-title>
+            <v-form ref="form">
+              <v-card class="font">
+                <v-card-title>
+                  <span>{{ formTitle }}</span>
+                </v-card-title>
 
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field
-                        v-model="hosstaff_selected.name"
-                        label="ชื่อ"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field
-                        v-model="hosstaff_selected.surname"
-                        label="นามสกุล"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field
-                        v-model="hosstaff_selected.username"
-                        label="ชื่อผู้ใช้"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field
-                        v-model="hosstaff_selected.email"
-                        label="อีเมล"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-text-field
-                        v-model="hosstaff_selected.telno"
-                        label="เบอร์ติดต่อ"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-radio-group
-                        v-model="hosstaff_selected.sex"
-                        label="เพศ"
-                      >
-                        <v-radio label="ชาย"></v-radio>
-                        <v-radio label="หญิง"></v-radio>
-                      </v-radio-group>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" sm="6" md="6">
+                        <v-text-field
+                          ref="input"
+                          v-model="hosstaff_selected.name"
+                          label="ชื่อ"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="6">
+                        <v-text-field
+                          ref="input"
+                          v-model="hosstaff_selected.surname"
+                          label="นามสกุล"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="6">
+                        <v-text-field
+                          ref="input"
+                          v-model="hosstaff_selected.username"
+                          label="ชื่อผู้ใช้"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="6">
+                        <v-text-field
+                          ref="input"
+                          v-model="hosstaff_selected.email"
+                          label="อีเมล"
+                          :rules="[rules.required, rules.email]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="6">
+                        <v-text-field
+                          ref="input"
+                          v-model="hosstaff_selected.telno"
+                          :maxlength="10"
+                          label="เบอร์ติดต่อ"
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="6">
+                        <v-radio-group
+                          v-model="hosstaff_selected.sex"
+                          label="เพศ"
+                        >
+                          <v-radio label="ชาย"></v-radio>
+                          <v-radio label="หญิง"></v-radio>
+                        </v-radio-group>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
 
-              <v-card-actions>
-                <div class="flex-grow-1"></div>
-                <v-btn color="blue darken-1" text @click="close">ยกเลิก</v-btn>
-                <v-btn color="blue darken-1" text @click="save"
-                  >เสร็จสิ้น</v-btn
-                >
-              </v-card-actions>
-            </v-card>
+                <v-card-actions>
+                  <div class="flex-grow-1"></div>
+                  <v-btn color="blue darken-1" text @click="close"
+                    >ยกเลิก</v-btn
+                  >
+                  <v-btn color="blue darken-1" text @click="save"
+                    >เสร็จสิ้น</v-btn
+                  >
+                </v-card-actions>
+              </v-card>
+            </v-form>
           </v-dialog>
         </v-toolbar>
       </template>
@@ -116,12 +141,23 @@ export default {
   data: () => ({
     search: "",
     dialog: false,
+    input: null,
+    errorMessages: "",
+    formHasErrors: false,
+    rules: {
+      required: input => !!input || "โปรดใส่ข้อมูล",
+      // counter: input => input.length <= 20 || "Max 20 characters",
+      email: input => {
+        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return pattern.test(input) || "Invalid e-mail.";
+      }
+    },
     headers: [
-      { text: "ชื่อ", value: "name",width:"15%" },
-      { text: "นามสกุล", value: "surname",width:"15%" },
-      { text: "username", value: "username",width:"15%" },
-      { text: "อีเมล", value: "email",width:"25%" },
-      { text: "เบอร์ติดต่อ", value: "telno",width:"15%" },
+      { text: "ชื่อ", value: "name", width: "15%" },
+      { text: "นามสกุล", value: "surname", width: "15%" },
+      { text: "username", value: "username", width: "15%" },
+      { text: "อีเมล", value: "email", width: "25%" },
+      { text: "เบอร์ติดต่อ", value: "telno", width: "15%" },
       {
         text: "แก้ไข / ลบ / ส่งรหัสผ่านให้ผู้ใช้",
         value: "action",
@@ -216,44 +252,52 @@ export default {
           });
     },
     save() {
-      if (this.editedIndex > -1) {
-        axios
-          .post(
-            "http://localhost:3000/api/user/edituser",
-            this.hosstaff_selected
-          )
-          .then(res => {
-            this.getallstaff();
-          });
-      } else {
-        var check = 0;
-        axios.get("http://localhost:3000/api/user/showallstaff").then(res => {
-          for (var i = 0; i < res.data.length; i++) {
-            if (this.hosstaff_selected.username === res.data[i].username) {
-              check = 1;
-              console.log("มีชื่อผู้ใช้นี้แล้ว");
-              alert("มีชื่อผู้ใช้นี้แล้ว โปรดใช้ชื่ออื่น");
-              break;
+      if (this.$refs.form.validate()) {
+        if (this.editedIndex > -1) {
+          axios
+            .post(
+              "http://localhost:3000/api/user/edituser",
+              this.hosstaff_selected
+            )
+            .then(res => {
+              this.getallstaff();
+            });
+        } else {
+          var check = 0;
+          axios.get("http://localhost:3000/api/user/showallstaff").then(res => {
+            for (var i = 0; i < res.data.length; i++) {
+              if (this.hosstaff_selected.username === res.data[i].username) {
+                check = 1;
+                console.log("มีชื่อผู้ใช้นี้แล้ว");
+                alert("มีชื่อผู้ใช้นี้แล้ว โปรดใช้ชื่ออื่น");
+                break;
+              }
             }
-          }
-          if (check == 0) {
-            axios
-              .post("http://localhost:3000/api/user/newuser", {
-                username: this.hosstaff_selected.username,
-                name: this.hosstaff_selected.name,
-                surname: this.hosstaff_selected.surname,
-                email: this.hosstaff_selected.email,
-                telno: this.hosstaff_selected.telno,
-                sex: this.hosstaff_selected.sex,
-                password: this.randomstring
-              })
-              .then(res => {
-                this.getallstaff();
-              });
-          }
-        });
+            if (check == 0) {
+              // if (this.hosstaff_selected.username != "" || this.hosstaff_selected.name !="" || this.hosstaff_selected.surname !=""
+              // || this.hosstaff_selected.email !="" || this.hosstaff_selected.telno !="" || this.hosstaff_selected.sex !="") {
+              //   console.log("in if loop");
+              axios
+                .post("http://localhost:3000/api/user/newuser", {
+                  username: this.hosstaff_selected.username,
+                  name: this.hosstaff_selected.name,
+                  surname: this.hosstaff_selected.surname,
+                  email: this.hosstaff_selected.email,
+                  telno: this.hosstaff_selected.telno,
+                  sex: this.hosstaff_selected.sex,
+                  password: this.randomstring
+                })
+                .then(res => {
+                  this.getallstaff();
+                });
+              // }else{
+              //   console.log("else loop");
+              // }
+            }
+          });
+        }
+        this.close();
       }
-      this.close();
     },
     getallstaff() {
       axios.get("http://localhost:3000/api/user/showhospital").then(res => {

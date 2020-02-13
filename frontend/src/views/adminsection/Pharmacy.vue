@@ -24,72 +24,100 @@
           <div class="flex-grow-1"></div>
           <v-dialog v-model="dialog" max-width="1000px" persistent>
             <template v-slot:activator="{ on }">
-              <v-btn color="primary" dark class="mb-2" v-on="on">+ เพิ่มร้านขายยา</v-btn>
+              <v-btn color="primary" dark class="mb-2" v-on="on"
+                >+ เพิ่มร้านขายยา</v-btn
+              >
             </template>
-            <v-card class="font">
-              <v-card-title>
-                <span>{{ formTitle }}</span>
-              </v-card-title>
+            <v-form ref="form">
+              <v-card class="font">
+                <v-card-title>
+                  <span>{{ formTitle }}</span>
+                </v-card-title>
 
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.pharmacy_name" label="ชื่อร้านขายยา" outlined></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.address" label="ที่อยู่" outlined></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <ThailandAutoComplete
-                        v-model="pharmacy_selected.subdistrict"
-                        type="district"
-                        @select="select"
-                        placeholder="ตำบล/แขวง"
-                      ></ThailandAutoComplete>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <ThailandAutoComplete
-                        v-model="pharmacy_selected.district"
-                        type="amphoe"
-                        @select="select"
-                        placeholder="อำเภอ/เขต"
-                      ></ThailandAutoComplete>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <ThailandAutoComplete
-                        v-model="pharmacy_selected.province"
-                        type="province"
-                        @select="select"
-                        placeholder="จังหวัด"
-                      ></ThailandAutoComplete>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <ThailandAutoComplete
-                        v-model="pharmacy_selected.zipcode"
-                        type="zipcode"
-                        @select="select"
-                        placeholder="รหัสไปรษณีย์"
-                      ></ThailandAutoComplete>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="pharmacy_selected.Telno"
-                        label="เบอร์ติดต่อ"
-                        :maxlength="10"
-                        outlined
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field
+                          ref="input"
+                          v-model="pharmacy_selected.pharmacy_name"
+                          label="ชื่อร้านขายยา"
+                          outlined
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field
+                          ref="input"
+                          v-model="pharmacy_selected.address"
+                          label="ที่อยู่"
+                          outlined
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <ThailandAutoComplete
+                          v-model="pharmacy_selected.subdistrict"
+                          type="district"
+                          @select="select"
+                          placeholder="ตำบล/แขวง"
+                        ></ThailandAutoComplete>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <ThailandAutoComplete
+                          v-model="pharmacy_selected.district"
+                          type="amphoe"
+                          @select="select"
+                          placeholder="อำเภอ/เขต"
+                        ></ThailandAutoComplete>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <ThailandAutoComplete
+                          v-model="pharmacy_selected.province"
+                          type="province"
+                          @select="select"
+                          placeholder="จังหวัด"
+                        ></ThailandAutoComplete>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <ThailandAutoComplete
+                          v-model="pharmacy_selected.zipcode"
+                          type="zipcode"
+                          @select="select"
+                          placeholder="รหัสไปรษณีย์"
+                        ></ThailandAutoComplete>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field
+                          ref="input"
+                          v-model="pharmacy_selected.Telno"
+                          label="เบอร์ติดต่อ"
+                          :maxlength="10"
+                          outlined
+                          :rules="[rules.required]"
+                          :error-messages="errorMessages"
+                          required
+                        ></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
 
-              <v-card-actions>
-                <div class="flex-grow-1"></div>
-                <v-btn color="blue darken-1" text @click="close">ยกเลิก</v-btn>
-                <v-btn color="blue darken-1" text @click="save">เสร็จสิ้น</v-btn>
-              </v-card-actions>
-            </v-card>
+                <v-card-actions>
+                  <div class="flex-grow-1"></div>
+                  <v-btn color="blue darken-1" text @click="close"
+                    >ยกเลิก</v-btn
+                  >
+                  <v-btn color="blue darken-1" text @click="save"
+                    >เสร็จสิ้น</v-btn
+                  >
+                </v-card-actions>
+              </v-card>
+            </v-form>
           </v-dialog>
         </v-toolbar>
       </template>
@@ -113,14 +141,21 @@ export default {
     amphoe: "",
     province: "",
     zipcode: "",
+    input: null,
+    errorMessages: "",
+    formHasErrors: false,
+    rules: {
+      required: input => !!input || "โปรดใส่ข้อมูล"
+      // counter: value => value.length <= 20 || "Max 20 characters",
+    },
     headers: [
-      { text: "ชื่อร้านขายยา", value: "pharmacy_name",width:"13%" },
-      { text: "ที่อยู่", value: "address",width:"25%" },
-      { text: "ตำบล / แขวง", value: "subdistrict",width:"11%" },
-      { text: "อำเภอ/เขต", value: "district",width:"11%" },
-      { text: "จังหวัด", value: "province",width:"13%" },
-      { text: "เบอร์ติดต่อ", value: "Telno",width:"10%" },
-      { text: "รหัสไปรษณีย์", value: "zipcode" ,width:"8%" },
+      { text: "ชื่อร้านขายยา", value: "pharmacy_name", width: "13%" },
+      { text: "ที่อยู่", value: "address", width: "25%" },
+      { text: "ตำบล / แขวง", value: "subdistrict", width: "11%" },
+      { text: "อำเภอ/เขต", value: "district", width: "11%" },
+      { text: "จังหวัด", value: "province", width: "13%" },
+      { text: "เบอร์ติดต่อ", value: "Telno", width: "10%" },
+      { text: "รหัสไปรษณีย์", value: "zipcode", width: "8%" },
       { text: "แก้ไข / ลบ", value: "action", align: "center" }
     ],
     pharmacy: [],
@@ -197,50 +232,52 @@ export default {
     },
 
     save() {
-      if (this.editedIndex > -1) {
-        axios
-          .post(
-            "http://localhost:3000/api/pharmacy/editpharmacy",
-            this.pharmacy_selected
-          )
-          .then(res => {
-            // Object.assign(
-            //   this.hosstaff[this.editedIndex],
-            //   this.hosstaff_selected
-            // );
-            this.getallpharmacy();
-          });
-      } else {
-        // var check = 0;
-        // axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
-        //   for (var i = 0; i < res.data.length; i++) {
-        //     if (
-        //       this.pharmacy_selected.pharmacy_name === res.data[i].pharmacy_name
-        //     ) {
-        //       check = 1;
-        //       console.log("มีชื่อผู้ใช้นี้แล้ว");
-        //       break;
-        //     }
-        //   }
-        //   if (check == 0) {
-        // this.generate();
-        axios
-          .post("http://localhost:3000/api/pharmacy/newpharmacy", {
-            pharmacy_name: this.pharmacy_selected.pharmacy_name,
-            address: this.pharmacy_selected.address,
-            subdistrict: this.pharmacy_selected.subdistrict,
-            district: this.pharmacy_selected.district,
-            province: this.pharmacy_selected.province,
-            Telno: this.pharmacy_selected.Telno,
-            zipcode: this.pharmacy_selected.zipcode
-          })
-          .then(res => {
-            this.getallpharmacy();
-          });
-        //   }
-        // });
+      if (this.$refs.form.validate()) {
+        if (this.editedIndex > -1) {
+          axios
+            .post(
+              "http://localhost:3000/api/pharmacy/editpharmacy",
+              this.pharmacy_selected
+            )
+            .then(res => {
+              // Object.assign(
+              //   this.hosstaff[this.editedIndex],
+              //   this.hosstaff_selected
+              // );
+              this.getallpharmacy();
+            });
+        } else {
+          // var check = 0;
+          // axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
+          //   for (var i = 0; i < res.data.length; i++) {
+          //     if (
+          //       this.pharmacy_selected.pharmacy_name === res.data[i].pharmacy_name
+          //     ) {
+          //       check = 1;
+          //       console.log("มีชื่อผู้ใช้นี้แล้ว");
+          //       break;
+          //     }
+          //   }
+          //   if (check == 0) {
+          // this.generate();
+          axios
+            .post("http://localhost:3000/api/pharmacy/newpharmacy", {
+              pharmacy_name: this.pharmacy_selected.pharmacy_name,
+              address: this.pharmacy_selected.address,
+              subdistrict: this.pharmacy_selected.subdistrict,
+              district: this.pharmacy_selected.district,
+              province: this.pharmacy_selected.province,
+              Telno: this.pharmacy_selected.Telno,
+              zipcode: this.pharmacy_selected.zipcode
+            })
+            .then(res => {
+              this.getallpharmacy();
+            });
+          //   }
+          // });
+        }
+        this.close();
       }
-      this.close();
     },
     getallpharmacy() {
       axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
@@ -251,7 +288,6 @@ export default {
   mounted() {
     axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
       this.pharmacy = res.data;
-      
     });
   }
 };

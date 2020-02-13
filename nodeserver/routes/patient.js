@@ -3,6 +3,7 @@ const router = express.Router();
 const { check } = require("express-validator");
 const db = require("../configs/db");
 const patient = "patients";
+
 router.get("/showpatients", async (req, res) => {
   try {
     const patients = await all_patients();
