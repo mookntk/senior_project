@@ -11,7 +11,6 @@
       sort-by="name"
       class="font elevation-1"
     >
-      <!-- <v-content class="main"> -->
       <template v-slot:top>
         <v-toolbar flat color="white">
           <v-toolbar-title class="font">เภสัชกรโรงพยาบาล</v-toolbar-title>
@@ -98,33 +97,12 @@
         </v-toolbar>
       </template>
 
-      <!-- Data Table of hosstaff page -->
-      <!-- <v-data-table
-      :search="search"
-      :headers="headers"
-      :items="hosstaff"
-      :items-per-page="10"
-      sort-by="name"
-      class="elevation-1"
-      >-->
-
       <template v-slot:item.action="{ item }">
-        <!-- <tbody>
-          <tr v-for="item in items" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.surname }}</td>
-            <td style="text-align:center">{{ item.username }}</td>
-            <td style="text-align:center">{{ item.email }}</td>
-            <td style="text-align:center">{{ item.Telno}}</td>
-        <td style="text-align:center">-->
         <v-icon small class="mr-6" @click="editItem(item)">mdi-pencil</v-icon>
         <v-icon small class="mr-6" @click="deleteItem(item)">mdi-delete</v-icon>
         <v-icon small class="mr-6" @click="forgotpw(item)"
           >mdi-email-send</v-icon
         >
-        <!-- </td>
-          </tr>
-        </tbody>-->
       </template>
     </v-data-table>
     <!-- Data Table of hosstaff page -->
@@ -134,7 +112,6 @@
 <script>
 import Menuadmin from "../../components/Menuadmin";
 import axios from "axios";
-// import UpdateUserVue from "../../../../../WebPro_Assignment1/assignment1/src/components/UpdateUser.vue";
 export default {
   data: () => ({
     search: "",
@@ -145,7 +122,6 @@ export default {
       { text: "username", value: "username",width:"15%" },
       { text: "อีเมล", value: "email",width:"25%" },
       { text: "เบอร์ติดต่อ", value: "telno",width:"15%" },
-      // { text: "password", value: "password", sortable: false },
       {
         text: "แก้ไข / ลบ / ส่งรหัสผ่านให้ผู้ใช้",
         value: "action",
@@ -247,10 +223,6 @@ export default {
             this.hosstaff_selected
           )
           .then(res => {
-            // Object.assign(
-            //   this.hosstaff[this.editedIndex],
-            //   this.hosstaff_selected
-            // );
             this.getallstaff();
           });
       } else {
@@ -265,7 +237,6 @@ export default {
             }
           }
           if (check == 0) {
-            // this.generate();
             axios
               .post("http://localhost:3000/api/user/newuser", {
                 username: this.hosstaff_selected.username,
