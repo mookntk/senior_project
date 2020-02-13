@@ -132,8 +132,8 @@ router.post("/edit_orderstatus", async (req, res) => {
 var EditOrderStatus = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE ${order} SET status = ? WHERE order_id = ?`,
-      [item.status, item.order_id],
+      `UPDATE ${order} SET status = ? , transport_id =? WHERE order_id = ?`,
+      [item.status, item.transport_id, item.order_id],
       (error, result) => {
         if (error) return reject(error);
         resolve({ message: "success" });

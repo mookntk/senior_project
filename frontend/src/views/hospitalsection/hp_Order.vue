@@ -28,8 +28,7 @@
             v-on="on"
             x-large
             @click="prepare_medicine"
-            >ทำการจัดยา</v-btn
-          >
+          >ทำการจัดยา</v-btn>
         </v-col>
       </v-row>
       <!-- //! dialog edit -->
@@ -61,11 +60,7 @@
                     ></v-text-field>
                   </v-col>
                   <v-col>
-                    <v-text-field
-                      v-model="order[index].medicineItem[i].unit"
-                      readonly
-                      disabled
-                    ></v-text-field>
+                    <v-text-field v-model="order[index].medicineItem[i].unit" readonly disabled></v-text-field>
                   </v-col>
                 </v-row>
               </v-form>
@@ -73,12 +68,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn rounded color="green lighten-1" large @click="save"
-              >เสร็จสิ้น</v-btn
-            >
-            <v-btn @click="close" rounded color="red lighten-1" large
-              >ปิด</v-btn
-            >
+            <v-btn rounded color="green lighten-1" large @click="save">เสร็จสิ้น</v-btn>
+            <v-btn @click="close" rounded color="red lighten-1" large>ปิด</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -106,9 +97,7 @@
               v-for="header in props.headers"
               :key="header.text"
               :style="header.align"
-            >
-              {{ header.text }}
-            </th>
+            >{{ header.text }}</th>
           </tr>
         </template>
         <!-- <template v-slot:header="{props}">
@@ -137,21 +126,14 @@
               <td style="text-align:center">{{ item.create_date }}</td>
               <td style="text-align:center">{{ item.pharmacy_name }}</td>
               <td style="text-align:center">
-                <p
-                  v-for="medicine in item.medicineItem"
-                  :key="medicine.medicine_id"
-                >
+                <p v-for="medicine in item.medicineItem" :key="medicine.medicine_id">
                   {{ medicine.medicine_generic }} {{ medicine.qty }}
                   {{ medicine.unit }}
                 </p>
               </td>
               <td style="text-align:center">
-                <v-icon small class="mr-2" @click="editItem(item)"
-                  >mdi-pencil</v-icon
-                >
-                <v-icon small class="mr-2" @click="deleteItem(item)"
-                  >mdi-delete</v-icon
-                >
+                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+                <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
               </td>
             </tr>
           </tbody>
@@ -551,16 +533,67 @@ export default {
         }
       }
     },
-    prepare_medicine() {
-      for (var i = 0; i < this.order_filter.length; i++) {
+    check_pharmacy_id() {
+      var count_pharmacy = [];
+      var ph_id = [];
+      for (let i = 0; i < this.order_filter.length; i++) {
         if (this.checkbox[i]) {
+          ph_id.push(this.order_filter[i].pharmacy_id);
+        }
+      }
+      return ph_id.filter((item, index) => ph_id.indexOf(item) === index);
+    },
+    prepare_medicine() {
+      var transport_pharmacy = [];
+      var id_selected = this.check_pharmacy_id();
+      axios
+        .post("http://localhost:3000/api/transport/gettransport", {
+          status: "waiting-medicine"
+        })
+        .then(res => {
+          transport_pharmacy = res.data;
+          var trans_id = transport_pharmacy.map(
+            val => val.pharmacy_id_transport
+          );
+          for (let i = 0; i < id_selected.length; i++) {
+            if (trans_id.indexOf(id_selected[i]) < 0) {
+              //edit order_id
+              axios
+                .post("http://localhost:3000/api/transport/newtransport", {
+                  status: "waiting-medicine",
+                  pharmacy_id_transport: id_selected[i]
+                })
+                .then(res => {
+                  this.changeOrderStatus(
+                    [{ transport_id: res.data.insertId }],
+                    id_selected[i]
+                  );
+                });
+            } else {
+              //add transport id
+              var t_id = transport_pharmacy.filter(
+                (item, index) => item.pharmacy_id_transport == id_selected[i]
+              );
+              this.changeOrderStatus(t_id, id_selected[i]);
+            }
+          }
+        });
+    },
+    changeOrderStatus(t_id, ph_id) {
+      //edit order
+      for (let i = 0; i < this.order_filter.length; i++) {
+        if (this.checkbox[i] && this.order_filter[i].pharmacy_id == ph_id) {
           axios
             .post("http://localhost:3000/api/order/edit_orderstatus", {
               status: "waiting-medicine",
-              order_id: this.order_filter[i].order_id
+              order_id: this.order_filter[i].order_id,
+              transport_id: t_id[0].transport_id
             })
             .then(res => {
               this.$router.push("/waiting_medicine");
+            })
+            .catch(e => {
+              console.log(e);
             });
         }
       }
