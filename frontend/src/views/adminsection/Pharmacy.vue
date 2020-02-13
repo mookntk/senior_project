@@ -40,20 +40,6 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="pharmacy_selected.address" label="ที่อยู่" outlined></v-text-field>
                     </v-col>
-                    <!--
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.subdistrict" label="ตำบล/แขวง"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.district" label="อำเภอ/เขต"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.province" label="จังหวัด"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="pharmacy_selected.zipcode" label="รหัสไปรษณีย์"></v-text-field>
-                    </v-col>
-                    -->
                     <v-col cols="12" sm="6" md="4">
                       <ThailandAutoComplete
                         v-model="pharmacy_selected.subdistrict"
@@ -265,6 +251,7 @@ export default {
   mounted() {
     axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
       this.pharmacy = res.data;
+      
     });
   }
 };
