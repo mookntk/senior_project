@@ -20,16 +20,21 @@
           <v-card-text>
             <v-container>
               <v-list class="blue-grey lighten-5 font" elevation>
-                <template v-for="(item, i) in order_filter[index].orders">
+                <template v-for="(item, i) in order_filter[index]">
                   <v-list-item :key="i">
                     <template v-slot:default="{ active, toggle }">
                       <v-list-item-content>
-                        <v-list-item-title>คุณ{{item.name}}</v-list-item-title>
+                        <v-list-item-title>HN:{{item.patient_HN_order}}</v-list-item-title>
                       </v-list-item-content>
                       <v-list-item-action>
                         <v-btn color="red" dark @click="cancel_order(item)">ยกเลิก</v-btn>
                       </v-list-item-action>
                     </template>
+                  </v-list-item>
+                  <v-list-item two-line :key="i">
+                    <v-list-item-content>
+                      <v-list-item-title>คุณ{{item.name}} {{item.surname}}</v-list-item-title>
+                    </v-list-item-content>
                   </v-list-item>
                   <v-divider :key="i"></v-divider>
                 </template>
@@ -37,33 +42,65 @@
               <br />
               <br />
               <v-subheader>จำนวนยาทั้งหมด</v-subheader>
-              <v-list class="blue-grey lighten-4 font">
-                <template v-for="(item, i,int) in all_medicine">
-                  <v-list-item :key="i">
-                    <template v-slot:default="{ active, toggle }">
+              <v-form ref="form">
+                <v-list class="blue-grey lighten-4 font">
+                  <template v-for="(item, i) in medicineAll.qty">
+                    <v-list-item :key="i">
+                      <!-- <template v-slot:default="{ active, toggle }"> -->
                       <v-list-item-action>
-                        <v-checkbox primary hide-details v-model="check_medicine[int]"></v-checkbox>
+                        <v-checkbox primary hide-details v-model="check_medicine[i]" disabled></v-checkbox>
                       </v-list-item-action>
                       <v-list-item-content>
-                        <v-list-item-title>{{i}} {{item.qty}} แผง</v-list-item-title>
-                        <v-row v-for="k in inputs.length" :key="k">
-                          <v-col cols="12" sm="10" md="10">
-                            <v-text-field label="เลขรหัสสินค้า" solo clearable></v-text-field>
+                        <v-list-item-title>{{medicineAll.name[i]}} {{medicineAll.qty[i]}} แผง</v-list-item-title>
+                        <v-row v-for="(item,k) in medicineAll.lot[i]" :key="i+k">
+                          <!-- <v-row v-for="(item2,j) in medicineAll.lot[k]" :key="j"> -->
+                          <v-col cols="12" sm="6" md="6">
+                            <v-text-field
+                              label="เลขรหัสสินค้า"
+                              v-model="medicineAll.lot[i][k]"
+                              solo
+                              clearable
+                            ></v-text-field>
                           </v-col>
+                          <v-col cols="12" sm="6" md="6">
+                            <v-text-field
+                              label="วันหมดอายุ"
+                              v-model="medicineAll.exp[i][k]"
+                              solo
+                              clearable
+                              hint="DD/MM/YYYY"
+                              persistent-hint
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="4" md="4">
+                            <v-text-field
+                              label="จำนวน"
+                              v-model="medicineAll.lot_qty[i][k]"
+                              solo
+                              clearable
+                              :error-messages="errorMessage[i][k]"
+                            ></v-text-field>
+                          </v-col>
+
                           <v-col cols="12" sm="2" md="2">
                             <v-icon
-                              @click="remove(k)"
-                              v-show="k || ( !k && inputs.length > 1)"
+                              @click="remove(i,k)"
+                              v-show="k>0 || ( !k && medicineAll.lot[i].length > 1)"
                             >mdi-minus-circle</v-icon>
-                            <v-icon @click="add(k)" v-show="k == inputs.length">mdi-plus-circle</v-icon>
+                            <v-icon
+                              @click="add(i)"
+                              v-show="k == medicineAll.lot[i].length-1"
+                            >mdi-plus-circle</v-icon>
                           </v-col>
+                          <!-- </v-row> -->
                         </v-row>
                       </v-list-item-content>
-                    </template>
-                  </v-list-item>
-                  <v-divider :key="i"></v-divider>
-                </template>
-              </v-list>
+                      <!-- </template> -->
+                    </v-list-item>
+                    <v-divider :key="i"></v-divider>
+                  </template>
+                </v-list>
+              </v-form>
             </v-container>
           </v-card-text>
           <v-card-actions>
@@ -97,19 +134,24 @@
         <template v-slot:body="{ items }">
           <tbody>
             <tr
-              v-for="item in items"
+              v-for="(item,index) in items"
               :key="item.name"
               :class="{'selectedRow': item === selectedItem}"
             >
               <td>
-                <v-checkbox primary hide-details v-model="item.checkbox"></v-checkbox>
+                <v-checkbox
+                  primary
+                  hide-details
+                  v-model="check_order[index]"
+                  v-if="item[0].transport_status=='medicine-complete'"
+                ></v-checkbox>
               </td>
-              <td @click="Showdetails(item)">{{ item.name }}</td>
-              <td style="text-align:center" @click="Showdetails(item)">{{ item.province }}</td>
-              <td style="text-align:center" @click="Showdetails(item)">{{ item.orders.length }}</td>
-              <!-- <td style="text-align:center" @click="Showdetails(item)">{{ item.name }}</td> -->
-              <td style="text-align:center" @click="Showdetails(item)">
-                <v-chip :color="getColor(item.status)" dark>{{ item.status }}</v-chip>
+              <td @click="showdetail(item)">{{ item[0].pharmacy_name }}</td>
+              <td style="text-align:center" @click="showdetail(item)">{{ item[0].province}}</td>
+              <td style="text-align:center" @click="showdetail(item)">{{ item.length }}</td>
+              <!-- <td style="text-align:center" @click="showdetail(item)">{{ item.name }}</td> -->
+              <td style="text-align:center" @click="showdetail(item)">
+                <v-chip :color="getColor(status[index])" dark>{{ status[index] }}</v-chip>
               </td>
             </tr>
           </tbody>
@@ -124,6 +166,7 @@
 // import ConnectDatabase from '../server/server'
 import axios from "axios";
 import Menu from "../../components/hp_menubar";
+import dateFormat from "dateformat";
 export default {
   data() {
     return {
@@ -140,6 +183,7 @@ export default {
       dialog_details: false,
       all_medicine: {},
       check_medicine: [],
+      check_order: [],
       pharmacy: [
         "บ้านเภสัชกร",
         "ลิขิตฟาร์มาซี",
@@ -375,29 +419,14 @@ export default {
           status: "จัดยาเรียบร้อย"
         }
       ],
-
-      order_filter: []
+      order_filter: [],
+      medicineAll: { medicine_id: [], qty: [], lot: [[]], exp: [[]] },
+      status: [],
+      errorMessage: [],
+      mask: "##/##/####"
     };
   },
   mounted() {
-    this.order_filter = [...this.order];
-    console.log(this.order_filter);
-    for (var i = 0; i < this.order.length; i++) {
-      for (var j = 0; j < this.order[i].medicine.length; j++) {
-        if (!this.all_medicine.hasOwnProperty(this.order[i].medicine[j].name)) {
-          this.all_medicine[this.order[i].medicine[j].name] = {};
-          this.all_medicine[this.order[i].medicine[j].name]["qty"] = 0;
-          this.all_medicine[this.order[i].medicine[j].name]["success"] = false;
-          this.check_medicine.push(false);
-        }
-        this.all_medicine[this.order[i].medicine[j].name]["qty"] =
-          this.all_medicine[this.order[i].medicine[j].name]["qty"] +
-          this.order[i].medicine[j].qty;
-      }
-    }
-    console.log("this.all_medicine");
-    console.log(this.all_medicine);
-    console.log(this.check_medicine);
     var day = [
       "วันอาทิตย์",
       "วันจันทร์",
@@ -432,65 +461,213 @@ export default {
       (date.getFullYear() + 543);
 
     this.date = date_format;
+
+    //get orders that have waitinf-medicine
+
+    this.getInfo();
   },
   components: {
     Menu
   },
   methods: {
+    getInfo() {
+      this.status = [];
+      axios
+        .post("http://localhost:3000/api/order/getorder_status", {
+          status: "waiting-medicine"
+        })
+        .then(res => {
+          this.order = res.data;
+          axios
+            .post("http://localhost:3000/api/order/getorder_status", {
+              status: "medicine-complete"
+            })
+            .then(res2 => {
+              for (let index = 0; index < res2.data.length; index++) {
+                this.order.push(res2.data[index]);
+                this.order_filter = [...this.order];
+              }
+              var id = [];
+              var trans_status = [];
+              //order group by transport_id
+              for (let i = 0; i < this.order.length; i++) {
+                id.push(this.order[i].transport_id);
+              }
+              id = id.filter((item, index) => id.indexOf(item) === index);
+              var sorttransport = [];
+              for (let index = 0; index < id.length; index++) {
+                this.check_order.push(false);
+                sorttransport[index] = this.order.filter((item, i) => {
+                  return this.order[i].transport_id == id[index];
+                });
+                //change status en->th
+                var sortstatus = [];
+                sortstatus = this.order.filter((item, k) => {
+                  return this.order[k].transport_id == id[index];
+                });
+                if (sortstatus[0].transport_status === "waiting-medicine") {
+                  this.status.push("รอการจัดยา");
+                } else if (
+                  sortstatus[0].transport_status === "medicine-complete"
+                ) {
+                  console.log(sortstatus);
+                  this.status.push("จัดยาเรียบร้อย");
+                }
+              }
+              this.order_filter = [...sorttransport];
+            });
+        });
+    },
     waiting_transport() {
       var check = 0;
-      for (var i in this.order) {
-        if (this.order[i].checkbox == true) {
-          if (this.order[i].status == "จัดยาเรียบร้อย") {
-            check = 1;
-            this.$router.push("/waiting_transport");
-          } else {
-            check = 2;
-            break;
-          }
+      this.order_filter.forEach((element, index) => {
+        if (this.check_order[index] == true) {
+          //change status => waiting-transport
+          axios
+            .post("http://localhost:3000/api/transport/edit_transportstatus", {
+              status: "waiting-transport",
+              transport_id: this.order_filter[index][0].transport_id
+            })
+            .then(res => {
+              for (var item in this.order_filter[index]) {
+                console.log(this.order_filter[index]);
+                console.log(item);
+                axios
+                  .post("http://localhost:3000/api/order/edit_orderstatus", {
+                    status: "waiting-transport",
+                    transport_id: this.order_filter[index][0].transport_id,
+                    order_id: this.order_filter[index][item].order_id
+                  })
+                  .then(res2 => {
+                    this.order_filter.splice(index, 1);
+                    this.order.splice(index, 1);
+                    this.check_order.splice(index, 1);
+                  });
+              }
+            })
+            .catch(e => {
+              console.log(e);
+            });
         }
-      }
-      if (check == 1) {
-        this.$router.push("/waiting_transport");
-      } else if (check == 0) {
-        alert("เลือกร้านขายยาที่ต้องการจัดส่ง");
-      } else {
-        alert("ยังจัดยาไม่เสร็จ");
-      }
+      });
+
+      // if (check == 1) {
+      //   this.$router.push("/waiting_transport");
+      // } else if (check == 0) {
+      //   alert("เลือกร้านขายยาที่ต้องการจัดส่ง");
+      // } else {
+      //   alert("ยังจัดยาไม่เสร็จ");
+      // }
     },
     add(index) {
       console.log("index=" + index);
-      this.inputs.push(2);
+      this.medicineAll.lot[index].push("");
+      this.medicineAll.lot_qty[index].push("");
+      this.medicineAll.exp[index].push("");
     },
-    remove(index) {
-      this.inputs.splice(index, 1);
+    remove(index, subindex) {
+      this.medicineAll.lot[index].splice(subindex, 1);
+      this.medicineAll.lot_qty[index].splice(subindex, 1);
+      this.medicineAll.exp[index].splice(subindex, 1);
     },
     cancel_order(item) {
-      console.log(item);
-      var index = this.order_filter[this.index].orders.indexOf(item);
+      var index = this.order_filter[this.index].indexOf(item);
       confirm("คุณต้องการที่จะลบออร์เดอร์นี้ใช่หรือไม่?") &&
-        this.order_filter[this.index].orders.splice(index, 1);
+        axios
+          .post("http://localhost:3000/api/order/edit_orderstatus", {
+            status: "create-order",
+            transport_id: null,
+            order_id: item.order_id
+          })
+          .then(res => {
+            this.order_filter[this.index].splice(index, 1);
+            this.order[this.index].splice(index, 1);
+            this.medicineAll = this.check_medicine();
+          });
     },
-    deleteItem(item) {
-      console.log("delete item");
-      const index = this.order.indexOf(item);
-      confirm(
-        "คุณต้องการที่จะลบออร์เดอร์ใช่หรือไม่?\nคุณ" + item.patient + " "
-      ) && this.order.splice(index, 1);
-    },
-    editItem(item) {
-      this.index = this.order.indexOf(item);
-      //   this.editedIndex = this.order.indexOf(item);
-      this.order_selected = item.name;
-      this.editedItem = Object.assign({}, item);
-      this.dialog_edit = true;
-    },
+    // deleteItem(item) {
+    //   console.log("delete item");
+    //   const index = this.order.indexOf(item);
+    //   confirm(
+    //     "คุณต้องการที่จะลบออร์เดอร์ใช่หรือไม่?\nคุณ" + item.patient + " "
+    //   ) && this.order.splice(index, 1);
+    // },
+    // editItem(item) {
+    //   this.index = this.order.indexOf(item);
+    //   //   this.editedIndex = this.order.indexOf(item);
+    //   this.order_selected = item.name;
+    //   this.editedItem = Object.assign({}, item);
+    //   this.dialog_edit = true;
+    // },
     save() {
-      if (this.index > -1) {
-        Object.assign(this.order[this.index], this.editedItem);
-      } else {
-        this.order.push(this.editedItem);
+      var item = this.order_filter[this.index];
+      //! edit lot_transfer
+      var check = 1;
+      for (let i = 0; i < this.check_medicine.length; i++) {
+        if (!this.check_medicine[i]) {
+          check--;
+          break;
+        }
       }
+      if (check) {
+        axios
+          .post("http://localhost:3000/api/transport/edit_transportstatus", {
+            status: "medicine-complete",
+            transport_id: this.order_filter[this.index][0].transport_id
+          })
+          .then(res => {
+            this.getInfo();
+          })
+          .catch(e => {
+            console.log(e);
+          });
+        // for (let i = 0; i < this.order_filter[this.index].length; i++) {
+        //   axios
+        //     .post("http://localhost:3000/api/order/edit_orderstatus", {
+        //       status: "medicine-complete",
+        //       transport_id: this.order_filter[this.index][0].transport_id,
+        //       order_id: this.order_filter[this.index][i].order_id
+        //     })
+        //     .catch(e => {
+        //       console.log(e);
+        //     });
+        // }
+      } else {
+        axios
+          .post("http://localhost:3000/api/transport/edit_transportstatus", {
+            status: "waiting-medicine",
+            transport_id: this.order_filter[this.index][0].transport_id
+          })
+          .then(res => {
+            this.status[this.index] = "รอการจัดยา";
+            this.getInfo();
+          })
+          .catch(e => {
+            console.log(e);
+          });
+      }
+      axios
+        .post("http://localhost:3000/api/lot_transfer/deletelot", {
+          trans_id: item[0].transport_id
+        })
+        .then(res => {
+          for (let i = 0; i < this.medicineAll.lot.length; i++) {
+            for (let j = 0; j < this.medicineAll.lot[i].length; j++) {
+              axios
+                .post("http://localhost:3000/api/lot_transfer/newlot", {
+                  medicine_id: this.medicineAll.id[i],
+                  qty: parseInt(this.medicineAll.lot_qty[i][j]),
+                  transport_id: item[0].transport_id,
+                  exp_date: this.parseDate(this.medicineAll.exp[i][j]) || null,
+                  lot_no: this.medicineAll.lot[i][j]
+                })
+                .then(res => {})
+                .catch(e => {
+                  console.log(e);
+                });
+            }
+          }
+        });
       this.close();
     },
     close() {
@@ -500,71 +677,177 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-    Showdetails(item) {
+    showdetail(item) {
       this.index = this.order_filter.indexOf(item);
+      // console.log(this.order_filter[this.index]);
       this.dialog_details = true;
-      console.log(item);
-      //! num of medicine each order
-      //   this.all_medicine = {}
-      //   for (var i = 0; i < this.order_filter[this.index].medicine.length; i++) {
-      //     if (!this.all_medicine.hasOwnProperty(this.order_filter[this.index].medicine[i].name)) {
-      //       this.all_medicine[this.order_filter[this.index].medicine[i].name] = {};
-      //       this.all_medicine[this.order_filter[this.index].medicine[i].name]["qty"] = 0;
-      //       this.all_medicine[this.order_filter[this.index].medicine[i].name]["success"] = false;
-      //       this.check_medicine.push(false);
-      //     }
-      //     this.all_medicine[this.order_filter[this.index].medicine[i].name]["qty"] =
-      //       this.all_medicine[this.order_filter[this.index].medicine[i].name]["qty"] +
-      //       this.order[i].medicine[j].qty;
-      // }
-      // console.log("all medicine")
-      // console.log(this.all_medicine)
-      if (this.order_filter[this.index].status == "จัดยาเรียบร้อย") {
-        for (var i in this.check_medicine) {
-          this.check_medicine[i] = true;
+      //!calculate qty each medicine
+      var getlot = [];
+      axios
+        .post("http://localhost:3000/api/lot_transfer/getlot", {
+          trans_id: this.order_filter[this.index][0].transport_id
+        })
+        .then(res => {
+          getlot = res.data;
+          console.log(getlot);
+          this.medicineAll = this.all_medicines(getlot);
+        });
+    },
+    all_medicines(getlot) {
+      var id = [];
+      var name = [];
+      var lot = [];
+      var exp = [];
+      var order_selected = [...this.order_filter[this.index]];
+      var qty = [];
+      var lot_qty = [];
+
+      for (let index = 0; index < order_selected.length; index++) {
+        for (let j = 0; j < order_selected[index].medicineItem.length; j++) {
+          var indexof = id.indexOf(
+            order_selected[index].medicineItem[j].medicine_id
+          );
+
+          if (indexof > -1) {
+            qty[indexof] += parseInt(order_selected[index].medicineItem[j].qty);
+          } else {
+            qty.push(0);
+            id.push(order_selected[index].medicineItem[j].medicine_id);
+            qty[qty.length - 1] += parseInt(
+              order_selected[index].medicineItem[j].qty
+            );
+
+            name.push(order_selected[index].medicineItem[j].medicine_generic);
+            var filter = getlot.filter((item, sub) => {
+              return (
+                getlot[sub].medicine_id ==
+                order_selected[index].medicineItem[j].medicine_id
+              );
+            });
+            if (filter.length > 0) {
+              var lastindex = lot.length;
+              for (let k = 0; k < filter.length; k++) {
+                if (k == 0) {
+                  lot.push([filter[k].lot_no]);
+                  exp.push([this.date_Format(filter[k].exp_date)]);
+                  lot_qty.push([filter[k].qty]);
+                  this.errorMessage.push([""]);
+                } else {
+                  lot[lastindex].push(filter[k].lot_no);
+                  exp[lastindex].push(this.date_Format(filter[k].exp_date));
+                  lot_qty[lastindex].push(filter[k].qty);
+                  this.errorMessage[lastindex].push("");
+                }
+              }
+            } else {
+              lot.push([""]);
+              exp.push([""]);
+              lot_qty.push([""]);
+              this.errorMessage.push([""]);
+            }
+          }
         }
+      }
+      return {
+        id: id,
+        name: name,
+        qty: qty,
+        lot: lot,
+        lot_qty: lot_qty,
+        exp: exp
+      };
+    },
+    checkMedInfo(i, k) {
+      // this.errorMessage = [...this.medicineAll.lot]
+      console.log(i, k);
+      for (let index = 0; index < this.medicineAll.qty.length; index++) {
+        for (let sub = 0; sub < this.medicineAll.qty[index].length; sub++) {
+          this.errorMessage[i][j] = "";
+        }
+      }
+      console.log(this.medicineAll.lot_qty[i][k]);
+      if (isNaN(this.medicineAll.lot_qty[i][k])) {
+        this.errorMessage[i][k] = "กรุณากรอกข้อมูลตัวเลข";
       } else {
-        for (var i in this.check_medicine) {
-          this.check_medicine[i] = false;
-        }
+        this.errorMessage[i][k] = "";
       }
     },
     getColor(status) {
       if (status == "จัดยาเรียบร้อย") return "green";
       else return "grey";
+    },
+    parseDate(date) {
+      if (date == "") return null;
+
+      var [day, month, year] = date.split("/");
+      // year = parseInt(year) - 543;
+      return `${year}/${month}/${day}`;
+    },
+    date_Format(date) {
+      if (date == null) return null;
+      return dateFormat(date, "dd/mm/yyyy");
     }
   },
   watch: {
-    selectAll_order() {
+    selectAll_order(index) {
       var count = 0;
-      var i;
       if (this.selectAll_order == true) {
-        for (let key in this.order_filter) {
-          if (this.order_filter.hasOwnProperty(key)) {
-            this.order_filter[key].checkbox = true;
+        for (let i = 0; i < this.check_order.length; i++) {
+          if (this.order_filter[i][0].transport_status == "medicine-complete") {
+            this.check_order[i] = true;
+          } else {
+            this.check_order[i] = false;
           }
         }
       } else {
-        for (let key in this.order_filter) {
-          if (this.order_filter.hasOwnProperty(key)) {
-            this.order_filter[key].checkbox = false;
-          }
+        for (let i = 0; i < this.check_order.length; i++) {
+          this.check_order[i] = false;
         }
       }
     },
-    all_medicine() {
-      this.all_medicine = {};
-      for (var i = 0; i < this.order.length; i++) {
-        for (var j = 0; j < this.order[i].medicine.length; j++) {
-          if (
-            !this.all_medicine.hasOwnProperty(this.order[i].medicine[j].name)
-          ) {
-            this.all_medicine[this.order[i].medicine[j].name] = 0;
+    medicineAll: {
+      handler(val) {
+        console.log(this.medicineAll.lot_qty);
+        if (this.medicineAll.lot_qty)
+          for (let i = 0; i < this.medicineAll.lot_qty.length; i++) {
+            var qty = 0;
+            var lot = 0;
+            var exp = 0;
+            if (
+              this.medicineAll.lot_qty[i] == null ||
+              this.medicineAll.lot[i] == "" ||
+              this.medicineAll.exp[i] == ""
+            ) {
+              this.check_medicine[i] = false;
+            } else {
+              for (let j = 0; j < this.medicineAll.lot_qty[i].length; j++) {
+                qty += parseInt(this.medicineAll.lot_qty[i][j]);
+                if (this.medicineAll.lot[i][j] != "") {
+                  lot++;
+                }
+                if (this.medicineAll.exp[i][j] != "") {
+                  exp++;
+                }
+                if (
+                  qty == this.medicineAll.qty[i] &&
+                  lot == this.medicineAll.lot[i].length &&
+                  exp == this.medicineAll.exp[i].length
+                ) {
+                  this.check_medicine[i] = true;
+                } else if (qty > this.medicineAll.qty[i]) {
+                  alert("จำนวนยาเกิน");
+                } else {
+                  this.check_medicine[i] = false;
+                }
+              }
+            }
           }
-          this.all_medicine[this.order[i].medicine[j].name] =
-            this.all_medicine[this.order[i].medicine[j].name] +
-            this.order[i].medicine[j].qty;
-        }
+      },
+      deep: true
+    },
+    check_medicine() {
+      if (this.medicine.every(item => item == true)) {
+        this.status[this.index];
       }
     }
   }

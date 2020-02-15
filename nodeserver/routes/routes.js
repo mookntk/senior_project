@@ -10,6 +10,7 @@ const diseasepatient = require("./disease_patient");
 const order = require("./order");
 const log = require("./orderlog");
 const transport = require("./transport_order");
+const lot_transfer = require("./lot_transfer");
 
 router.use("/user", user);
 router.use("/medicine", medicine);
@@ -21,5 +22,6 @@ router.use("/pharmacist", pharmacist);
 router.use("/order", order);
 router.use("/log", log);
 router.use("/transport", transport);
+router.use("/lot_transfer", lot_transfer);
 
 module.exports = router;

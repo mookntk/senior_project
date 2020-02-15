@@ -277,7 +277,44 @@ export default {
         { text: "ร้านขายยา", align: "center", value: "order" },
         { text: "ยาที่ได้รับ", align: "center", value: "order" }
       ],
-      order: [],
+      order: [
+        {
+          order_id: 48,
+          due_date: "2020-02-13T17:00:00.000Z",
+          status: "waiting-medicine",
+          receive_date: null,
+          remark: null,
+          patient_HN_order: 148,
+          staff_id_order: 1248,
+          pharmacist_id_order: null,
+          create_date: "10/02/2020",
+          pharmacy_id: 3,
+          transport_id: 82,
+          name: "ประเสริฐ",
+          surname: "มั่งคั่ง",
+          id: 26,
+          lot_no: null,
+          expdate: null,
+          administration: "หลังอาหาร-เช้า,หลังอาหาร-เย็น",
+          recieved: null,
+          disease_id_medicine: 4,
+          pharmacy_name: "ใกล้เภสัชกร",
+          province: "กรุงเทพมหานคร",
+          transport_status: "waiting-medicine",
+          medicineItem: [
+            {
+              medicine_id: 5,
+              medicine_tmt: 0,
+              medicine_generic: "eee",
+              medicine_trade: "eee",
+              strength: "20",
+              unit: "tablet",
+              qty: 30,
+              price: "130"
+            }
+          ]
+        }
+      ],
       order_missing: [
         {
           order_id: 234,
@@ -552,31 +589,43 @@ export default {
         })
         .then(res => {
           transport_pharmacy = res.data;
-          var trans_id = transport_pharmacy.map(
-            val => val.pharmacy_id_transport
-          );
-          for (let i = 0; i < id_selected.length; i++) {
-            if (trans_id.indexOf(id_selected[i]) < 0) {
-              //edit order_id
-              axios
-                .post("http://localhost:3000/api/transport/newtransport", {
-                  status: "waiting-medicine",
-                  pharmacy_id_transport: id_selected[i]
-                })
-                .then(res => {
-                  this.changeOrderStatus(
-                    [{ transport_id: res.data.insertId }],
-                    id_selected[i]
-                  );
-                });
-            } else {
-              //add transport id
-              var t_id = transport_pharmacy.filter(
-                (item, index) => item.pharmacy_id_transport == id_selected[i]
+          axios
+            .post("http://localhost:3000/api/transport/gettransport", {
+              status: "medicine-complete"
+            })
+            .then(res2 => {
+              for (let i = 0; i < res2.data.length; i++) {
+                transport_pharmacy.push(res2.data[i]);
+              }
+              console.log(transport_pharmacy);
+              var trans_id = transport_pharmacy.map(
+                val => val.pharmacy_id_transport
               );
-              this.changeOrderStatus(t_id, id_selected[i]);
-            }
-          }
+              console.log(trans_id);
+              for (let i = 0; i < id_selected.length; i++) {
+                if (trans_id.indexOf(id_selected[i]) < 0) {
+                  //edit order_id
+                  axios
+                    .post("http://localhost:3000/api/transport/newtransport", {
+                      status: "waiting-medicine",
+                      pharmacy_id_transport: id_selected[i]
+                    })
+                    .then(res => {
+                      this.changeOrderStatus(
+                        [{ transport_id: res.data.insertId }],
+                        id_selected[i]
+                      );
+                    });
+                } else {
+                  //add transport id
+                  var t_id = transport_pharmacy.filter(
+                    (item, index) =>
+                      item.pharmacy_id_transport == id_selected[i]
+                  );
+                  this.changeOrderStatus(t_id, id_selected[i]);
+                }
+              }
+            });
         });
     },
     changeOrderStatus(t_id, ph_id) {
@@ -597,6 +646,16 @@ export default {
             });
         }
       }
+      //edit transport
+      axios
+        .post("http://localhost:3000/api/transport/edit_transportstatus", {
+          status: "waiting-medicine",
+          transport_id: t_id[0].transport_id
+        })
+        .then(res => {})
+        .catch(e => {
+          console.log(e);
+        });
     },
     deleteItem(item) {
       const index = this.order.indexOf(item);
