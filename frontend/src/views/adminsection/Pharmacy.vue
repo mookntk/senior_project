@@ -194,6 +194,9 @@ export default {
   },
 
   methods: {
+    reset() {
+      this.$refs.form.reset();
+    },
     select(address) {    
         this.pharmacy_selected.subdistrict = address.district;
         this.pharmacy_selected.district = address.amphoe;
@@ -226,8 +229,9 @@ export default {
       console.log( Object.assign({}, this.defaultItem));
       this.dialog = false;
       setTimeout(() => {
-        this.pharmacy_selected = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
+        this.reset();
+      //   this.pharmacy_selected = Object.assign({}, this.defaultItem);
+      //   this.editedIndex = -1;
       }, 300);
     },
 
