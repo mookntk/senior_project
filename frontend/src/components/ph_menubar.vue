@@ -68,7 +68,7 @@
 
     <v-menu offset-y open-on-hover>
       <template v-slot:activator="{ on }">
-        <v-btn color="primary" dark v-on="on" text>ชื่อผู้ใช้</v-btn>
+        <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
       </template>
       <v-list>
         <v-list-item v-for="(item, index) in items" :key="index">
@@ -86,6 +86,8 @@
 export default {
   data() {
     return {
+      username: localStorage.getItem("username"),
+      name: localStorage.getItem("name"),
       links: [
         {
           value: "รายการที่ต้องส่งคืน",
@@ -101,7 +103,7 @@ export default {
         { value: "ตรวจสอบและยืนยันจำนวนยา", route: "/confirm_order" }
       ],
       logged: localStorage.getItem("login"),
-      items: ["ชื่อ-นามสกุล", "เลขใบอนุญาต", "Logout"],
+      items: [localStorage.getItem("name"), "เลขใบอนุญาต", "Logout"],
       active: [false, false],
       btncolor: "teal lighten-3",
       btncolor1: "teal lighten-3",
