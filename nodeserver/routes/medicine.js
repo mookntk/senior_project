@@ -103,6 +103,7 @@ var show_medicine = function () {
   });
 };
 
+
 //show all disease
 router.get("/showdisease", async (req, res) => {
   try {

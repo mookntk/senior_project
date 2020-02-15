@@ -194,11 +194,11 @@ export default {
   },
 
   methods: {
-    select(address) {
-      this.pharmacy_selected.subdistrict = address.district;
-      this.pharmacy_selected.district = address.amphoe;
-      this.pharmacy_selected.province = address.province;
-      this.pharmacy_selected.zipcode = address.zipcode;
+    select(address) {    
+        this.pharmacy_selected.subdistrict = address.district;
+        this.pharmacy_selected.district = address.amphoe;
+        this.pharmacy_selected.province = address.province;
+        this.pharmacy_selected.zipcode = address.zipcode;     
     },
     editItem(item) {
       console.log(this.pharmacy);
@@ -223,7 +223,7 @@ export default {
     },
 
     close() {
-      console.log(this.editedIndex);
+      console.log( Object.assign({}, this.defaultItem));
       this.dialog = false;
       setTimeout(() => {
         this.pharmacy_selected = Object.assign({}, this.defaultItem);
@@ -240,26 +240,9 @@ export default {
               this.pharmacy_selected
             )
             .then(res => {
-              // Object.assign(
-              //   this.hosstaff[this.editedIndex],
-              //   this.hosstaff_selected
-              // );
               this.getallpharmacy();
             });
         } else {
-          // var check = 0;
-          // axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
-          //   for (var i = 0; i < res.data.length; i++) {
-          //     if (
-          //       this.pharmacy_selected.pharmacy_name === res.data[i].pharmacy_name
-          //     ) {
-          //       check = 1;
-          //       console.log("มีชื่อผู้ใช้นี้แล้ว");
-          //       break;
-          //     }
-          //   }
-          //   if (check == 0) {
-          // this.generate();
           axios
             .post("http://localhost:3000/api/pharmacy/newpharmacy", {
               pharmacy_name: this.pharmacy_selected.pharmacy_name,
@@ -273,8 +256,6 @@ export default {
             .then(res => {
               this.getallpharmacy();
             });
-          //   }
-          // });
         }
         this.close();
       }
@@ -282,12 +263,14 @@ export default {
     getallpharmacy() {
       axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
         this.pharmacy = res.data;
+        this.pharmacy_selected = Object.assign({}, this.defaultItem);
       });
     }
   },
   mounted() {
     axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
       this.pharmacy = res.data;
+      this.pharmacy_selected = Object.assign({}, this.defaultItem);
     });
   }
 };

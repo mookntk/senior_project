@@ -27,108 +27,110 @@
                 >+ เพิ่มเภสัชกรร้านขายยา</v-btn
               >
             </template>
-            <v-card-actions ref="form">
-              <v-card class="font">
-                <v-card-title>
-                  <span>{{ formTitle }}</span>
-                </v-card-title>
+            <v-form ref="form">
+              <v-card-actions>
+                <v-card class="font">
+                  <v-card-title>
+                    <span>{{ formTitle }}</span>
+                  </v-card-title>
 
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          ref="input"
-                          v-model="pharmacist_selected.name"
-                          label="ชื่อ"
-                          :rules="[rules.required]"
-                          :error-messages="errorMessages"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          ref="input"
-                          v-model="pharmacist_selected.surname"
-                          label="นามสกุล"
-                          :rules="[rules.required]"
-                          :error-messages="errorMessages"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          ref="input"
-                          v-model="pharmacist_selected.username"
-                          label="ชื่อผู้ใช้"
-                          :rules="[rules.required]"
-                          :error-messages="errorMessages"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          ref="input"
-                          v-model="pharmacist_selected.email"
-                          label="อีเมล"
-                          :rules="[rules.required, rules.email]"
-                          :error-messages="errorMessages"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-autocomplete
-                          :items="pharmacy"
-                          item-text="pharmacy_name"
-                          v-model="pharmacist_selected.pharmacy_name"
-                          label="ร้านขายยาที่ประจำ"
-                        ></v-autocomplete>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          ref="input"
-                          v-model="pharmacist_selected.expdate"
-                          label="เลขใบอนุญาตฯเภสัช"
-                          :rules="[rules.required]"
-                          :error-messages="errorMessages"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field
-                          ref="input"
-                          v-model="pharmacist_selected.telno"
-                          :maxlength="10"
-                          label="เบอร์ติดต่อ"
-                          :rules="[rules.required]"
-                          :error-messages="errorMessages"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-radio-group
-                          v-model="pharmacist_selected.sex"
-                          label="เพศ"
-                        >
-                          <v-radio label="ชาย"></v-radio>
-                          <v-radio label="หญิง"></v-radio>
-                        </v-radio-group>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field
+                            ref="input"
+                            v-model="pharmacist_selected.name"
+                            label="ชื่อ"
+                            :rules="[rules.required]"
+                            :error-messages="errorMessages"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field
+                            ref="input"
+                            v-model="pharmacist_selected.surname"
+                            label="นามสกุล"
+                            :rules="[rules.required]"
+                            :error-messages="errorMessages"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field
+                            ref="input"
+                            v-model="pharmacist_selected.username"
+                            label="ชื่อผู้ใช้"
+                            :rules="[rules.required]"
+                            :error-messages="errorMessages"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field
+                            ref="input"
+                            v-model="pharmacist_selected.email"
+                            label="อีเมล"
+                            :rules="[rules.required, rules.email]"
+                            :error-messages="errorMessages"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-autocomplete
+                            :items="pharmacy"
+                            item-text="pharmacy_name"
+                            v-model="pharmacist_selected.pharmacy_name"
+                            label="ร้านขายยาที่ประจำ"
+                          ></v-autocomplete>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field
+                            ref="input"
+                            v-model="pharmacist_selected.expdate"
+                            label="เลขใบอนุญาตฯเภสัช"
+                            :rules="[rules.required]"
+                            :error-messages="errorMessages"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field
+                            ref="input"
+                            v-model="pharmacist_selected.telno"
+                            :maxlength="10"
+                            label="เบอร์ติดต่อ"
+                            :rules="[rules.required]"
+                            :error-messages="errorMessages"
+                            required
+                          ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-radio-group
+                            v-model="pharmacist_selected.sex"
+                            label="เพศ"
+                          >
+                            <v-radio label="ชาย"></v-radio>
+                            <v-radio label="หญิง"></v-radio>
+                          </v-radio-group>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
 
-                <v-card-actions>
-                  <div class="flex-grow-1"></div>
-                  <v-btn color="blue darken-1" text @click="close"
-                    >ยกเลิก</v-btn
-                  >
-                  <v-btn color="blue darken-1" text @click="save"
-                    >เสร็จสิ้น</v-btn
-                  >
-                </v-card-actions>
-              </v-card>
-            </v-card-actions>
+                  <v-card-actions>
+                    <div class="flex-grow-1"></div>
+                    <v-btn color="blue darken-1" text @click="close"
+                      >ยกเลิก</v-btn
+                    >
+                    <v-btn color="blue darken-1" text @click="save"
+                      >เสร็จสิ้น</v-btn
+                    >
+                  </v-card-actions>
+                </v-card>
+              </v-card-actions>
+            </v-form>
           </v-dialog>
         </v-toolbar>
       </template>
@@ -319,41 +321,41 @@ export default {
               //   this.pharmacist_selected
               // );
               this.getallstaff();
+              this.close();
             });
         } else {
-          var check = 0;
           axios
-            .get("http://localhost:3000/api/pharmacist/showallpharmacist")
+            .get("http://localhost:3000/api/pharmacist/showpharmacist")
             .then(res => {
               for (var i = 0; i < res.data.length; i++) {
                 if (
                   this.pharmacist_selected.username === res.data[i].username
                 ) {
-                  check = 1;
                   console.log("มีชื่อผู้ใช้นี้แล้ว");
+                  alert("ชื่อผู้ใช้ซ้ำ โปรดใช่ชื่ออื่น");
                   break;
                 }
-              }
-              if (check == 0) {
-                // this.generate();
-                axios
-                  .post("http://localhost:3000/api/pharmacist/newuser", {
-                    username: this.pharmacist_selected.username,
-                    name: this.pharmacist_selected.name,
-                    surname: this.pharmacist_selected.surname,
-                    email: this.pharmacist_selected.email,
-                    telno: this.pharmacist_selected.telno,
-                    sex: this.pharmacist_selected.sex,
-                    pharmacy_name: this.pharmacist_selected.pharmacy_name,
-                    expdate: this.pharmacist_selected.expdate
-                  })
-                  .then(res => {
-                    this.getallstaff();
-                  });
+                if (i === res.data.length - 1) {
+                  axios
+                    .post("http://localhost:3000/api/pharmacist/newuser", {
+                      username: this.pharmacist_selected.username,
+                      name: this.pharmacist_selected.name,
+                      surname: this.pharmacist_selected.surname,
+                      email: this.pharmacist_selected.email,
+                      telno: this.pharmacist_selected.telno,
+                      sex: this.pharmacist_selected.sex,
+                      pharmacy_name: this.pharmacist_selected.pharmacy_name,
+                      expdate: this.pharmacist_selected.expdate
+                    })
+                    .then(res => {
+                      this.getallstaff();
+                      this.close();
+                    });
+                }
               }
             });
         }
-        this.close();
+        
       }
     },
     getallstaff() {

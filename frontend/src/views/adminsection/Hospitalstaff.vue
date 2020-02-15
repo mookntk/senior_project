@@ -261,42 +261,35 @@ export default {
             )
             .then(res => {
               this.getallstaff();
+              this.close();
             });
         } else {
-          var check = 0;
-          axios.get("http://localhost:3000/api/user/showallstaff").then(res => {
+          axios.get("http://localhost:3000/api/user/showhospital").then(res => {
             for (var i = 0; i < res.data.length; i++) {
               if (this.hosstaff_selected.username === res.data[i].username) {
-                check = 1;
                 console.log("มีชื่อผู้ใช้นี้แล้ว");
                 alert("มีชื่อผู้ใช้นี้แล้ว โปรดใช้ชื่ออื่น");
                 break;
               }
-            }
-            if (check == 0) {
-              // if (this.hosstaff_selected.username != "" || this.hosstaff_selected.name !="" || this.hosstaff_selected.surname !=""
-              // || this.hosstaff_selected.email !="" || this.hosstaff_selected.telno !="" || this.hosstaff_selected.sex !="") {
-              //   console.log("in if loop");
-              axios
-                .post("http://localhost:3000/api/user/newuser", {
-                  username: this.hosstaff_selected.username,
-                  name: this.hosstaff_selected.name,
-                  surname: this.hosstaff_selected.surname,
-                  email: this.hosstaff_selected.email,
-                  telno: this.hosstaff_selected.telno,
-                  sex: this.hosstaff_selected.sex,
-                  password: this.randomstring
-                })
-                .then(res => {
-                  this.getallstaff();
-                });
-              // }else{
-              //   console.log("else loop");
-              // }
+              if (i === res.data.length - 1) {
+                axios
+                  .post("http://localhost:3000/api/user/newuser", {
+                    username: this.hosstaff_selected.username,
+                    name: this.hosstaff_selected.name,
+                    surname: this.hosstaff_selected.surname,
+                    email: this.hosstaff_selected.email,
+                    telno: this.hosstaff_selected.telno,
+                    sex: this.hosstaff_selected.sex,
+                    password: this.randomstring
+                  })
+                  .then(res => {
+                    this.getallstaff();
+                    this.close();
+                  });
+              }
             }
           });
         }
-        this.close();
       }
     },
     getallstaff() {

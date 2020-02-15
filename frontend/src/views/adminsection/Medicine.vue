@@ -217,6 +217,7 @@
 import Menuadmin from "../../components/Menuadmin";
 import axios from "axios";
 import { mdiDelete, mdiPlus, mdiMinus } from "@mdi/js";
+import { closeSync } from "fs";
 export default {
   data: () => ({
     search: "",
@@ -368,34 +369,57 @@ export default {
 
     save2() {
       axios.get("http://localhost:3000/api/medicine/showdisease").then(res => {
-        var check = 0;
         for (var i = 0; i < res.data.length; i++) {
           if (this.dis_selected.dis_icd === res.data[i].icd10) {
-            check = 1;
             console.log("ICD10-TM ซ้ำ");
             alert("มีข้อมูลโรคนี้ในฐานข้อมูลแล้ว");
             break;
           }
-        }
-        if (this.$refs.form.validate()) {
-          if (check == 0) {
-            axios.post("http://localhost:3000/api/medicine/newdisease", {
-              dis_name: this.dis_selected.dis_name,
-              dis_icd: this.dis_selected.dis_icd
-            });
-            this.resetForm();
-            this.close2();
+          if (i === res.data.length - 1) {
+            if (this.$refs.form.validate()) {
+              axios.post("http://localhost:3000/api/medicine/newdisease", {
+                dis_name: this.dis_selected.dis_name,
+                dis_icd: this.dis_selected.dis_icd
+              });
+              this.resetForm();
+              this.close2();
+            }
           }
         }
       });
     },
 
     delete2() {
-      axios.post("http://localhost:3000/api/medicine/deletedisease", {
-        delete_name: this.medicine_selected.disease_name
+      axios.get("http://localhost:3000/api/medicine/showdisease").then(res => {
+        for (var i = 0; i < res.data.length; i++) {
+          if (
+            this.medicine_selected.disease_name === res.data[i].disease_name
+          ) {
+            console.log(res.data[i].disease_id);
+            var checkdiseaseid = res.data[i].disease_id;
+            axios
+              .get("http://localhost:3000/api/medicine/showmedicine")
+              .then(res2 => {
+                for (var i = 0; i < res2.data.length; i++) {
+                  if (checkdiseaseid === res2.data[i].disease_id_medicine) {
+                    alert("โรคนี้เชื่อมกับฐานข้อมูลยาอยู่ ไม่สามารถลบได้");
+                    break;
+                  }
+                  if (i === res2.data.length - 1) {
+                    axios.post(
+                      "http://localhost:3000/api/medicine/deletedisease",
+                      {
+                        delete_name: this.medicine_selected.disease_name
+                      }
+                    );
+                    this.reset();
+                    this.close2();
+                  }
+                }
+              });
+          }
+        }
       });
-      this.reset();
-      this.close2();
     },
 
     close2() {
@@ -417,23 +441,40 @@ export default {
             )
             .then(res => {
               this.getallmedicine();
+              this.close();
             });
         } else {
           axios
-            .post("http://localhost:3000/api/medicine/newmedicine", {
-              medicine_tmt: this.medicine_selected.medicine_tmt,
-              medicine_generic: this.medicine_selected.medicine_generic,
-              medicine_trade: this.medicine_selected.medicine_trade,
-              strenght: this.medicine_selected.strenght,
-              price: this.medicine_selected.price,
-              unit: this.medicine_selected.unit,
-              disease_name: this.medicine_selected.disease_name
-            })
+            .get("http://localhost:3000/api/medicine/showmedicine")
             .then(res => {
-              this.getallmedicine();
+              for (var i = 0; i < res.data.length; i++) {
+                if (
+                  this.medicine_selected.medicine_tmt ===
+                  res.data[i].medicine_tmt.toString()
+                ) {
+                  console.log("medicine_tmt ซ้ำ");
+                  alert("มีข้อมูลรหัสยานี้ในฐานข้อมูลแล้ว");
+                  break;
+                }
+                if (i === res.data.length - 1) {
+                  axios
+                    .post("http://localhost:3000/api/medicine/newmedicine", {
+                      medicine_tmt: this.medicine_selected.medicine_tmt,
+                      medicine_generic: this.medicine_selected.medicine_generic,
+                      medicine_trade: this.medicine_selected.medicine_trade,
+                      strenght: this.medicine_selected.strenght,
+                      price: this.medicine_selected.price,
+                      unit: this.medicine_selected.unit,
+                      disease_name: this.medicine_selected.disease_name
+                    })
+                    .then(res => {
+                      this.getallmedicine();
+                      this.close();
+                    });
+                }
+              }
             });
         }
-        this.close();
       }
     },
 
