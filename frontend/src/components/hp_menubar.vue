@@ -14,22 +14,13 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item
-            v-for="item in links_order"
-            :key="item.value"
-            router
-            :to="item.route"
-          >
+          <v-list-item v-for="item in links_order" :key="item.value" router :to="item.route">
             <v-list-item-title>{{ item.value }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn depressed @click="click" value="return" :color="btncolor"
-        >การคืนยา</v-btn
-      >
-      <v-btn depressed @click="click" value="patient" :color="btncolor"
-        >ข้อมูลผู้ป่วย</v-btn
-      >
+      <v-btn depressed @click="click" value="return" :color="btncolor">การคืนยา</v-btn>
+      <v-btn depressed @click="click" value="patient" :color="btncolor">ข้อมูลผู้ป่วย</v-btn>
       <v-menu offset-y open-on-hover>
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" text>
@@ -38,12 +29,7 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item
-            v-for="item in links"
-            :key="item.value"
-            router
-            :to="item.route"
-          >
+          <v-list-item v-for="item in links" :key="item.value" router :to="item.route">
             <v-list-item-title>{{ item.value }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -62,7 +48,7 @@
     </v-toolbar-items>
     <v-menu offset-y open-on-hover>
       <template v-slot:activator="{ on }">
-        <v-btn color="primary" dark v-on="on" text>ชื่อผู้ใช้</v-btn>
+        <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
       </template>
       <v-list>
         <v-list-item v-for="item in items" :key="item" @click="logout">
@@ -78,7 +64,9 @@ export default {
   data() {
     return {
       logged: localStorage.getItem("login"),
-      items: ["ชื่อ-สกุล", "Logout"],
+      username: localStorage.getItem("username"),
+      name: localStorage.getItem("name"),
+      items: [localStorage.getItem("name"), "Logout"],
       links: [
         { value: "ประวัติออร์เดอร์", route: "/order_history" },
         {
