@@ -195,6 +195,10 @@ export default {
     }
   },
   methods: {
+    reset() {
+      this.$refs.form.reset();
+    },
+    
     editItem(item) {
       console.log(this.hosstaff);
       this.editedIndex = this.hosstaff.indexOf(item);
@@ -311,8 +315,9 @@ export default {
       console.log(this.editedIndex);
       this.dialog = false;
       setTimeout(() => {
-        this.hosstaff_selected = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
+        this.reset();
+        // this.hosstaff_selected = Object.assign({}, this.defaultItem);
+        // this.editedIndex = -1;
       }, 300);
     }
   },

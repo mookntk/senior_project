@@ -127,7 +127,7 @@
             </v-dialog>
           </v-form>
 
-          <v-form ref="form">
+          <v-form ref="form2">
             <v-dialog v-model="dialog2" max-width="700px" persistent>
               <v-card>
                 <v-container>
@@ -341,18 +341,12 @@ export default {
   },
 
   methods: {
-
     reset() {
       this.$refs.form.reset();
+      
     },
-
-    resetForm() {
-      this.errorMessages = [];
-      this.formHasErrors = false;
-
-      Object.keys(this.form).forEach(f => {
-        this.$refs[f].reset();
-      });
+    reset2(){
+      this.$refs.form2.reset();
     },
 
     editItem(item) {
@@ -410,7 +404,7 @@ export default {
                 dis_name: this.dis_selected.dis_name,
                 dis_icd: this.dis_selected.dis_icd
               });
-              this.resetForm();
+              this.reset2();
               this.close2();
             }
           }
@@ -441,7 +435,7 @@ export default {
                         delete_name: this.medicine_selected.disease_name
                       }
                     );
-                    this.reset();
+                    this.reset2();
                     this.close2();
                   }
                 }
@@ -455,7 +449,7 @@ export default {
       
       this.dialog2 = false;
       setTimeout(() => {
-        this.reset();
+        this.reset2();
         // this.dis_selected = Object.assign({}, this.defaultItem2);
         // this.medicine_selected = Object.assign({}, this.defaultItem);
       }, 300);

@@ -242,13 +242,8 @@ export default {
   },
 
   methods: {
-    resetForm() {
-      this.errorMessages = [];
-      this.formHasErrors = false;
-
-      Object.keys(this.form).forEach(f => {
-        this.$refs[f].reset();
-      });
+    reset() {
+      this.$refs.form.reset();
     },
 
     editItem(item) {
@@ -379,8 +374,9 @@ export default {
       console.log(this.editedIndex);
       this.dialog = false;
       setTimeout(() => {
-        this.pharmacist_selected = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
+        this.reset();
+        // this.pharmacist_selected = Object.assign({}, this.defaultItem);
+        // this.editedIndex = -1;
       }, 300);
     }
   },
