@@ -127,8 +127,8 @@
             </v-dialog>
           </v-form>
 
-          <v-form>
-            <v-dialog v-model="dialog2" max-width="500px" persistent>
+          <v-form ref="form">
+            <v-dialog v-model="dialog2" max-width="700px" persistent>
               <v-card>
                 <v-container>
                   <v-card-title class="headline">จัดการข้อมูลโรค</v-card-title>
@@ -137,7 +137,7 @@
                       <v-text-field
                         ref="input"
                         v-model="dis_selected.dis_icd"
-                        label="ระบุรหัส ICD-10-TM "
+                        label="ระบุรหัส ICD-10-TM"
                         :rules="[rules.required]"
                         :error-messages="errorMessages"
                         required
@@ -168,12 +168,38 @@
                   </v-row>
                   <v-row class="ml-12">
                     <v-col cols="12" sm="7" md="7">
-                      <v-autocomplete
+                      <!-- <v-autocomplete
                         :items="disease"
                         item-text="disease_name"
                         v-model="medicine_selected.disease_name"
                         label="เลือกชื่อโรคที่ต้องการลบ"
-                      ></v-autocomplete>
+                      > -->
+                      <v-autocomplete
+                        label="เลือกชื่อโรคที่ต้องการลบ"
+                        :items="disease"
+                        item-text="disease_name"
+                        v-model="medicine_selected.disease_name"
+                      >
+                        <template v-slot:item="data">
+                          <v-chip
+                            v-bind="data.attrs"
+                            :input-value="data.selected"
+                            @click="data.select"
+                          >
+                            {{ data.item.disease_name }},{{ data.item.icd10 }}
+                          </v-chip>
+                        </template>
+
+                        <template v-slot:selection="data">
+                          <v-chip
+                            v-bind="data.attrs"
+                            :input-value="data.selected"
+                            @click="data.select"
+                          >
+                            {{ data.item.disease_name }},{{ data.item.icd10 }}
+                          </v-chip>
+                        </template>
+                      </v-autocomplete>
                     </v-col>
                     <v-col cols="12" sm="5" md="5">
                       <v-btn
@@ -289,7 +315,8 @@ export default {
     defaultItem2: {
       dis_name: "",
       dis_icd: ""
-    }
+    },
+    disease2: []
   }),
 
   components: {
@@ -314,6 +341,7 @@ export default {
   },
 
   methods: {
+
     reset() {
       this.$refs.form.reset();
     },
@@ -357,8 +385,9 @@ export default {
       this.dialog1 = false;
 
       setTimeout(() => {
-        this.medicine_selected = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
+        this.reset();
+        // this.medicine_selected = Object.assign({}, this.defaultItem);
+        // this.editedIndex = -1;
       }, 300);
     },
 
@@ -423,11 +452,12 @@ export default {
     },
 
     close2() {
-      this.reset();
+      
       this.dialog2 = false;
       setTimeout(() => {
-        this.dis_selected = Object.assign({}, this.defaultItem2);
-        this.medicine_selected = Object.assign({}, this.defaultItem);
+        this.reset();
+        // this.dis_selected = Object.assign({}, this.defaultItem2);
+        // this.medicine_selected = Object.assign({}, this.defaultItem);
       }, 300);
     },
 
