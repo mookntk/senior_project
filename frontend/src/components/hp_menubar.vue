@@ -63,7 +63,6 @@
 export default {
   data() {
     return {
-      logged: localStorage.getItem("login"),
       username: localStorage.getItem("username"),
       name: localStorage.getItem("name"),
       items: [localStorage.getItem("name"), "Logout"],
@@ -101,7 +100,14 @@ export default {
   methods: {
     logout: function(e) {
       console.log(e.currentTarget.key);
-      localStorage.setItem("username", "");
+      this.$store.commit("set_user", null);
+      this.$store.commit("set_staff_id", null);
+      this.$store.commit("set_name", null);
+      this.$store.commit("set_user_type", null);
+      localStorage.setItem("username", null);
+      localStorage.setItem("name", null);
+      localStorage.setItem("staff_id", null);
+      localStorage.setItem("user_type", null);
       this.$router.push("/");
       // console.log(localStorage.setItem("username",null));
       // this.$router.push("/");

@@ -73,8 +73,15 @@ export default {
     };
   },
   mounted() {
-    if (localStorage.getItem("login") == true) {
-      this.$router.push("/about");
+    if (this.$store.getters.isLoggedIn) {
+      var type = localStorage.getItem("user_type");
+      if (type === "hos_staff") {
+        this.$router.push("/create_order");
+      } else if (type === "pharmacist") {
+        this.$router.push("/ready_sell");
+      } else if (type === "admin") {
+        this.$router.push("/hospitalstaff");
+      }
     }
   },
   methods: {
@@ -94,13 +101,27 @@ export default {
         })
         .then(res => {
           this.data = res.data;
+          this.$store.commit("set_user", this.data.username);
+          this.$store.commit("set_staff_id", this.data.staff_id);
+          this.$store.commit(
+            "set_name",
+            this.data.name + " " + this.data.surname
+          );
+          this.$store.commit("set_user_type", this.data.user_type);
           localStorage.setItem("username", this.data.username);
           localStorage.setItem(
             "name",
             this.data.name + " " + this.data.surname
           );
           localStorage.setItem("staff_id", this.data.staff_id);
-          this.$router.push("/patient");
+          localStorage.setItem("user_type", this.data.user_type);
+          if (this.data.user_type === "hos_staff") {
+            this.$router.push("/create_order");
+          } else if (this.data.user_type === "pharmacist") {
+            this.$router.push("/ready_sell");
+          } else {
+            this.$router.push("/hospitalstaff");
+          }
         })
         .catch(e => {
           console.log(e);

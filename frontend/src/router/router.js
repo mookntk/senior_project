@@ -29,7 +29,10 @@ const routes = [
   {
     path: "/",
     name: "login",
-    component: Login
+    component: Login,
+    meta: {
+      requiresAuth: false
+    }
   },
 
   {
@@ -37,7 +40,8 @@ const routes = [
     name: "hosstaff",
     component: hosstaff,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "admin"
     }
   },
   {
@@ -45,7 +49,8 @@ const routes = [
     name: "pharmacy",
     component: pharmacy,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "admin"
     }
   },
   {
@@ -53,13 +58,15 @@ const routes = [
     name: "pharmacist",
     component: pharmacist,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "admin"
     }
   },
   {
     path: "/medicine",
     name: "medicine",
-    component: medicine
+    component: medicine,
+    permission: "admin"
   },
 
   {
@@ -67,7 +74,8 @@ const routes = [
     name: "patient",
     component: Patient,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
 
@@ -76,7 +84,8 @@ const routes = [
     name: "create_order",
     component: CreateOrder,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
 
@@ -85,7 +94,8 @@ const routes = [
     name: "HpOrder",
     component: HpOrder,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
 
@@ -94,7 +104,8 @@ const routes = [
     name: "WaitingMedicine",
     component: WaitingMedicine,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
   {
@@ -102,7 +113,8 @@ const routes = [
     name: "WaitingTransport",
     component: WaitingTransport,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
   {
@@ -110,7 +122,8 @@ const routes = [
     name: "TransportStatus",
     component: TransportStatus,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
   {
@@ -118,7 +131,8 @@ const routes = [
     name: "Recall",
     component: Recall,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
   {
@@ -126,7 +140,8 @@ const routes = [
     name: "OrderHistory",
     component: OrderHistory,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
   {
@@ -134,7 +149,8 @@ const routes = [
     name: "TransportHistory",
     component: TransportHistory,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "hos_staff"
     }
   },
   {
@@ -142,7 +158,8 @@ const routes = [
     name: "ReadySell",
     component: ReadySell,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "pharmacist"
     }
   },
   {
@@ -150,7 +167,8 @@ const routes = [
     name: "ReceiveOrder",
     component: ReceiveOrder,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "pharmacist"
     }
   },
   {
@@ -158,7 +176,8 @@ const routes = [
     name: "ConfirmOrder",
     component: ConfirmOrder,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "pharmacist"
     }
   },
   {
@@ -166,7 +185,8 @@ const routes = [
     name: "Prepare",
     component: Prepare,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "pharmacist"
     }
   },
   {
@@ -174,7 +194,8 @@ const routes = [
     name: "SendbackOrder",
     component: SendbackOrder,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "pharmacist"
     }
   },
   {
@@ -182,7 +203,8 @@ const routes = [
     name: "SendbackStatus",
     component: SendbackStatus,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "pharmacist"
     }
   },
   {
@@ -190,7 +212,8 @@ const routes = [
     name: "OrderStatus",
     component: OrderStatus,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      permission: "pharmacist"
     }
   }
 ];
@@ -202,15 +225,28 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // console.log(store.getters.isLoggedIn);
+  // if (to.matched.some(record => record.meta.requiresAuth)) {
+  //   // console.log(store.getters.isLoggedIn);
+
+  //   if (store.getters.isLoggedIn) {
+  //     next();
+  //   } else {
+  //     next("/");
+  //   }
+  // } else {
+  //   next();
+  // }
+  if (to.meta.requiresAuth) {
     if (store.getters.isLoggedIn) {
-      next();
+      var permission = router.app.$store.state.user_type;
+      if (permission == to.meta.permission) {
+        return next();
+      }
     } else {
-      next("/");
+      return next("/");
     }
   } else {
-    next();
+    return next();
   }
 });
 
