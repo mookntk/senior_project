@@ -1,11 +1,7 @@
 <template>
   <v-app class="font cyan lighten-5">
-    <v-alert class="alert font" type="success" :value="success_alert"
-      >บันทึกข้อมูลสำเร็จ</v-alert
-    >
-    <v-alert class="alert font" type="warning" :value="error_alert"
-      >บันทึกข้อมูลไม่สำเร็จ</v-alert
-    >
+    <v-alert class="alert font" type="success" :value="success_alert">บันทึกข้อมูลสำเร็จ</v-alert>
+    <v-alert class="alert font" type="warning" :value="error_alert">บันทึกข้อมูลไม่สำเร็จ</v-alert>
     <div class="menu-header">
       <Menu />
     </div>
@@ -50,9 +46,7 @@
                   >
                     <template v-slot:item="data">
                       <template v-if="typeof data.item !== 'object'">
-                        <v-list-item-content
-                          v-text="data.item"
-                        ></v-list-item-content>
+                        <v-list-item-content v-text="data.item"></v-list-item-content>
                       </template>
                       <template v-else>
                         <v-list-item-content>
@@ -106,20 +100,10 @@
                         required
                       ></v-text-field>
                     </template>
-                    <v-date-picker
-                      v-model="date"
-                      no-title
-                      scrollable
-                      locale="th"
-                      :min="today"
-                    >
+                    <v-date-picker v-model="date" no-title scrollable locale="th" :min="today">
                       <v-spacer></v-spacer>
-                      <v-btn text color="primary" @click="menu = false"
-                        >Cancel</v-btn
-                      >
-                      <v-btn text color="primary" @click="$refs.menu.save(date)"
-                        >OK</v-btn
-                      >
+                      <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
+                      <v-btn text color="primary" @click="$refs.menu.save(date)">OK</v-btn>
                     </v-date-picker>
                   </v-menu>
                 </v-col>
@@ -144,27 +128,19 @@
                         <!-- <v-checkbox v-model="checkbox1"></v-checkbox> -->
                       </v-col>
                       <v-col cols="12" sm="2" md="2">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          โรค
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">โรค</p>
                       </v-col>
 
                       <v-col cols="12" sm="4" md="4">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          ยา
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">ยา</p>
                       </v-col>
 
                       <v-col cols="12" sm="4" md="3">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          วิธีการรับประทานยา
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">วิธีการรับประทานยา</p>
                       </v-col>
 
                       <v-col cols="12" sm="2" md="2">
-                        <p class="subtitle-1 text-xl-center font-weight-black">
-                          จำนวน
-                        </p>
+                        <p class="subtitle-1 text-xl-center font-weight-black">จำนวน</p>
                       </v-col>
                     </v-row>
 
@@ -219,10 +195,7 @@
                     </v-row>-->
                     <v-row v-for="(k, index) in disease" :key="index">
                       <v-col cols="12" sm="1" md="1">
-                        <v-checkbox
-                          v-model="checkbox[index]"
-                          v-if="countItem[index]"
-                        ></v-checkbox>
+                        <v-checkbox v-model="checkbox[index]" v-if="countItem[index]"></v-checkbox>
                       </v-col>
 
                       <v-col cols="12" sm="2" md="2">
@@ -249,9 +222,7 @@
                         style="padding:10px;margin:auto;margin-bottom:45px"
                       >
                         <v-icon @click="remove(index)">mdi-minus-circle</v-icon>
-                        <v-icon @click="add(k)" v-if="countItem[index]"
-                          >mdi-plus-circle</v-icon
-                        >
+                        <v-icon @click="add(k)" v-if="countItem[index]">mdi-plus-circle</v-icon>
                       </v-col>
                       <v-col cols="12" sm="3" md="3">
                         <v-autocomplete
@@ -264,11 +235,7 @@
                       </v-col>
 
                       <v-col cols="12" sm="2" md="2">
-                        <v-text-field
-                          solo
-                          clearable
-                          v-model="qty_selected[index]"
-                        ></v-text-field>
+                        <v-text-field solo clearable v-model="qty_selected[index]"></v-text-field>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -451,7 +418,7 @@ export default {
                   this.reset();
                   setTimeout(() => {
                     this.success_alert = false;
-                  }, 2000);
+                  }, 1000);
                 })
                 .catch(e => {
                   console.log(e);
@@ -475,7 +442,7 @@ export default {
             this.error_alert = true;
             setTimeout(() => {
               this.error_alert = false;
-            }, 2000);
+            }, 1000);
           });
       }
     },

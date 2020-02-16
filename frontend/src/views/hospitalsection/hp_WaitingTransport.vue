@@ -3,7 +3,7 @@
     <div class="menu-header">
       <Menu />
     </div>
-    <v-content class="main">
+    <v-content class="main font">
       <v-row>
         <v-col align="left" style="font-size:25px">{{date}}</v-col>
         <v-spacer></v-spacer>

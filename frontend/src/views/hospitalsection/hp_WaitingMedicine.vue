@@ -3,11 +3,11 @@
     <div class="menu-header">
       <Menu />
     </div>
-    <v-content class="main">
+    <v-content class="main font">
       <v-row>
         <v-col align="left" style="font-size:25px">{{date}}</v-col>
         <v-spacer></v-spacer>
-        <v-col cols="12" sm="1" md="1" justify="right" align="right">
+        <v-col cols="12" sm="2" md="2" justify="right" align="right">
           <v-btn color="primary" x-large dark v-on="on" @click="waiting_transport">รอจัดส่ง</v-btn>
         </v-col>
       </v-row>
@@ -51,7 +51,7 @@
                         <v-checkbox primary hide-details v-model="check_medicine[i]" disabled></v-checkbox>
                       </v-list-item-action>
                       <v-list-item-content>
-                        <v-list-item-title>{{medicineAll.name[i]}} {{medicineAll.qty[i]}} แผง</v-list-item-title>
+                        <v-list-item-title>{{medicineAll.name[i]}} {{medicineAll.qty[i]}} {{medicineAll.unit[i]}}</v-list-item-title>
                         <v-row v-for="(item,k) in medicineAll.lot[i]" :key="i+k">
                           <!-- <v-row v-for="(item2,j) in medicineAll.lot[k]" :key="j"> -->
                           <v-col cols="12" sm="6" md="6">
@@ -585,20 +585,6 @@ export default {
             this.medicineAll = this.check_medicine();
           });
     },
-    // deleteItem(item) {
-    //   console.log("delete item");
-    //   const index = this.order.indexOf(item);
-    //   confirm(
-    //     "คุณต้องการที่จะลบออร์เดอร์ใช่หรือไม่?\nคุณ" + item.patient + " "
-    //   ) && this.order.splice(index, 1);
-    // },
-    // editItem(item) {
-    //   this.index = this.order.indexOf(item);
-    //   //   this.editedIndex = this.order.indexOf(item);
-    //   this.order_selected = item.name;
-    //   this.editedItem = Object.assign({}, item);
-    //   this.dialog_edit = true;
-    // },
     save() {
       var item = this.order_filter[this.index];
       //! edit lot_transfer
@@ -701,6 +687,7 @@ export default {
       var order_selected = [...this.order_filter[this.index]];
       var qty = [];
       var lot_qty = [];
+      var unit = [];
 
       for (let index = 0; index < order_selected.length; index++) {
         for (let j = 0; j < order_selected[index].medicineItem.length; j++) {
@@ -716,7 +703,7 @@ export default {
             qty[qty.length - 1] += parseInt(
               order_selected[index].medicineItem[j].qty
             );
-
+            unit.push(order_selected[index].medicineItem[j].unit);
             name.push(order_selected[index].medicineItem[j].medicine_generic);
             var filter = getlot.filter((item, sub) => {
               return (
@@ -754,7 +741,8 @@ export default {
         qty: qty,
         lot: lot,
         lot_qty: lot_qty,
-        exp: exp
+        exp: exp,
+        unit: unit
       };
     },
     checkMedInfo(i, k) {
@@ -853,7 +841,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .menu-header {
   position: fixed;
   width: 100%;
@@ -864,5 +852,8 @@ export default {
 .main {
   margin: 20px;
   margin-top: 120px;
+}
+th {
+  background-color: #ffd54f;
 }
 </style>

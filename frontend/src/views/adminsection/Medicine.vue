@@ -23,13 +23,9 @@
           <div class="flex-grow-1"></div>
           <!-- <v-dialog v-model="dialog1" max-width="1000px"> -->
           <!-- <template v-slot:activator="{ on }"> -->
-          <v-btn color="primary" class="ma-2" @click="editItem(item)"
-            >+ เพิ่มข้อมูลยา</v-btn
-          >
+          <v-btn color="primary" class="ma-2" @click="editItem(item)">+ เพิ่มข้อมูลยา</v-btn>
 
-          <v-btn color="success" dark class="ma-2" @click="editItem2()"
-            >จัดการข้อมูลโรค</v-btn
-          >
+          <v-btn color="success" dark class="ma-2" @click="editItem2()">จัดการข้อมูลโรค</v-btn>
           <!-- </template> -->
 
           <v-form ref="form">
@@ -116,12 +112,8 @@
 
                 <v-card-actions>
                   <div class="flex-grow-1"></div>
-                  <v-btn color="blue darken-1" text @click="close()"
-                    >ยกเลิก</v-btn
-                  >
-                  <v-btn color="blue darken-1" text @click="save()"
-                    >เสร็จสิ้น</v-btn
-                  >
+                  <v-btn color="blue darken-1" text @click="close()">ยกเลิก</v-btn>
+                  <v-btn color="blue darken-1" text @click="save()">เสร็จสิ้น</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -173,7 +165,7 @@
                         item-text="disease_name"
                         v-model="medicine_selected.disease_name"
                         label="เลือกชื่อโรคที่ต้องการลบ"
-                      > -->
+                      >-->
                       <v-autocomplete
                         label="เลือกชื่อโรคที่ต้องการลบ"
                         :items="disease"
@@ -185,9 +177,7 @@
                             v-bind="data.attrs"
                             :input-value="data.selected"
                             @click="data.select"
-                          >
-                            {{ data.item.disease_name }},{{ data.item.icd10 }}
-                          </v-chip>
+                          >{{ data.item.disease_name }},{{ data.item.icd10 }}</v-chip>
                         </template>
 
                         <template v-slot:selection="data">
@@ -195,9 +185,7 @@
                             v-bind="data.attrs"
                             :input-value="data.selected"
                             @click="data.select"
-                          >
-                            {{ data.item.disease_name }},{{ data.item.icd10 }}
-                          </v-chip>
+                          >{{ data.item.disease_name }},{{ data.item.icd10 }}</v-chip>
                         </template>
                       </v-autocomplete>
                     </v-col>
@@ -210,18 +198,18 @@
                         :disabled="!medicine_selected.disease_name"
                         color="red"
                       >
-                        <v-icon color="white" large>{{
+                        <v-icon color="white" large>
+                          {{
                           icons.mdiMinus
-                        }}</v-icon>
+                          }}
+                        </v-icon>
                       </v-btn>
                     </v-col>
                   </v-row>
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="close2()"
-                      >ยกเลิก</v-btn
-                    >
+                    <v-btn color="green darken-1" text @click="close2()">ยกเลิก</v-btn>
                     <!-- <v-btn color="green darken-1" text @click="save2()">เสร็จสิ้น</v-btn> -->
                   </v-card-actions>
                 </v-container>
@@ -343,9 +331,8 @@ export default {
   methods: {
     reset() {
       this.$refs.form.reset();
-      
     },
-    reset2(){
+    reset2() {
       this.$refs.form2.reset();
     },
 
@@ -446,7 +433,6 @@ export default {
     },
 
     close2() {
-      
       this.dialog2 = false;
       setTimeout(() => {
         this.reset2();
@@ -527,7 +513,7 @@ export default {
 .font {
   font-family: "Sarabun", sans-serif;
 }
-thead {
+/* thead {
   background-color: #ffd54f;
-}
+} */
 </style>
