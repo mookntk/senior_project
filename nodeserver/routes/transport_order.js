@@ -197,4 +197,26 @@ var sortTransportId = function(item) {
   });
 };
 
+router.post("/edit_transportdate", async (req, res) => {
+  try {
+    const item = await EditTransportDate(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var EditTransportDate = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE ${transport} SET status = ? , transport_date = NOW() WHERE transport_id = ?`,
+      [item.status, item.transport_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+
 module.exports = router;
