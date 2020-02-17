@@ -4,17 +4,23 @@
       <Menubar />
     </div>
 
-    <v-content class="main">
-      <v-dialog v-model="dialog_row" fullscreen hide-overlay transition="dialog-bottom-transition">
+    <v-content class="main font">
+      <v-dialog
+        v-model="dialog_row"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
         <v-card class="font">
           <v-toolbar dark color="primary">
             <v-btn icon dark @click="dialog_row = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{pharmacy}}</v-toolbar-title>
+            <!-- <v-toolbar-title>{{pharmacy}}</v-toolbar-title> -->
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark text @click="changestatus">{{formtitle}}</v-btn>
+
             </v-toolbar-items>
           </v-toolbar>
           <v-row></v-row>
@@ -22,7 +28,7 @@
             <v-col cols="12" sm="12">
               <v-data-table
                 v-model="selected"
-                :items="order[index].orders"
+                :items="each_order"
                 :items-per-page="10"
                 class="elevation-1"
                 :headers="sub_headers"
@@ -30,21 +36,28 @@
                 <template v-slot:body="{ items }">
                   <tbody v-for="item in items" :key="item.name">
                     <tr>
-                      <td :rowspan="item.medicine.length">{{ item.order_id }}</td>
-                      <td :rowspan="item.medicine.length" style="text-align:center">{{ item.name }}</td>
+                      <td>{{ item.order_id }}</td>
+                      <td style="text-align:center">
+                        {{ item.name }} {{ item.surname }}
+                      </td>
+                      <td style="text-align:center">
+                        {{ setDate(item.create_date) }}
+                      </td>
+                      <td style="text-align:center">
+                        {{ setDate(item.due_date) }}
+                      </td>
                       <td
-                        :rowspan="item.medicine.length"
-                        style="text-align:center"
-                      >{{ item.create_date }}</td>
-                      <td
-                        :rowspan="item.medicine.length"
-                        style="text-align:center"
-                      >{{ item.due_date }}</td>
-                      <td>
-                        <p
-                          v-for="medicine in item.medicine"
-                          :key="medicine.name"
-                        >{{ medicine.name }} {{medicine.qty}} {{medicine.unit}}</p>
+                        style="vertical-align:middle; text-align:center; white-space:pre-wrap; word-wrap:break-word; "
+                      >
+                        {{
+                          setMed(
+                            item.medicine_generic +
+                              ";" +
+                              item.qty +
+                              ";" +
+                              item.unit
+                          )
+                        }}
                       </td>
                     </tr>
                   </tbody>
@@ -52,35 +65,20 @@
               </v-data-table>
             </v-col>
           </v-row>
-          <v-row style="margin:20px">
-            <v-list subheader two-line flat class="font">
-              <v-header>จำนวนยาทั้งหมด</v-header>
-              <v-list-item-group v-model="settings" multiple>
-                <v-list-item>
-                  <template v-slot:default="{ active, toggle }">
-                    <v-list-item-action>
-                      <v-checkbox v-model="active" color="primary" @click="toggle"></v-checkbox>
-                    </v-list-item-action>
-
-                    <v-list-item-content>
-                      <v-list-item-title>Enalapril 20 mg 20 tablet</v-list-item-title>
-                    </v-list-item-content>
-                  </template>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-row>
         </v-card>
       </v-dialog>
+
       <v-row>
-        <v-col align="left" style="font-size:25px">ยืนยันรับออร์เดอร์จากโรงพยาบาล</v-col>
+        <v-col align="left" style="font-size:25px"
+          >ยืนยันรับออร์เดอร์จากโรงพยาบาล</v-col
+        >
         <v-col sm="2" align="right" style="font-size:12px">
-          <v-text-field
+          <!-- <v-text-field
             :value="date_th"
             outlined
             @click="calendar = true"
             label="เลือกวัน/เดือน/ปี"
-          ></v-text-field>
+          ></v-text-field> -->
         </v-col>
       </v-row>
       <v-dialog v-model="calendar" width="300px">
@@ -93,10 +91,11 @@
           ></v-date-picker>
         </v-row>
       </v-dialog>
+
+      <!-- data-transport_order -->
       <v-data-table
-        v-model="selected"
         :headers="headers"
-        :items="order"
+        :items="transfer_order"
         :items-per-page="10"
         class="elevation-1"
       >
@@ -104,16 +103,23 @@
           <tbody>
             <tr
               v-for="item in items"
-              :key="item.name"
+              :key="item.transport_id"
               @click="selectItem(item)"
-              :class="{'selectedRow': item === selectedItem}"
+              :class="{ selectedRow: item === selectedItem }"
             >
-              <td>{{item.id}}</td>
-              <td style="text-align:center">{{ item.orders.length }}</td>
-              <td style="text-align:center">{{ item.create_date }}</td>
-              <td style="text-align:center">{{ item.receive_date }}</td>
+              <td>{{ item.transport_id }}</td>
+              <td style="text-align:center">{{ item.qty_orders }}</td>
+              <!--รวมจำนวนออรเดอร์ว่า transport นี้ มีกี่ตัว-->
               <td style="text-align:center">
-                <v-chip :color="getColor(item.status)" dark>{{ item.status }}</v-chip>
+                {{ setDate(item.transport_date) }}
+              </td>
+              <td style="text-align:center">
+                {{ setDate(item.receive_date) }}
+              </td>
+              <td style="text-align:center">
+                <v-chip :color="getColor(item.status)" dark>{{
+                  setStatus(item.status)
+                }}</v-chip>
               </td>
             </tr>
           </tbody>
@@ -141,690 +147,273 @@ export default {
       dialog: false,
       dialog_row: false,
       selected: [],
+      transfer_order: [],
+      each_order: [],
       pharmacy: "",
-      index: 0,
+      index: [],
       receive_date: "",
       headers: [
         {
           text: "ออร์เดอร์ที่",
           align: "left",
-          sortable: false,
-          value: "name"
+          sortable: false
         },
-        { text: "จำนวนออร์เดอร์", align: "center", value: "order" },
-        { text: "วันที่จัดส่งยา", align: "center", value: "order" },
-        { text: "วันที่ร้านยาได้รับ", align: "center", value: "order" },
-        { text: "สถานะ", align: "center", value: "status" }
+        { text: "จำนวนออร์เดอร์", align: "center" },
+        { text: "วันที่จัดส่งยา", align: "center" },
+        { text: "วันที่ร้านยาได้รับ", align: "center" },
+        { text: "สถานะ", align: "center" }
       ],
       sub_headers: [
         {
           text: "เลขออร์เดอร์",
           align: "left",
-          sortable: false,
-          value: "name"
+          sortable: false
         },
-        { text: "ชื่อ-นามสกุลผู้ป่วย", align: "center", value: "order" },
-        { text: "วันที่สร้างออร์เดอร์", align: "center", value: "order" },
-        { text: "วันนัดรับยา", align: "center", value: "status" },
-        { text: "ข้อมูลยา", align: "center", value: "status" }
-      ],
-      order: [
-        {
-          id: 0,
-          name: "บ้านเภสัชกร",
-          create_date: "20 กรกฏาคม 2562",
-          receive_date: "22 กรกฎาคม 2562",
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "2 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Decolgen",
-                  qty: 2,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "ได้รับยาเรียบร้อย"
-        },
-        {
-          id: 1,
-          name: "ลิขิตฟาร์มาซี",
-          create_date: "7 สิงหาคม 2562",
-          receive_date: "",
-          orders: [
-            {
-              order_id: 2,
-              name: "สุกรี ฉัตรรัตนกุลชัย",
-              create_date: "7 กันยายน 2562",
-              due_date: "12 กันยายน 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 5,
-              name: "สมาน พิทยาพิบูลพงศ์",
-              create_date: "10 มีนาคม 2562",
-              due_date: "20 มีนาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Decolgen",
-                  qty: 2,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 11,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Decolgen",
-                  qty: 2,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 39,
-              name: "นภาพรรณ วัฒนประดิษฐ",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 40,
-              name: "เฉลิม ศรีเมือง",
-              create_date: "7 มกราคม 2562",
-              due_date: "15 มกราคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "กำลังจัดส่ง"
-        },
-        {
-          id: 2,
-          name: "ร้านฟาร์มาซี สาย2",
-          create_date: "15 มีนาคม 2562",
-          receive_date: "",
-
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Decolgen",
-                  qty: 2,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "1 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "กำลังจัดส่ง"
-        },
-        {
-          id: 3,
-          name: "เวิลด์ ฟาร์มาซี",
-          create_date: "7 สิงหาคม 2562",
-          receive_date: "",
-          orders: [
-            {
-              order_id: 1,
-              name: "นภาพรรณ วิทุรวงศ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "9 มีนาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Decolgen",
-                  qty: 2,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 15,
-              name: "สลิลลา พิทยาพิบูลพงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Decolgen",
-                  qty: 2,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 15,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "5 สิงหาคมม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Tylenol",
-                  qty: 3,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "กำลังจัดส่ง"
-        },
-        {
-          id: 4,
-          name: "ซิตี้ฟาร์มาซี",
-          create_date: "25 กรกฏาคม 2562",
-          receive_date: "",
-          orders: [
-            {
-              order_id: 1,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "10 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Tylenol",
-                  qty: 3,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 15,
-              name: "เฉลิม วัฒนประดิษฐ",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "กำลังจัดส่ง"
-        },
-        {
-          id: 5,
-          name: "บ้านเภสัชกร",
-          create_date: "25 กรกฏาคม 2562",
-          receive_date: "30 กรกฎาคม 2562",
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "2 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 70,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "25 ตุลาคม 2562",
-              due_date: "31 ตุลาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Tylenol",
-                  qty: 3,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "ได้รับยาเรียบร้อย"
-        },
-        {
-          id: 6,
-          name: "ลิขิตฟาร์มาซี",
-          create_date: "10 มกราคม 2562",
-          receive_date: "20 มกราคม 2562",
-          orders: [
-            {
-              order_id: 2,
-              name: "สุกรี ฉัตรรัตนกุลชัย",
-              create_date: "7 กันยายน 2562",
-              due_date: "12 กันยายน 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 5,
-              name: "สมาน พิทยาพิบูลพงศ์",
-              create_date: "10 มีนาคม 2562",
-              due_date: "20 มีนาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 11,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 3,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Decolgen", qty: 1, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 39,
-              name: "นภาพรรณ วัฒนประดิษฐ",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 3,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Decolgen", qty: 1, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "ได้รับยาเรียบร้อย"
-        },
-        {
-          id: 7,
-          name: "ร้านฟาร์มาซี สาย2",
-          create_date: "1 มกราคม 2562",
-          receive_date: "",
-
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 5,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "1 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Tylenol",
-                  qty: 3,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-              ]
-            },
-            {
-              order_id: 40,
-              name: "เฉลิม ศรีเมือง",
-              create_date: "7 มกราคม 2562",
-              due_date: "15 มกราคม 2562",
-              medicine: [
-                {
-                  tmt: "1234",
-                  name: "Sara",
-                  qty: 3,
-                  unit: "tablet"
-                },
-                { tmt: "1234", name: "Decolgen", qty: 1, unit: "tablet" }
-              ]
-            }
-          ],
-          status: "กำลังจัดส่ง"
-        }
+        { text: "ชื่อ-นามสกุลผู้ป่วย", align: "center" },
+        { text: "วันที่สร้างออร์เดอร์", align: "center" },
+        { text: "วันนัดรับยา", align: "center" },
+        { text: "ข้อมูลยา", align: "center" }
       ],
       date: "",
       selectedpharmacy: "",
-      selectedItem: ""
+      selectedItem: "",
+      each_medicine: "",
+      med_gerenic: ""
     };
-  },
-
-  mounted() {
-    var day = [
-      "วันอาทิตย์",
-      "วันจันทร์",
-      "วันอังคาร",
-      "วันพุธ",
-      "วันพฤหัสบดี",
-      "วันศุกร์",
-      "วันเสาร์"
-    ];
-    var month = [
-      "มกราคม",
-      "กุมภาพันธ์",
-      "มีนาคม",
-      "เมษายน",
-      "พฤษภาคม",
-      "มิถุนายน",
-      "กรกฎาคม",
-      "สิงหาคม",
-      "กันยายน",
-      "ตุลาคม",
-      "พฤศจิกายน",
-      "ธันวาคม"
-    ];
-    var date = new Date();
-    var date_format =
-      day[date.getDay()] +
-      " " +
-      date.getDate() +
-      " " +
-      month[date.getMonth()] +
-      " " +
-      (date.getFullYear() + 543);
-
-    this.date = date_format;
   },
   components: {
     Menubar
   },
   methods: {
+    // get_medicine(medicine_gerenic) {
+    // axios.get("http://localhost:3000/api/receive_order/show_order").then(res => {
+    //     var medicine = res.data.length;
+    //     for (var i = 0; i < medicine; i++) {
+    //       if (res.data[i].medicine_gerenic != ""){
+    //       var each_med = this.medicine_gerenic.split(",");
+    //       each_med = res.data[i].medicine_gerenic;
+    //       console.log(each_med);}
+    //     }
+    //   });
+    // },
+    setStatus: function(s) {
+      if (s === "transport") {
+        s = "กำลังจัดส่ง";
+      } else if (s === "received") {
+        s = "ได้รับเรียบร้อยแล้ว";
+      }
+      return s;
+    },
+    setMed: function(m) {
+      console.log(m);
+      if (m != null) {
+        var med_detail = m.split(";");
+        var med_name = med_detail[0];
+        var med_name2 = med_name.split(",");
+        var med_qty = med_detail[1];
+        var med_qty2 = med_qty.split(",");
+        var med_unit = med_detail[2];
+        var med_unit2 = med_unit.split(",");
+
+        var med_show = "";
+        for (var i = 0; i < med_name2.length; i++) {
+          if (i === med_name2.length - 1) {
+            med_show += med_name2[i] + " " + med_qty2[i] + " " + med_unit2[i];
+          } else {
+            med_show +=
+              med_name2[i] + " " + med_qty2[i] + " " + med_unit2[i] + "\n";
+          }
+
+          console.log(med_show);
+        }
+        return med_show;
+      }
+    },
+    setDate: function(d) {
+      console.log("setName");
+      console.log(d);
+      var month = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม"
+      ];
+      if (d != null) {
+        var date_transport = d.split(" ");
+        date_transport[2] = parseInt(date_transport[2]) + 543;
+        date_transport =
+          date_transport[0] +
+          " " +
+          month[date_transport[1] - 1] +
+          " " +
+          date_transport[2];
+        console.log(date_transport);
+        return date_transport;
+      } else return "";
+    },
+
     changestatus() {
       if (this.order[this.index].status == "กำลังจัดส่ง") {
         this.order[this.index].status = "ได้รับยาเรียบร้อย";
-      } else if (this.order[this.index].status == "รอการจัดยา") {
-        this.order[this.index].status = "รอการจัดส่ง";
-      } else if (this.order[this.index].status == "หยุดชั่วคราว") {
-        this.order[this.index].status = "รอการจัดยา";
-      }
-      var month = [
-        "มกราคม",
-        "กุมภาพันธ์",
-        "มีนาคม",
-        "เมษายน",
-        "พฤษภาคม",
-        "มิถุนายน",
-        "กรกฎาคม",
-        "สิงหาคม",
-        "กันยายน",
-        "ตุลาคม",
-        "พฤศจิกายน",
-        "ธันวาคม"
-      ];
-      var date = new Date();
-      var date_format =
-        date.getDate() +
-        " " +
-        month[date.getMonth()] +
-        " " +
-        (date.getFullYear() + 543);
+      } 
+      // else if (this.order[this.index].status == "รอการจัดยา") {
+      //   this.order[this.index].status = "รอการจัดส่ง";
+      // } else if (this.order[this.index].status == "หยุดชั่วคราว") {
+      //   this.order[this.index].status = "รอการจัดยา";
+      // }
+      // var month = [
+      //   "มกราคม",
+      //   "กุมภาพันธ์",
+      //   "มีนาคม",
+      //   "เมษายน",
+      //   "พฤษภาคม",
+      //   "มิถุนายน",
+      //   "กรกฎาคม",
+      //   "สิงหาคม",
+      //   "กันยายน",
+      //   "ตุลาคม",
+      //   "พฤศจิกายน",
+      //   "ธันวาคม"
+      // ];
+      // var date = new Date();
+      // var date_format =
+      //   date.getDate() +
+      //   " " +
+      //   month[date.getMonth()] +
+      //   " " +
+      //   (date.getFullYear() + 543);
 
-      this.order[this.index].receive_date = date_format;
+      // this.order[this.index].receive_date = date_format;
       this.dialog_row = false;
     },
     getColor(status) {
-      if (status == "กำลังจัดส่ง") return "orange";
-      else if (status == "ได้รับยาเรียบร้อย") return "green";
+      if (status == "transport") {
+        return "orange";
+      } else if (status == "received") return "success";
     },
     selectItem(item) {
-      this.index = this.order.indexOf(item);
-      if (item.status == "") {
-      }
-      this.pharmacy = item.name;
       this.dialog_row = true;
-    },
-    save() {
-      this.dialog = false;
-      var count = 0;
-      var i = 0;
-      var new_detail = {
-        order_id: this.order_id,
-        name: this.order_name + " " + this.order_surname,
-        due_date: this.picker
-      };
-      console.log(new_detail);
-      for (i = 0; i < this.order.length; i++) {
-        if (this.order[i].status == "ยังไม่ได้จัดส่ง") {
-          if (this.selectedpharmacy == this.order[i].name) {
-            this.order[i].orders.push(new_detail);
-            count++;
-            console.log(this.order);
-            break;
-          }
-        }
-      }
-      if (count == 0) {
-        var new_order = {
-          id: this.order.length,
-          name: this.selectedpharmacy,
-          orders: [new_detail],
-          status: "กำลังจัดส่ง"
-        };
-        this.order.push(new_order);
-      }
-      this.order_id++;
-      this.order_name = "";
-      this.order_surname = "";
-      this.order_date = "";
-    },
-    selectpharmacy(e) {
-      this.selectedpharmacy = e;
-      console.log(this.selectedpharmacy);
+      
+      axios
+        .post("http://localhost:3000/api/receive_order/show_order", {
+          transport_id: item.transport_id,
+          index:item.status
+        })
+        .then(res => {
+          this.each_order = res.data;
+          console.log(index);
+          
+        });
+      // this.index = this.order.indexOf(item);
+      // if (item.status == "") {
+      // }
+      // this.pharmacy = item.name;
     }
+    // save() {
+    //   this.dialog = false;
+    //   var count = 0;
+    //   var i = 0;
+    //   var new_detail = {
+    //     order_id: this.order_id,
+    //     name: this.order_name + " " + this.order_surname,
+    //     due_date: this.picker
+    //   };
+    //   console.log(new_detail);
+    //   for (i = 0; i < this.order.length; i++) {
+    //     if (this.order[i].status == "ยังไม่ได้จัดส่ง") {
+    //       if (this.selectedpharmacy == this.order[i].name) {
+    //         this.order[i].orders.push(new_detail);
+    //         count++;
+    //         console.log(this.order);
+    //         break;
+    //       }
+    //     }
+    //   }
+    //   if (count == 0) {
+    //     var new_order = {
+    //       id: this.order.length,
+    //       name: this.selectedpharmacy,
+    //       orders: [new_detail],
+    //       status: "กำลังจัดส่ง"
+    //     };
+    //     this.order.push(new_order);
+    //   }
+    //   this.order_id++;
+    //   this.order_name = "";
+    //   this.order_surname = "";
+    //   this.order_date = "";
+    // },
+    // selectpharmacy(e) {
+    //   this.selectedpharmacy = e;
+    //   console.log(this.selectedpharmacy);
+    // }
   },
   computed: {
-    formtitle() {
-      if (this.order[this.index].status == "กำลังจัดส่ง") {
-        return "ได้รับยาเรียบร้อย";
-      } else if (this.order[this.index].status == "ได้รับยาเรียบร้อย") {
-        return "";
-      }
-    },
-    date_th() {
-      var month = [
-        "มกราคม",
-        "กุมภาพันธ์",
-        "มีนาคม",
-        "เมษายน",
-        "พฤษภาคม",
-        "มิถุนายน",
-        "กรกฎาคม",
-        "สิงหาคม",
-        "กันยายน",
-        "ตุลาคม",
-        "พฤศจิกายน",
-        "ธันวาคม"
-      ];
-      if (this.picker2 != "") {
-        var date = this.picker2.split("-");
-        date[0] = parseInt(date[0]) + 543;
-        date = date[2] + " " + month[date[1] - 1] + " " + date[0];
-        console.log(date);
-        return date;
-      } else return "";
-    }
+    // formtitle() {
+    //   if (this.index === "transport") {
+    //     return "ได้รับยาเรียบร้อย";
+    //   } else if (this.index === "ได้รับยาเรียบร้อย") {
+    //     return "";
+    //   }
+    // }
+  },
+  mounted() {
+    axios
+      .get("http://localhost:3000/api/receive_order/show_transfer_order")
+      .then(res => {
+        this.transfer_order = res.data;
+      });
+    axios
+      .get("http://localhost:3000/api/receive_order/show_order")
+      .then(res => {
+        this.each_order = res.data;
+      });
+    // var day = [
+    //   "วันอาทิตย์",
+    //   "วันจันทร์",
+    //   "วันอังคาร",
+    //   "วันพุธ",
+    //   "วันพฤหัสบดี",
+    //   "วันศุกร์",
+    //   "วันเสาร์"
+    // ];
+    // var month = [
+    //   "มกราคม",
+    //   "กุมภาพันธ์",
+    //   "มีนาคม",
+    //   "เมษายน",
+    //   "พฤษภาคม",
+    //   "มิถุนายน",
+    //   "กรกฎาคม",
+    //   "สิงหาคม",
+    //   "กันยายน",
+    //   "ตุลาคม",
+    //   "พฤศจิกายน",
+    //   "ธันวาคม"
+    // ];
+    // var date = new Date();
+    // var date_format =
+    //   day[date.getDay()] +
+    //   " " +
+    //   date.getDate() +
+    //   " " +
+    //   month[date.getMonth()] +
+    //   " " +
+    //   (date.getFullYear() + 543);
+
+    // this.date = date_format;
   }
 };
 </script>
-<style >
+<style>
 .menu-header {
   position: fixed;
   width: 100%;

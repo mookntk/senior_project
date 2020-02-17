@@ -589,7 +589,7 @@ export default {
       this.dialog_edit = false;
       setTimeout(() => {
         this.$refs.form.reset();
-        this.editedIndex = -1;
+        // this.editedIndex = -1;
       }, 400);
     },
     calulate_age() {

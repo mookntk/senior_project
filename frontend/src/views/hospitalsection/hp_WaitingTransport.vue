@@ -11,7 +11,7 @@
           <v-btn color="primary" x-large dark v-on="on" @click="transportStatus">ทำการจัดส่ง</v-btn>
         </v-col>
       </v-row>
-      <!-- //! dialog edit -->
+      <!--  dialog edit -->
       <v-dialog v-model="dialog_details" persistent max-width="700px">
         <v-card class="blue-grey lighten-5 font">
           <v-card-title>
@@ -86,7 +86,7 @@
         </v-card>
       </v-dialog>
 
-      <!-- //! table of order -->
+      <!--  table of order -->
       <v-data-table
         :headers="headers"
         :items="transport"

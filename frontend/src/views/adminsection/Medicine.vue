@@ -257,7 +257,7 @@ export default {
       { text: "ชื่อทางการค้า", value: "medicine_trade", align: "center" },
       { text: "โรค", value: "disease_name", align: "center" },
       {
-        text: "ปริมาณยา (strenght)",
+        text: "ปริมาณยา (strength)",
         value: "strenght",
         align: "center",
         sortable: false
