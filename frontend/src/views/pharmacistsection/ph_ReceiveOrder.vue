@@ -147,10 +147,10 @@ export default {
       dialog: false,
       dialog_row: false,
       selected: [],
-      transfer_order: [],
+      transfer_order: [{status:""}],
       each_order: [],
       pharmacy: "",
-      index: [],
+      index: 0,
       receive_date: "",
       headers: [
         {
@@ -261,37 +261,37 @@ export default {
     },
 
     changestatus() {
-      if (this.order[this.index].status == "กำลังจัดส่ง") {
-        this.order[this.index].status = "ได้รับยาเรียบร้อย";
+      if (this.transfer_order[this.index].status == "transport") {
+        this.transfer_order[this.index].status = "received";
       } 
       // else if (this.order[this.index].status == "รอการจัดยา") {
       //   this.order[this.index].status = "รอการจัดส่ง";
       // } else if (this.order[this.index].status == "หยุดชั่วคราว") {
       //   this.order[this.index].status = "รอการจัดยา";
       // }
-      // var month = [
-      //   "มกราคม",
-      //   "กุมภาพันธ์",
-      //   "มีนาคม",
-      //   "เมษายน",
-      //   "พฤษภาคม",
-      //   "มิถุนายน",
-      //   "กรกฎาคม",
-      //   "สิงหาคม",
-      //   "กันยายน",
-      //   "ตุลาคม",
-      //   "พฤศจิกายน",
-      //   "ธันวาคม"
-      // ];
-      // var date = new Date();
-      // var date_format =
-      //   date.getDate() +
-      //   " " +
-      //   month[date.getMonth()] +
-      //   " " +
-      //   (date.getFullYear() + 543);
+      var month = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม"
+      ];
+      var date = new Date();
+      var date_format =
+        date.getDate() +
+        " " +
+        (date.getMonth()+1) +
+        " " +
+        (date.getFullYear());
 
-      // this.order[this.index].receive_date = date_format;
+      this.transfer_order[this.index].receive_date = date_format;
       this.dialog_row = false;
     },
     getColor(status) {
@@ -300,19 +300,18 @@ export default {
       } else if (status == "received") return "success";
     },
     selectItem(item) {
-      this.dialog_row = true;
       
+      this.index = this.transfer_order.indexOf(item);
       axios
         .post("http://localhost:3000/api/receive_order/show_order", {
           transport_id: item.transport_id,
-          index:item.status
         })
         .then(res => {
           this.each_order = res.data;
-          console.log(index);
           
         });
-      // this.index = this.order.indexOf(item);
+        this.dialog_row = true;
+      // 
       // if (item.status == "") {
       // }
       // this.pharmacy = item.name;
@@ -357,13 +356,15 @@ export default {
     // }
   },
   computed: {
-    // formtitle() {
-    //   if (this.index === "transport") {
-    //     return "ได้รับยาเรียบร้อย";
-    //   } else if (this.index === "ได้รับยาเรียบร้อย") {
-    //     return "";
-    //   }
-    // }
+    formtitle() {
+      console.log("formtitle");
+      console.log(this.transfer_order[this.index].status)
+      if (this.transfer_order[this.index].status === "transport") {
+        return "received";
+      } else if (this.transfer_order[this.index].status === "receieved") {
+        return "";
+      }
+    }
   },
   mounted() {
     axios
