@@ -5,12 +5,7 @@
     </div>
 
     <v-content class="main font">
-      <v-dialog
-        v-model="dialog_row"
-        fullscreen
-        hide-overlay
-        transition="dialog-bottom-transition"
-      >
+      <v-dialog v-model="dialog_row" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card class="font">
           <v-toolbar dark color="primary">
             <v-btn icon dark @click="dialog_row = false">
@@ -20,7 +15,6 @@
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark text @click="changestatus">{{formtitle}}</v-btn>
-
             </v-toolbar-items>
           </v-toolbar>
           <v-row></v-row>
@@ -37,26 +31,20 @@
                   <tbody v-for="item in items" :key="item.name">
                     <tr>
                       <td>{{ item.order_id }}</td>
-                      <td style="text-align:center">
-                        {{ item.name }} {{ item.surname }}
-                      </td>
-                      <td style="text-align:center">
-                        {{ setDate(item.create_date) }}
-                      </td>
-                      <td style="text-align:center">
-                        {{ setDate(item.due_date) }}
-                      </td>
+                      <td style="text-align:center">{{ item.name }} {{ item.surname }}</td>
+                      <td style="text-align:center">{{ setDate(item.create_date) }}</td>
+                      <td style="text-align:center">{{ setDate(item.due_date) }}</td>
                       <td
                         style="vertical-align:middle; text-align:center; white-space:pre-wrap; word-wrap:break-word; "
                       >
                         {{
-                          setMed(
-                            item.medicine_generic +
-                              ";" +
-                              item.qty +
-                              ";" +
-                              item.unit
-                          )
+                        setMed(
+                        item.medicine_generic +
+                        ";" +
+                        item.qty +
+                        ";" +
+                        item.unit
+                        )
                         }}
                       </td>
                     </tr>
@@ -69,16 +57,14 @@
       </v-dialog>
 
       <v-row>
-        <v-col align="left" style="font-size:25px"
-          >ยืนยันรับออร์เดอร์จากโรงพยาบาล</v-col
-        >
+        <v-col align="left" style="font-size:25px">ยืนยันรับออร์เดอร์จากโรงพยาบาล</v-col>
         <v-col sm="2" align="right" style="font-size:12px">
           <!-- <v-text-field
             :value="date_th"
             outlined
             @click="calendar = true"
             label="เลือกวัน/เดือน/ปี"
-          ></v-text-field> -->
+          ></v-text-field>-->
         </v-col>
       </v-row>
       <v-dialog v-model="calendar" width="300px">
@@ -110,16 +96,14 @@
               <td>{{ item.transport_id }}</td>
               <td style="text-align:center">{{ item.qty_orders }}</td>
               <!--รวมจำนวนออรเดอร์ว่า transport นี้ มีกี่ตัว-->
+              <td style="text-align:center">{{ setDate(item.transport_date) }}</td>
+              <td style="text-align:center">{{ setDate(item.receive_date) }}</td>
               <td style="text-align:center">
-                {{ setDate(item.transport_date) }}
-              </td>
-              <td style="text-align:center">
-                {{ setDate(item.receive_date) }}
-              </td>
-              <td style="text-align:center">
-                <v-chip :color="getColor(item.status)" dark>{{
+                <v-chip :color="getColor(item.status)" dark>
+                  {{
                   setStatus(item.status)
-                }}</v-chip>
+                  }}
+                </v-chip>
               </td>
             </tr>
           </tbody>
@@ -133,6 +117,7 @@
 // import ConnectDatabase from '../server/server'
 import axios from "axios";
 import Menubar from "../../components/ph_menubar";
+import dateFormat from "dateformat";
 export default {
   data() {
     return {
@@ -147,7 +132,7 @@ export default {
       dialog: false,
       dialog_row: false,
       selected: [],
-      transfer_order: [{status:""}],
+      transfer_order: [{ status: "" }],
       each_order: [],
       pharmacy: "",
       index: 0,
@@ -178,7 +163,8 @@ export default {
       selectedpharmacy: "",
       selectedItem: "",
       each_medicine: "",
-      med_gerenic: ""
+      med_gerenic: "",
+      pharmacy_id: null
     };
   },
   components: {
@@ -263,12 +249,42 @@ export default {
     changestatus() {
       if (this.transfer_order[this.index].status == "transport") {
         this.transfer_order[this.index].status = "received";
-      } 
-      // else if (this.order[this.index].status == "รอการจัดยา") {
-      //   this.order[this.index].status = "รอการจัดส่ง";
-      // } else if (this.order[this.index].status == "หยุดชั่วคราว") {
-      //   this.order[this.index].status = "รอการจัดยา";
-      // }
+      }
+
+      //orderlog
+      this.each_order.forEach((element, index) => {
+        axios
+          .post("http://localhost:3000/api/log/newlog", {
+            status: "received",
+            start_date: dateFormat(new Date(), "yyyy/mm/dd"),
+            staff_id_log: localStorage.getItem("staff_id"),
+            order_id_log: this.each_order[index].order_id
+          })
+          .catch(e => {
+            console.log(e);
+          });
+
+        //change status order
+        axios
+          .post("http://localhost:3000/api/order/edit_orderstatus", {
+            status: "received",
+            transport_id: this.transfer_order[this.index].transport_id,
+            order_id: this.each_order[index].order_id
+          })
+          .catch(e => {
+            console.log(e);
+          });
+      });
+
+      //add receive date
+      axios
+        .post("http://localhost:3000/api/receive_order/edit_receivedate", {
+          transport_id: this.transfer_order[this.index].transport_id
+        })
+        .catch(e => {
+          console.log(e);
+        });
+
       var month = [
         "มกราคม",
         "กุมภาพันธ์",
@@ -285,11 +301,7 @@ export default {
       ];
       var date = new Date();
       var date_format =
-        date.getDate() +
-        " " +
-        (date.getMonth()+1) +
-        " " +
-        (date.getFullYear());
+        date.getDate() + " " + (date.getMonth() + 1) + " " + date.getFullYear();
 
       this.transfer_order[this.index].receive_date = date_format;
       this.dialog_row = false;
@@ -300,18 +312,17 @@ export default {
       } else if (status == "received") return "success";
     },
     selectItem(item) {
-      
       this.index = this.transfer_order.indexOf(item);
       axios
         .post("http://localhost:3000/api/receive_order/show_order", {
           transport_id: item.transport_id,
+          pharmacy_id: this.pharmacy_id
         })
         .then(res => {
           this.each_order = res.data;
-          
         });
-        this.dialog_row = true;
-      // 
+      this.dialog_row = true;
+      //
       // if (item.status == "") {
       // }
       // this.pharmacy = item.name;
@@ -358,7 +369,7 @@ export default {
   computed: {
     formtitle() {
       console.log("formtitle");
-      console.log(this.transfer_order[this.index].status)
+      console.log(this.transfer_order[this.index].status);
       if (this.transfer_order[this.index].status === "transport") {
         return "received";
       } else if (this.transfer_order[this.index].status === "receieved") {
@@ -368,10 +379,23 @@ export default {
   },
   mounted() {
     axios
-      .get("http://localhost:3000/api/receive_order/show_transfer_order")
+      .post("http://localhost:3000/api/user/getuserbyid", {
+        staff_id: localStorage.getItem("staff_id")
+      })
       .then(res => {
-        this.transfer_order = res.data;
+        this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
+        axios
+          .post("http://localhost:3000/api/receive_order/show_transfer_order", {
+            pharmacy_id: this.pharmacy_id
+          })
+          .then(res => {
+            this.transfer_order = res.data;
+          });
+      })
+      .catch(e => {
+        console.log(e);
       });
+
     axios
       .get("http://localhost:3000/api/receive_order/show_order")
       .then(res => {

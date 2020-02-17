@@ -191,7 +191,7 @@ var new_user = function(item) {
         item.username +
         "','" +
         randomstring +
-        "','hos_staff','"+
+        "','hos_staff','" +
         item.name +
         "','" +
         item.surname +
@@ -322,4 +322,27 @@ var show_allstaff = function() {
     });
   });
 };
+
+router.post("/getuserbyid", async (req, res) => {
+  try {
+    const staff = await getUserById(req.body);
+    res.json(staff);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getUserById = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "SELECT ph.pharmacy_id_pharmacist FROM users inner join phamacist as ph on ph.staff_id_pharmacist = users.staff_id WHERE user_type=? AND staff_id=?",
+      ["pharmacist", item.staff_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = router;
