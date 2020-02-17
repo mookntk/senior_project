@@ -9,7 +9,7 @@
     <v-content class="font main">
       <v-card>
         <v-card-title>
-          <span>สร้างออร์เดอร์</span>
+          <span>สร้างออร์เดอร์{{validate}}</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -100,7 +100,14 @@
                         required
                       ></v-text-field>
                     </template>
-                    <v-date-picker v-model="date" no-title scrollable locale="th" :min="today">
+                    <v-date-picker
+                      v-model="date"
+                      no-title
+                      scrollable
+                      locale="th"
+                      :min="today"
+                      class="font"
+                    >
                       <v-spacer></v-spacer>
                       <v-btn text color="primary" @click="menu = false">Cancel</v-btn>
                       <v-btn text color="primary" @click="$refs.menu.save(date)">OK</v-btn>
@@ -144,55 +151,6 @@
                       </v-col>
                     </v-row>
 
-                    <!-- <v-row v-for="(k, index) in disease.length" :key="k">
-                      <v-col cols="12" sm="1" md="1">
-                        <v-checkbox v-model="checkbox[index]"></v-checkbox>
-                      </v-col>
-
-                      <v-col cols="12" sm="2" md="2">
-                        <v-text-field
-                          v-model="disease[index].disease_name"
-                          readonly
-                        ></v-text-field>
-                      </v-col>
-
-                      <v-col cols="12" sm="3" md="3">
-                        <v-autocomplete
-                          :items="medicine[disease[index].disease_id]"
-                          item-text="medicine_generic"
-                          item-value="medicine_id"
-                          v-model="medicine_selected[disease[index].disease_id]"
-                          outlined
-                        >
-                        </v-autocomplete>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="1"
-                        md="1"
-                        style="padding:10px;margin:auto;margin-bottom:45px"
-                      >
-                        <v-icon @click="remove(k)">mdi-minus-circle</v-icon>
-                        <v-icon @click="add(k)">mdi-plus-circle</v-icon>
-                      </v-col>
-                      <v-col cols="12" sm="3" md="3">
-                        <v-autocomplete
-                          :items="taking"
-                          multiple
-                          outlined
-                          clearable
-                          v-model="taking_selected[disease[index].disease_id]"
-                        ></v-autocomplete>
-                      </v-col>
-
-                      <v-col cols="12" sm="2" md="2">
-                        <v-text-field
-                          solo
-                          clearable
-                          v-model="qty_selected[disease[index].disease_id]"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>-->
                     <v-row v-for="(k, index) in disease" :key="index">
                       <v-col cols="12" sm="1" md="1">
                         <v-checkbox v-model="checkbox[index]" v-if="countItem[index]"></v-checkbox>
@@ -247,7 +205,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="success" class="mr-4" @click="save">บันทึก</v-btn>
+          <v-btn color="success" class="mr-4" @click="save" :disabled="validate">บันทึก</v-btn>
           <v-btn color="warning" class="mr-4" @click="reset">ล้างข้อมูล</v-btn>
         </v-card-actions>
       </v-card>
@@ -288,12 +246,41 @@ export default {
       success_alert: false,
       error_alert: false,
       inputrules: [v => !!v || "กรุณากรอกข้อมูล"],
-      checkbox: [],
+      checkbox: [false],
       countItem: [true]
     };
   },
   components: {
     Menu
+  },
+  computed: {
+    validate() {
+      var count = 0;
+      var truecheck = [];
+
+      this.checkbox.forEach((item, index) => {
+        if (this.checkbox[index]) {
+          count++;
+          var a =
+            this.taking_selected[index] != undefined &&
+            this.medicine_selected[index] != undefined &&
+            this.qty_selected[index] != undefined &&
+            !isNaN(this.qty_selected[index]);
+
+          truecheck.push(a);
+          console.log(truecheck);
+        }
+      });
+
+      if (count == 0) {
+        console.log("count");
+        return true;
+      }
+      console.log(truecheck.every((e, i) => truecheck[i] == false));
+      return !truecheck.every((e, i) => truecheck[i] == true);
+
+      return true;
+    }
   },
   watch: {
     patient_selected() {
@@ -310,6 +297,9 @@ export default {
             for (let index = 0; index < this.disease.length; index++) {
               this.countItem[index] = true;
             }
+            this.checkbox = new Array(this.disease.length);
+            this.checkbox.fill(false, 0);
+            console.log(this.checkbox);
           })
           .catch(e => {
             console.log("getdisease error " + e);
@@ -335,6 +325,9 @@ export default {
       var index = this.disease.indexOf(item);
       console.log(index);
       this.disease.splice(index + 1, 0, item);
+      this.taking_selected.splice(index + 1, 0, null);
+      this.qty_selected.splice(index + 1, 0, null);
+      this.medicine_selected.splice(index + 1, 0, null);
       this.count();
     },
     remove(index) {
@@ -377,6 +370,7 @@ export default {
       return `${year}/${month}/${day}`;
     },
     check_medicine() {
+      //when user choose same medicine
       var medicine = [];
       var medicine_id = this.medicine_selected.filter(
         (item, index) => this.medicine_selected.indexOf(item) === index
@@ -387,7 +381,6 @@ export default {
         medicine[i] = { medicine_id: medicine_id[i] };
         this.medicine_selected.filter(function(elem, index, array) {
           if (elem == medicine_id[i]) {
-            console.log(index);
             qty += parseInt(this_.qty_selected[index]);
             medicine[i].administration = this_.taking_selected[index];
           }
