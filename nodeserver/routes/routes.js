@@ -12,6 +12,8 @@ const log = require("./orderlog");
 const transport = require("./transport_order");
 const lot_transfer = require("./lot_transfer");
 const receive_order = require("./receive_order");
+const ph_prepare = require("./ph_prepare");
+
 
 router.use("/user", user);
 router.use("/medicine", medicine);
@@ -25,5 +27,6 @@ router.use("/log", log);
 router.use("/transport", transport);
 router.use("/lot_transfer", lot_transfer);
 router.use("/receive_order", receive_order);
+router.use("/ph_prepare", ph_prepare);
 
 module.exports = router;
