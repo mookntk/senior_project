@@ -27,30 +27,29 @@
                 :headers="sub_headers"
               >
                 <template v-slot:body="{ items }">
-                  <tbody v-for="(item,index) in items" :key="item.order_id">
+                  <tbody v-for="(item,index) in items" :key="item.name">
                     <tr>
                       <td>{{ item.order_id }}</td>
-                      <td style="text-align:center">{{ item.name}}</td>
-                      <td style="text-align:center">{{ item.create_date }}</td>
+                      <td style="text-align:center">{{ item.name }} {{ item.surname }}</td>
+                      <td style="text-align:center">{{ setDate(item.create_date) }}</td>
                       <td style="text-align:center">{{ setDate(item.due_date) }}</td>
                       <td>
                         <p
-                          v-for="(medicine,i) in each_order[index].medicineItem"
-                          :key="medicine.medicineid"
+                          v-for="(medicine,i) in medicineAll[index]"
+                          :key="medicine"
                           style="display: inline"
                         >
                           <v-row>
                             <v-col cols="12" sm="6" md="6" align="right">
-                              <p
-                                style="margin-top:15px"
-                              >{{medicine.medicine_generic}} {{medicine.qty}} {{medicine.unit}}</p>
+                              <p style="margin-top:15px">{{medicine}}</p>
                             </v-col>
                             <v-col cols="12" sm="4" md="4">
                               <v-text-field
                                 solo
                                 label="จำนวนยาที่ได้รับ"
-                                v-model="each_order[index].medicineItem[i].qty_received"
+                                v-model.lazy="receive_qty[index][i]"
                               ></v-text-field>
+                              <!-- {{receive_qty[index][i]}} -->
                             </v-col>
                           </v-row>
                           <br />
@@ -64,26 +63,46 @@
             </v-col>
           </v-row>
           <v-row style="margin:20px">
-            <v-list flat class="font">
+            <v-list subheader flat class="font">
               <v-header>จำนวนยาทั้งหมด</v-header>
-              <template v-for="(item, i) in medicineAll.qty">
-                <v-list-item :key="i">
-                  <v-list-item-action>
-                    <v-checkbox v-model="checkbox[i]" color="primary"></v-checkbox>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>{{medicineAll.name[i]}} {{medicineAll.qty[i]}} {{medicineAll.unit[i]}}</v-list-item-title>
-                  </v-list-item-content>
+              <v-list-item-group>
+                <v-list-item v-for="(item,index) in sumname" :key="item.name">
+                  <template v-slot:default="{ active, toggle }">
+                    <v-list-item-action>
+                      <v-checkbox v-model="checkbox[index]" color="primary"></v-checkbox>
+                    </v-list-item-action>
+
+                    <v-list-item-content>
+                      <v-list-item-title>{{item}} {{sumqty[item]}} {{sumunit[item]}}</v-list-item-title>
+                    </v-list-item-content>
+                  </template>
                 </v-list-item>
-                <!-- <v-divider :key="i"></v-divider> -->
-              </template>
+              </v-list-item-group>
             </v-list>
           </v-row>
         </v-card>
       </v-dialog>
       <v-row>
         <v-col align="left" style="font-size:25px">ตรวจสอบและยืนยันจำนวนยา</v-col>
+        <v-col sm="2" align="right" style="font-size:12px">
+          <v-text-field
+            :value="date_th"
+            outlined
+            @click="calendar = true"
+            label="เลือกวัน/เดือน/ปี"
+          ></v-text-field>
+        </v-col>
       </v-row>
+      <v-dialog v-model="calendar" width="300px">
+        <v-row justify="space-around">
+          <v-date-picker
+            v-model="picker2"
+            color="green lighten-1"
+            header-color="primary"
+            locale="th"
+          ></v-date-picker>
+        </v-row>
+      </v-dialog>
       <v-data-table
         :headers="headers"
         :items="transfer_order"
@@ -93,14 +112,14 @@
         <template v-slot:body="{ items }">
           <tbody>
             <tr v-for="item in items" :key="item.transport_id" @click="selectItem(item)">
-              <td>{{ item[0].transport_id }}</td>
-              <td style="text-align:center">{{ item.length }}</td>
-              <td style="text-align:center">{{ setDate(item[0].transport_date) }}</td>
-              <td style="text-align:center">{{ setDate(item[0].receive_date) }}</td>
+              <td>{{ item.transport_id }}</td>
+              <td style="text-align:center">{{ item.qty_orders }}</td>
+              <td style="text-align:center">{{ setDate(item.transport_date) }}</td>
+              <td style="text-align:center">{{ setDate(item.receive_date) }}</td>
               <td style="text-align:center">
-                <v-chip :color="getColor(item[0].status)" dark>
+                <v-chip :color="getColor(item.status)" dark>
                   {{
-                  setStatus(item[0].status)
+                  setStatus(item.status)
                   }}
                 </v-chip>
               </td>
@@ -116,7 +135,6 @@
 // import ConnectDatabase from '../server/server'
 import axios from "axios";
 import Menubar from "../../components/ph_menubar";
-import dateFormat from "dateformat";
 export default {
   data() {
     return {
@@ -153,10 +171,17 @@ export default {
       ],
       date: "",
       transfer_order: [{ status: "" }],
-      each_order: [{ status: "" }],
+      each_order: [],
       pharmacy_id: null,
       medicineAll: [{ name: "", qty: "", unit: "" }],
-      checkbox: []
+      medicineName: [],
+      medicineqty: [],
+      medicineUnit: [],
+      sumqty: { aaa: 10 },
+      sumname: { aaa: 10 },
+      sumunit: { aaa: 10 },
+      checkbox: [],
+      receive_qty: []
     };
   },
 
@@ -168,12 +193,11 @@ export default {
       .then(res => {
         this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
         axios
-          .post("http://localhost:3000/api/transport/transportreceived", {
+          .post("http://localhost:3000/api/receive_order/show_confirm_order", {
             pharmacy_id: this.pharmacy_id
           })
           .then(res => {
             this.transfer_order = res.data;
-            console.log(this.transfer_order);
           });
       })
       .catch(e => {
@@ -192,8 +216,33 @@ export default {
       }
       return s;
     },
+    setMed: function(m, index) {
+      if (m != null) {
+        var med_detail = m.split(";");
+        var med_name = med_detail[0];
+        var med_name2 = med_name.split(",");
+        var med_qty = med_detail[1];
+        var med_qty2 = med_qty.split(",");
+        var med_unit = med_detail[2];
+        var med_unit2 = med_unit.split(",");
+        //show medicine
+        for (var i = 0; i < med_name2.length; i++) {
+          this.medicineAll[index].push(
+            med_name2[i] + " " + med_qty2[i] + " " + med_unit2[i]
+          );
+        }
+
+        //sum medicine
+        this.medicineName = this.medicineName.concat(med_name2);
+        this.medicineqty = this.medicineqty.concat(med_qty2);
+        this.medicineUnit = this.medicineUnit.concat(med_unit2);
+
+        console.log(this.medicineqty);
+        // this.receive_qty.push("");
+      }
+    },
     setDate: function(d) {
-      var month_th = [
+      var month = [
         "มกราคม",
         "กุมภาพันธ์",
         "มีนาคม",
@@ -208,23 +257,27 @@ export default {
         "ธันวาคม"
       ];
       if (d != null) {
-        var date_transport = dateFormat(d, "dd/mm/yyyy");
-        var [day, month, year] = date_transport.split("/");
-        year = parseInt(year) + 543;
-        month = month_th[parseInt(month) - 1];
-        return `${day} ${month} ${year}`;
+        var date_transport = d.split(" ");
+        date_transport[2] = parseInt(date_transport[2]) + 543;
+        date_transport =
+          date_transport[0] +
+          " " +
+          month[date_transport[1] - 1] +
+          " " +
+          date_transport[2];
+        return date_transport;
       } else return "";
     },
     changestatus() {
-      // if (this.transfer_order[this.index].status == "transport") {
-      //   this.transfer_order[this.index].status = "received";
-      // }
+      if (this.transfer_order[this.index].status == "transport") {
+        this.transfer_order[this.index].status = "received";
+      }
 
-      //add orderlog
+      //orderlog
       this.each_order.forEach((element, index) => {
         axios
           .post("http://localhost:3000/api/log/newlog", {
-            status: "confirm",
+            status: "received",
             start_date: dateFormat(new Date(), "yyyy/mm/dd"),
             staff_id_log: localStorage.getItem("staff_id"),
             order_id_log: this.each_order[index].order_id
@@ -233,17 +286,26 @@ export default {
             console.log(e);
           });
 
-        //change status order => prepare
+        //change status order
         axios
           .post("http://localhost:3000/api/order/edit_orderstatus", {
-            status: "prepare",
-            transport_id: this.each_order[index].transport_id,
+            status: "received",
+            transport_id: this.transfer_order[this.index].transport_id,
             order_id: this.each_order[index].order_id
           })
           .catch(e => {
             console.log(e);
           });
       });
+
+      //add receive date
+      axios
+        .post("http://localhost:3000/api/receive_order/edit_receivedate", {
+          transport_id: this.transfer_order[this.index].transport_id
+        })
+        .catch(e => {
+          console.log(e);
+        });
 
       var month = [
         "มกราคม",
@@ -273,53 +335,81 @@ export default {
     },
     selectItem(item) {
       this.index = this.transfer_order.indexOf(item);
-      this.each_order = [...this.transfer_order[this.index]];
-      this.checkbox = new Array(this.each_order.length);
-      this.checkbox.fill(false, 0);
-      console.log(this.checkbox);
-      this.allMedicine();
+      axios
+        .post("http://localhost:3000/api/receive_order/show_order", {
+          transport_id: item.transport_id,
+          pharmacy_id: this.pharmacy_id
+        })
+        .then(res => {
+          this.receive_qty = [];
+          this.each_order = res.data;
+          for (let i = 0; i < this.each_order.length; i++) {
+            this.receive_qty.push([]);
+            var name = this.each_order[i].medicine_generic.split(",");
+            for (let j = 0; j < name.length; j++) {
+              this.receive_qty[i].push("");
+            }
+          }
+          this.medicineName = [];
+          this.medicineqty = [];
+          this.medicineUnit = [];
+          this.each_order.forEach((element, index) => {
+            this.medicineAll[index] = [];
+            this.setMed(
+              this.each_order[index].medicine_generic +
+                ";" +
+                this.each_order[index].qty +
+                ";" +
+                this.each_order[index].unit,
+              index
+            );
+          });
+          this.sumMed();
+        });
+      this.dialog_row = true;
+
       //
       this.dialog_row = true;
     },
-    allMedicine() {
-      var order_selected = [...this.transfer_order[this.index]];
+    sumMed() {
+      var filtername = [];
       var name = [];
       var qty = [];
       var unit = [];
-      var id = [];
-      for (let index = 0; index < order_selected.length; index++) {
-        for (let j = 0; j < order_selected[index].medicineItem.length; j++) {
-          var indexof = id.indexOf(
-            order_selected[index].medicineItem[j].medicine_id
-          );
-          if (indexof > -1) {
-            qty[indexof] += parseInt(order_selected[index].medicineItem[j].qty);
-          } else {
-            qty.push(0);
-            qty[qty.length - 1] += parseInt(
-              order_selected[index].medicineItem[j].qty
-            );
-            id.push(order_selected[index].medicineItem[j].medicine_id);
-            name.push(order_selected[index].medicineItem[j].medicine_generic);
-            unit.push(order_selected[index].medicineItem[j].unit);
-          }
+      filtername = this.medicineName.filter(
+        (item, index) => this.medicineName.indexOf(item) === index
+      );
+
+      var _this = this;
+      this.medicineName.forEach(function(e, i) {
+        if (qty[e] == null) {
+          qty[e] = 0;
+          unit[e] = _this.medicineUnit[i];
         }
-      }
-      this.medicineAll = {
-        name: name,
-        qty: qty,
-        unit: unit
-      };
+        qty[e] += parseInt(_this.medicineqty[i]) || 0;
+      });
+
+      this.sumqty = qty;
+      this.sumunit = unit;
+      this.sumname = filtername;
+      this.checkbox = new Array(filtername.length);
+      this.checkbox.fill(false, 0);
+    },
+    receiveMed(receive, j) {
+      return receive[j];
     }
   },
   computed: {
     formtitle() {
-      if (this.each_order[0].status === "received") {
+      if (this.transfer_order[this.index].status === "received") {
         return "ตรวจสอบเรียบร้อย";
-      } else if (this.each_order[0].status === "receieved") {
+      } else if (this.transfer_order[this.index].status === "receieved") {
         return "";
       }
     },
+    // receiveMed() {
+    //   return (i, j) => this.receive_qty[i][j];
+    // },
     date_th() {
       var month = [
         "มกราคม",
@@ -346,28 +436,34 @@ export default {
   },
   watch: {
     checkbox() {
+      var check = new Array(this.medicineName.length);
       this.checkbox.forEach((element, index) => {
         if (this.checkbox[index]) {
-          this.each_order.forEach((e, i) => {
-            var medicine = this.each_order[i].medicineItem;
-            for (let j = 0; j < medicine.length; j++) {
-              if (
-                medicine[j].medicine_generic == this.medicineAll.name[index]
-              ) {
-                this.each_order[i].medicineItem[j].qty_received =
-                  medicine[j].qty;
-              }
+          this.medicineName.forEach((e, i) => {
+            if (this.sumname[index] == this.medicineName[i]) {
+              check[i] = this.medicineqty[i];
             }
           });
         }
       });
+      this.receive_qty.forEach((e, i) => {
+        // console.log(this.receive_qty[i].length);
+        for (let j = 0; j < this.receive_qty[i].length; j++) {
+          if (i == 0) {
+            this.receive_qty[i][j] = check[j];
+          } else {
+            var count = 0;
+            for (let k = 0; k < i; k++) {
+              count += this.receive_qty[k].length;
+            }
+            this.receive_qty[i][j] = check[count + j];
+          }
+        }
+      });
+      console.log(this.receive_qty);
     },
-
-    each_order: {
-      handler() {
-        console.log(this.each_order);
-      },
-      deep: true
+    receive_qty() {
+      console.log(this.receive_qty);
     }
   }
 };

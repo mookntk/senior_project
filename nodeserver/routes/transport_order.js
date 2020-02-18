@@ -264,6 +264,29 @@ var TransportStatus = function() {
   });
 };
 
+router.post("/transportreceived", async (req, res) => {
+  try {
+    const item = await TransportReceived(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var TransportReceived = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' ,tr.transport_date,tr.receive_date from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status = 'received' AND o.pharmacy_id=? order by o.order_id ASC;`,
+      [item.pharmacy_id],
+      (error, result) => {
+        if (error) return reject(error);
+        var sorttransport = sortDataFormat(result);
+        return resolve(sorttransport);
+      }
+    );
+  });
+};
+
 var sortDataFormat = function(result) {
   var order = [];
   var count = 0;
@@ -282,7 +305,8 @@ var sortDataFormat = function(result) {
       administration: element.administration,
       expdate: element.expdate,
       received: element.received,
-      disease_id_medicine: element.disease_id_medicine
+      disease_id_medicine: element.disease_id_medicine,
+      qty_received: element.qty_received
     };
     delete element.medicine_id;
     delete element.medicine_tmt;
@@ -297,6 +321,7 @@ var sortDataFormat = function(result) {
     delete element.expdate;
     delete element.received;
     delete element.disease_id_medicine;
+    delete element.qty_received;
     if (index == 0) {
       order.push(element);
       order[index]["medicineItem"] = [medicineObj];

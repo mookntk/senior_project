@@ -224,4 +224,63 @@ var EditNumMedicine = function(item) {
   });
 };
 
+router.post("/getorder_phid", async (req, res) => {
+  try {
+    const item = await GetOrderByPhId(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var GetOrderByPhId = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status= ? and o.pharmacy_id = ? order by o.order_id ASC;`,
+      ["received", item.pharmacy_id],
+      (error, result) => {
+        if (error) return reject(error);
+        var dataformat = [];
+        var count = 0;
+        result.forEach((element, index) => {
+          element.create_date = dateFormat(element.create_date, "dd/mm/yyyy");
+          var medicineObj = {
+            medicine_id: element.medicine_id,
+            medicine_tmt: element.medicine_tmt,
+            medicine_generic: element.medicine_generic,
+            medicine_trade: element.medicine_trade,
+            strength: element.strength,
+            unit: element.unit,
+            qty: element.qty,
+            price: element.price,
+            lotno: element.lotno
+          };
+          delete element.medicine_id;
+          delete element.medicine_tmt;
+          delete element.medicine_generic;
+          delete element.medicine_trade;
+          delete element.strength;
+          delete element.unit;
+          delete element.qty;
+          delete element.price;
+          delete element.lotno;
+          if (index == 0) {
+            dataformat.push(element);
+            dataformat[index]["medicineItem"] = [medicineObj];
+          }
+          if (index > 0) {
+            if (result[index - 1].order_id != result[index].order_id) {
+              count++;
+              dataformat.push(element);
+              dataformat[count]["medicineItem"] = [medicineObj];
+            } else {
+              dataformat[count]["medicineItem"].push(medicineObj);
+            }
+          }
+        });
+        return resolve(dataformat);
+      }
+    );
+  });
+};
 module.exports = router;
