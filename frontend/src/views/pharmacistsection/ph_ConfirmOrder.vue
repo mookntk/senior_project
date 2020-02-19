@@ -240,30 +240,14 @@ export default {
             transport_id: this.each_order[index].transport_id,
             order_id: this.each_order[index].order_id
           })
+          .then(res => {
+            this.transfer_order.splice(this.index, 1);
+          })
           .catch(e => {
             console.log(e);
           });
       });
 
-      var month = [
-        "มกราคม",
-        "กุมภาพันธ์",
-        "มีนาคม",
-        "เมษายน",
-        "พฤษภาคม",
-        "มิถุนายน",
-        "กรกฎาคม",
-        "สิงหาคม",
-        "กันยายน",
-        "ตุลาคม",
-        "พฤศจิกายน",
-        "ธันวาคม"
-      ];
-      var date = new Date();
-      var date_format =
-        date.getDate() + " " + (date.getMonth() + 1) + " " + date.getFullYear();
-
-      this.transfer_order[this.index].receive_date = date_format;
       this.dialog_row = false;
     },
     getColor(status) {

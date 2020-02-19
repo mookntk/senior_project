@@ -5,86 +5,68 @@
     </div>
 
     <v-content class="font main">
-      <v-dialog
-        v-model="dialog_row"
-        fullscreen
-        hide-overlay
-        transition="dialog-bottom-transition"
-      >
+      <v-dialog v-model="dialog_row" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card class="font">
           <v-form ref="form2" v-model="valid">
-          <!-- tool-bar -->
-          <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog_row = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-            <v-toolbar-title
-              >ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title
-            >
-          </v-toolbar>
-          <!-- tool-bar -->
+            <!-- tool-bar -->
+            <v-toolbar dark color="primary">
+              <v-btn icon dark @click="dialog_row = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+              <v-toolbar-title>ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title>
+            </v-toolbar>
+            <!-- tool-bar -->
 
-          <v-card-title>
-            <span class=" font headline"></span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    :value="oneorder[0].name + ' ' + oneorder[0].surname"
-                    label="ชื่อ-นามสกุลผู้ป่วย"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    :value="oneorder[0].gender"
-                    label="เพศ"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="4">
-                  <v-text-field
-                    :value="setDate2(oneorder[0].DOB)"
-                    label="อายุ"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="8">
-                  <v-text-field
-                    :value="setDate3(oneorder[0].DOB)"
-                    label="วัน/เดือน/ปีเกิด"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="4" md="6">
-                  <v-text-field
-                    :value="setStatus(oneorder[0].status)"
-                    label="สถานะ"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-
-
-              <v-form ref="form">
+            <v-card-title>
+              <span class="font headline"></span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
                 <v-row>
-                  <v-col cols="12">ยาที่ต้องได้รับ</v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field
+                      :value="oneorder[0].name + ' ' + oneorder[0].surname"
+                      label="ชื่อ-นามสกุลผู้ป่วย"
+                      filled
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6">
+                    <v-text-field :value="oneorder[0].gender" label="เพศ" filled readonly></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="4">
+                    <v-text-field :value="setDate2(oneorder[0].DOB)" label="อายุ" filled readonly></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="8">
+                    <v-text-field
+                      :value="setDate3(oneorder[0].DOB)"
+                      label="วัน/เดือน/ปีเกิด"
+                      filled
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="4" md="6">
+                    <v-text-field
+                      :value="setStatus(oneorder[0].status)"
+                      label="สถานะ"
+                      filled
+                      readonly
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+
+                <v-form ref="form">
                   <v-row>
-                    <v-col cols="12" sm="6" md="6">
-                      <v-checkbox
-                        v-for="item in oneorder"
-                        v-model="checkbox"
-                        :key="item.name"
-                        required
-                        color="success"
-                        :label="
+                    <v-col cols="12">ยาที่ต้องได้รับ</v-col>
+                    <v-row>
+                      <v-col cols="12" sm="6" md="6">
+                        <v-checkbox
+                          v-for="item in oneorder"
+                          v-model="checkbox"
+                          :key="item.name"
+                          required
+                          color="success"
+                          :label="
                           setMed(
                             item.medicine_generic +
                               ';' +
@@ -95,25 +77,26 @@
                               item.unit
                           )
                         "
-                      ></v-checkbox
-                    ></v-col>
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
                   </v-row>
-                </v-row>
-              </v-form>
-
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn rounded color="success" :disabled="!valid" dark @click="successItem"
-              >จัดยาเรียบร้อย</v-btn
-            >
-            <v-btn rounded color="grey" dark @click="close"
-              >ปิด</v-btn
-            >
-          </v-card-actions>
-          <!-- table in pop-up page for see each of order detial -->
-        </v-form>
+                </v-form>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                rounded
+                color="success"
+                :disabled="!valid"
+                dark
+                @click="successItem"
+              >จัดยาเรียบร้อย</v-btn>
+              <v-btn rounded color="grey" dark @click="close">ปิด</v-btn>
+            </v-card-actions>
+            <!-- table in pop-up page for see each of order detial -->
+          </v-form>
         </v-card>
       </v-dialog>
 
@@ -135,14 +118,14 @@
               :class="{ selectedRow: item === selectedItem }"
             >
               <td style="text-align:center">{{ item.patient_HN_order }}</td>
-              <td style="text-align:left">
-                {{ item.name }} {{ item.surname }}
-              </td>
+              <td style="text-align:left">{{ item.name }} {{ item.surname }}</td>
               <td style="text-align:center">{{ setDate(item.due_date) }}</td>
               <td style="text-align:center">
-                <v-chip :color="getColor(item.status)" dark>{{
+                <v-chip :color="getColor(item.status)" dark>
+                  {{
                   setStatus(item.status)
-                }}</v-chip>
+                  }}
+                </v-chip>
               </td>
             </tr>
           </tbody>
@@ -162,7 +145,7 @@ export default {
     Menubar
   },
   data: () => ({
-    valid:true,
+    valid: true,
     dialog_wait: false,
     date: "",
     search: "",
@@ -389,19 +372,23 @@ export default {
       }
     },
     successItem() {
-      this.index = this.oneorder[0].order_id;
+      var id = this.oneorder[0].order_id;
       console.log("order_id = " + this.index);
       if (this.$refs.form.validate()) {
-      console.log("success order");
-      axios
-        .post("http://localhost:3000/api/ph_prepare/success_prepare", {
-          order_id: this.index
-        })
-        .then(res => {
-          this.dialog_row = false;
-        });
-      // this.oneorder.splice(this.index, 1);
-      // this.dialog_row = false;
+        console.log("success order");
+        axios
+          .post("http://localhost:3000/api/ph_prepare/success_prepare", {
+            order_id: id
+          })
+          .then(res => {
+            console.log(this.p_order);
+            console.log(this.index);
+            this.p_order.splice(this.index, 1);
+            console.log(this.p_order);
+            this.dialog_row = false;
+          });
+        // this.oneorder.splice(this.index, 1);
+        // this.dialog_row = false;
       }
     },
     getColor(status) {
