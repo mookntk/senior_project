@@ -7,7 +7,7 @@
     <v-content class="font main">
       <v-dialog v-model="dialog_row" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card class="font">
-          <v-form ref="form2" v-model="valid">
+          <v-form ref="form" >
             <!-- tool-bar -->
             <v-toolbar dark color="primary">
               <v-btn icon dark @click="dialog_row = false">
@@ -55,15 +55,16 @@
                   </v-col>
                 </v-row>
 
-                <v-form ref="form">
+                <v-form ref="form2" v-model="valid">
                   <v-row>
                     <v-col cols="12">ยาที่ต้องได้รับ</v-col>
                     <v-row>
                       <v-col cols="12" sm="6" md="6">
                         <v-checkbox
                           v-for="item in oneorder"
-                          v-model="checkbox"
                           :key="item.name"
+                          v-model="checkbox"
+                          :rules="[v => !!v || 'คุณต้องเลือกยาที่จัดแล้วก่อน']"
                           required
                           color="success"
                           :label="
@@ -145,7 +146,7 @@ export default {
     Menubar
   },
   data: () => ({
-    valid: true,
+    valid: false,
     dialog_wait: false,
     date: "",
     search: "",
@@ -222,6 +223,9 @@ export default {
   methods: {
     reset() {
       this.$refs.form.reset();
+    },
+    reset2() {
+      this.$refs.form2.reset();
     },
     setMed: function(m) {
       console.log("เข้าsetMed");
@@ -385,7 +389,7 @@ export default {
             console.log(this.index);
             this.p_order.splice(this.index, 1);
             console.log(this.p_order);
-            this.dialog_row = false;
+            this.close();
           });
         // this.oneorder.splice(this.index, 1);
         // this.dialog_row = false;
@@ -397,7 +401,7 @@ export default {
       else return "grey";
     },
     close() {
-      this.reset();
+      this.reset2();
       this.dialog_row = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
