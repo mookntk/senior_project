@@ -46,7 +46,6 @@ var patient_order = function (item) {
     });
 };
 
-
 //oneorder gor each patient
 router.post(
     "/one_order",
@@ -77,11 +76,11 @@ router.post(
 var one_order = function (item) {
     return new Promise((resolve, reject) => {
         db.query(
-            "SELECT o.order_id,p.name,p.surname,p.gender,p.DOB,o.status,o.patient_HN_order, " +
-            "group_concat(m.medicine_generic) as medicine_generic, " +
-            "group_concat(m.strenght) as strenght, " +
-            "group_concat(od.qty) as qty, " +
-            "group_concat(m.unit) as unit " +
+            "SELECT o.order_id,p.name,p.surname,p.gender,p.DOB,o.status,o.patient_HN_order,m.medicine_generic,m.strenght,od.qty,m.unit " +
+            // "group_concat(m.medicine_generic) as medicine_generic, " +
+            // "group_concat(m.strenght) as strenght, " +
+            // "group_concat(od.qty) as qty, " +
+            // "group_concat(m.unit) as unit " +
             "from orders AS o "+
             "left join patients as p ON o.patient_HN_order = p.patient_HN "+
             "left join order_detail as od on od.order_id = o.order_id "+
@@ -103,6 +102,40 @@ var one_order = function (item) {
     });
 };
 
+//oneorder success in prepare medication
+router.post(
+    "/success_prepare",
+    [
+        check("patient_HN_order")
+        .not()
+        .isEmpty()
+    ],
+    async (req, res) => {
+        try {
+            const oneorder = await success_prepare(req.body);
+            res.json(oneorder);
+        } catch (error) {
+            res.status(400).json({
+                message: error.message
+            });
+        }
+    }
+);
 
+
+var success_prepare = function (item) {
+    return new Promise((resolve, reject) => {
+        db.query(
+            "UPDATE orders SET status='ready'" +
+            "WHERE order_id='" +
+            item.order_id +
+            "'",
+            (error, result) => {
+                if (error) return reject(error);
+                resolve(result);
+            }
+        );
+    });
+};
 
 module.exports = router;

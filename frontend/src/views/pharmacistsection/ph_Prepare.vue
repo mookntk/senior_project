@@ -12,6 +12,7 @@
         transition="dialog-bottom-transition"
       >
         <v-card class="font">
+          <v-form ref="form2" v-model="valid">
           <!-- tool-bar -->
           <v-toolbar dark color="primary">
             <v-btn icon dark @click="dialog_row = false">
@@ -20,24 +21,18 @@
             <v-toolbar-title
               >ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title
             >
-            <!-- <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn dark text @click="successItem(item)">ผู้ป่วยรับยาเรียบร้อย</v-btn>
-            </v-toolbar-items>-->
           </v-toolbar>
           <!-- tool-bar -->
 
           <v-card-title>
-            <span class="headline"></span>
+            <span class=" font headline"></span>
           </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    :value="
-                      oneorder[0].name + ' ' + oneorder[0].surname
-                    "
+                    :value="oneorder[0].name + ' ' + oneorder[0].surname"
                     label="ชื่อ-นามสกุลผู้ป่วย"
                     filled
                     readonly
@@ -77,42 +72,48 @@
                 </v-col>
               </v-row>
 
-              <v-row>
-                <v-col cols="12">ยาที่ต้องได้รับ</v-col>
-                <v-col cols="12">
-                  <v-row v-for="item in oneorder" :key="item.name">
-                    <v-checkbox
-                      :lcolor="success"
-                      :label="
-                        setMed(
-                          item.medicine_generic +
-                            ';' +
-                            item.strenght +
-                            ';' +
-                            item.qty +
-                            ';' +
-                            item.unit
-                        )
-                      "
-                    ></v-checkbox>
-                  </v-row>
 
-                  <!---->
-                </v-col>
-              </v-row>
+              <v-form ref="form">
+                <v-row>
+                  <v-col cols="12">ยาที่ต้องได้รับ</v-col>
+                  <v-row>
+                    <v-col cols="12" sm="6" md="6">
+                      <v-checkbox
+                        v-for="item in oneorder"
+                        v-model="checkbox"
+                        :key="item.name"
+                        required
+                        color="success"
+                        :label="
+                          setMed(
+                            item.medicine_generic +
+                              ';' +
+                              item.strenght +
+                              ';' +
+                              item.qty +
+                              ';' +
+                              item.unit
+                          )
+                        "
+                      ></v-checkbox
+                    ></v-col>
+                  </v-row>
+                </v-row>
+              </v-form>
+
             </v-container>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn rounded color="success" dark @click="successItem"
+            <v-btn rounded color="success" :disabled="!valid" dark @click="successItem"
               >จัดยาเรียบร้อย</v-btn
             >
-            <!-- <v-btn rounded color="red" dark @click="dialog_row = false">ยกเลิกออร์เดอร์</v-btn> -->
-            <v-btn rounded color="grey" dark @click="dialog_row = false"
+            <v-btn rounded color="grey" dark @click="close"
               >ปิด</v-btn
             >
           </v-card-actions>
           <!-- table in pop-up page for see each of order detial -->
+        </v-form>
         </v-card>
       </v-dialog>
 
@@ -123,14 +124,13 @@
         :items="p_order"
         :items-per-page="10"
         :headers="headers"
-        sort-by="name"
         class="elevation-1"
       >
         <template v-slot:body="{ items }">
           <tbody>
             <tr
               v-for="item in items"
-              :key="item.patient_HN"
+              :key="item.patient_HN_order"
               @click="selectItem(item)"
               :class="{ selectedRow: item === selectedItem }"
             >
@@ -162,6 +162,7 @@ export default {
     Menubar
   },
   data: () => ({
+    valid:true,
     dialog_wait: false,
     date: "",
     search: "",
@@ -219,23 +220,28 @@ export default {
         status: "",
         due_date: ""
       }
-    ]
+    ],
+    medist: ""
   }),
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
     }
   },
-  watch: {
-    dialog(val) {
-      val || this.close();
-    }
-  },
+  // watch: {
+  //   dialog(val) {
+  //     val || this.close();
+  //   }
+  // },
   // created() {
   //   this.initialize();
   // },
   methods: {
+    reset() {
+      this.$refs.form.reset();
+    },
     setMed: function(m) {
+      console.log("เข้าsetMed");
       console.log("m= " + m);
       if (m != null) {
         var med_detail = m.split(";");
@@ -268,14 +274,14 @@ export default {
               med_qty2[i] +
               " " +
               med_unit2[i] +
-              "\n";
+              "/";
           }
-
           console.log("med_show = " + med_show);
         }
         return med_show;
       }
     },
+
     setDate: function(d) {
       console.log(d);
       var month = [
@@ -319,7 +325,6 @@ export default {
       ];
       if (m != null) {
         var dob_date = m.split("/");
-        // console.log(dob_date[2]);
         var date = new Date();
         dob_date = date.getFullYear() + 543 - dob_date[2];
         console.log(dob_date);
@@ -368,14 +373,13 @@ export default {
     selectItem(item) {
       this.index = this.p_order.indexOf(item);
       console.log("selected" + "this.index = " + this.index);
-      // this.oneorder = item;
+      this.oneorder = item;
       axios
         .post("http://localhost:3000/api/ph_prepare/one_order", {
           patient_HN_order: this.p_order[this.index].patient_HN_order
         })
         .then(res => {
           this.oneorder = res.data;
-          // console.log(patient_HN_order);
         });
 
       if (this.p_order.status == "prepare") {
@@ -385,10 +389,20 @@ export default {
       }
     },
     successItem() {
+      this.index = this.oneorder[0].order_id;
+      console.log("order_id = " + this.index);
+      if (this.$refs.form.validate()) {
       console.log("success order");
-      console.log(this.oneorder);
-      this.oneorder.splice(this.index, 1);
-      this.dialog_row = false;
+      axios
+        .post("http://localhost:3000/api/ph_prepare/success_prepare", {
+          order_id: this.index
+        })
+        .then(res => {
+          this.dialog_row = false;
+        });
+      // this.oneorder.splice(this.index, 1);
+      // this.dialog_row = false;
+      }
     },
     getColor(status) {
       if (status == "cancel") return "red";
@@ -396,7 +410,8 @@ export default {
       else return "grey";
     },
     close() {
-      this.dialog = false;
+      this.reset();
+      this.dialog_row = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
