@@ -230,7 +230,7 @@ export default {
     getColor(status) {
       if (status == "หยุดชั่วคราว") return "red";
       else if (status == "transport") return "orange";
-      else if (status == "receive") return "green";
+      else if (status == "received") return "green";
     },
     selectItem(item) {
       this.index = this.transportstatus.indexOf(item);

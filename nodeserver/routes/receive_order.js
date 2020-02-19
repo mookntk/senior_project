@@ -32,6 +32,34 @@ var show_transfer_order = function(item) {
   });
 };
 
+router.post("/show_confirm_order", async (req, res) => {
+  try {
+    const transfer_order = await show_confirm_order(req.body);
+    res.json(transfer_order);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
+  }
+});
+
+var show_confirm_order = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "SELECT count(*) AS qty_orders,t.transport_id,t.status, DATE_FORMAT(t.transport_date,'%d %m %Y') AS transport_date, DATE_FORMAT(t.receive_date,'%d %m %Y') AS receive_date FROM orders_transport as t, orders as o WHERE t.transport_id = o.transport_id and t.pharmacy_id_transport = '" +
+        item.pharmacy_id +
+        "' and t.status = 'received'  group by t.transport_id,t.transport_date,t.receive_date",
+
+      (error, result) => {
+        if (error) return reject(error);
+
+        console.log(item.pharmacy_id);
+        resolve(result);
+      }
+    );
+  });
+};
+
 //show order in dialog
 router.post(
   "/show_order",
