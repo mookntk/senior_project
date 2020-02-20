@@ -62,7 +62,7 @@
                               clearable
                             ></v-text-field>
                           </v-col>
-                          <v-col cols="12" sm="6" md="6">
+                          <!-- <v-col cols="12" sm="6" md="6">
                             <v-text-field
                               label="วันหมดอายุ"
                               v-model="medicineAll.exp[i][k]"
@@ -71,6 +71,36 @@
                               hint="DD/MM/YYYY"
                               persistent-hint
                             ></v-text-field>
+                          </v-col>-->
+                          <v-col cols="12" lg="6" sm="6">
+                            <v-menu
+                              v-model="menu1[i][k]"
+                              :close-on-content-click="false"
+                              transition="scale-transition"
+                              offset-y
+                              max-width="290px"
+                              min-width="290px"
+                            >
+                              <template v-slot:activator="{ on }">
+                                <v-text-field
+                                  label="วันหมดอายุ"
+                                  :value="setDate(medicineAll.exp[i][k])"
+                                  solo
+                                  clearable
+                                  hint="DD/MM/YYYY"
+                                  persistent-hint
+                                  readonly
+                                  v-on="on"
+                                ></v-text-field>
+                              </template>
+                              <v-date-picker
+                                v-model="medicineAll.exp[i][k]"
+                                no-title
+                                @input="menu1[i][k] = false"
+                                class="font"
+                                :min="today"
+                              ></v-date-picker>
+                            </v-menu>
                           </v-col>
                           <v-col cols="12" sm="4" md="4">
                             <v-text-field
@@ -173,6 +203,8 @@ export default {
       inputs: [0, 1],
       picker: new Date().toISOString().substr(0, 10),
       date: "",
+      date_picker: "2023-02-12",
+      menu1: [[false]],
       selectedItem: "",
       order_selected: "",
       editedItem: "",
@@ -423,7 +455,8 @@ export default {
       medicineAll: { medicine_id: [], qty: [], lot: [[]], exp: [[]] },
       status: [],
       errorMessage: [],
-      mask: "##/##/####"
+      mask: "##/##/####",
+      today: dateFormat(new Date(), "yyyy-mm-dd")
     };
   },
   mounted() {
@@ -557,6 +590,12 @@ export default {
       //   alert("ยังจัดยาไม่เสร็จ");
       // }
     },
+    setDate(date) {
+      if (date == null) return "";
+      var d = dateFormat(date, "yyyy-mm-dd");
+      var [year, month, day] = d.split("-");
+      return `${day}/${month}/${year}`;
+    },
     add(index) {
       console.log("index=" + index);
       this.medicineAll.lot[index].push("");
@@ -637,12 +676,14 @@ export default {
         .then(res => {
           for (let i = 0; i < this.medicineAll.lot.length; i++) {
             for (let j = 0; j < this.medicineAll.lot[i].length; j++) {
+              console.log("dfdgdfgdfgdf");
+              console.log(this.medicineAll.exp[i][j]);
               axios
                 .post("http://localhost:3000/api/lot_transfer/newlot", {
                   medicine_id: this.medicineAll.id[i],
                   qty: parseInt(this.medicineAll.lot_qty[i][j]),
                   transport_id: item[0].transport_id,
-                  exp_date: this.parseDate(this.medicineAll.exp[i][j]) || null,
+                  exp_date: this.medicineAll.exp[i][j] || null,
                   lot_no: this.medicineAll.lot[i][j]
                 })
                 .then(res => {})
@@ -664,6 +705,7 @@ export default {
     showdetail(item) {
       this.index = this.order_filter.indexOf(item);
       // console.log(this.order_filter[this.index]);
+
       this.dialog_details = true;
       //!calculate qty each medicine
       var getlot = [];
@@ -674,6 +716,13 @@ export default {
         .then(res => {
           getlot = res.data;
           this.medicineAll = this.all_medicines(getlot);
+          this.menu1 = new Array(this.medicineAll.exp.length);
+          this.medicineAll.exp.forEach((e, i) => {
+            this.menu1[i] = new Array(this.medicineAll.exp[i].length);
+            this.menu1.fill(false, this.medicineAll.exp[i].length);
+          });
+          console.log("menu1");
+          console.log(this.menu1);
         });
     },
     all_medicines(getlot) {
@@ -713,12 +762,12 @@ export default {
               for (let k = 0; k < filter.length; k++) {
                 if (k == 0) {
                   lot.push([filter[k].lot_no]);
-                  exp.push([this.date_Format(filter[k].exp_date)]);
+                  exp.push([filter[k].exp_date]);
                   lot_qty.push([filter[k].qty]);
                   this.errorMessage.push([""]);
                 } else {
                   lot[lastindex].push(filter[k].lot_no);
-                  exp[lastindex].push(this.date_Format(filter[k].exp_date));
+                  exp[lastindex].push(filter[k].exp_date);
                   lot_qty[lastindex].push(filter[k].qty);
                   this.errorMessage[lastindex].push("");
                 }
@@ -833,9 +882,9 @@ export default {
       deep: true
     },
     check_medicine() {
-      if (this.medicine.every(item => item == true)) {
-        this.status[this.index];
-      }
+      // if (this.medicine.every(item => item == true)) {
+      //   this.status[this.index];
+      // }
     }
   }
 };
