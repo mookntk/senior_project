@@ -58,7 +58,7 @@ router.post("/getlot", async (req, res) => {
 var getLotByTransport = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT * FROM ${lot} WHERE transport_id = ?`,
+      `SELECT lot_no ,lot_no_id,qty,medicine_id,transport_id, DATE_FORMAT(lot_transfer.exp_date,'%Y-%m-%d') as exp_date FROM ${lot} WHERE transport_id = ?`,
       [item.trans_id],
       (error, result) => {
         if (error) return reject(error);
