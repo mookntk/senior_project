@@ -68,4 +68,49 @@ var getLotByTransport = function(item) {
   });
 };
 
+router.post("/getlotonemed", async (req, res) => {
+  try {
+    const patients = await getLotOneMed(req.body);
+    res.json(patients);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
+  }
+});
+
+var getLotOneMed = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT lot_no_id,qty,medicine_id,transport_id,qty_less, DATE_FORMAT(lot_transfer.exp_date,'%Y-%m-%d') as exp_date FROM ${lot} WHERE transport_id = ? and medicine_id = ? `,
+      [item.transport_id, item.medicine_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.post("/editlot", async (req, res) => {
+  try {
+    const item = await EditOrderStatus(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var EditOrderStatus = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE ${lot} SET qty_less = ? WHERE lot_no_id =? `,
+      [item.qty_less, item.lot_no_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
 module.exports = router;

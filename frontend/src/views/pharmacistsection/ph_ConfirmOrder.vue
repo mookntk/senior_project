@@ -20,47 +20,52 @@
           <v-row></v-row>
           <v-row style="margin:20px">
             <v-col cols="12" sm="12">
-              <v-data-table
-                :items="each_order"
-                :items-per-page="10"
-                class="elevation-1"
-                :headers="sub_headers"
-              >
-                <template v-slot:body="{ items }">
-                  <tbody v-for="(item,index) in items" :key="item.order_id">
-                    <tr>
-                      <td>{{ item.order_id }}</td>
-                      <td style="text-align:center">{{ item.name}}</td>
-                      <td style="text-align:center">{{ item.create_date }}</td>
-                      <td style="text-align:center">{{ setDate(item.due_date) }}</td>
-                      <td>
-                        <p
-                          v-for="(medicine,i) in each_order[index].medicineItem"
-                          :key="medicine.medicineid"
-                          style="display: inline"
-                        >
-                          <v-row>
-                            <v-col cols="12" sm="6" md="6" align="right">
-                              <p
-                                style="margin-top:15px"
-                              >{{medicine.medicine_generic}} {{medicine.qty}} {{medicine.unit}}</p>
-                            </v-col>
-                            <v-col cols="12" sm="4" md="4">
-                              <v-text-field
-                                solo
-                                label="จำนวนยาที่ได้รับ"
-                                v-model="each_order[index].medicineItem[i].qty_received"
-                              ></v-text-field>
-                            </v-col>
-                          </v-row>
-                          <br />
-                        </p>
-                      </td>
-                    </tr>
-                    <v-divider></v-divider>
-                  </tbody>
-                </template>
-              </v-data-table>
+              <v-form ref="form">
+                <v-data-table
+                  :items="each_order"
+                  :items-per-page="10"
+                  class="elevation-1"
+                  :headers="sub_headers"
+                >
+                  <template v-slot:body="{ items }">
+                    <tbody v-for="(item,index) in items" :key="item.order_id">
+                      <tr>
+                        <td>{{ item.order_id }}</td>
+                        <td style="text-align:center">{{ item.name}}</td>
+                        <td style="text-align:center">{{ setDate2(item.create_date)}}</td>
+                        <td style="text-align:center">{{ setDate(item.due_date) }}</td>
+                        <td>
+                          <p
+                            v-for="(medicine,i) in each_order[index].medicineItem"
+                            :key="medicine.medicineid"
+                            style="display: inline"
+                          >
+                            <v-row>
+                              <v-col cols="12" sm="6" md="6" align="right">
+                                <p
+                                  style="margin-top:15px"
+                                >{{medicine.medicine_generic}} {{medicine.qty}} {{medicine.unit}}</p>
+                              </v-col>
+                              <v-col cols="12" sm="4" md="4">
+                                <v-text-field
+                                  solo
+                                  label="จำนวนยาที่ได้รับ"
+                                  v-model="each_order[index].medicineItem[i].qty_received"
+                                  :rules="[v => !!v || 'กรุณากรอกข้อมูล',
+                                          v => !isNaN(v) || 'กรุณากรอกข้อมูลตัวเลข']"
+                                  required
+                                ></v-text-field>
+                              </v-col>
+                            </v-row>
+                            <br />
+                          </p>
+                        </td>
+                      </tr>
+                      <v-divider></v-divider>
+                    </tbody>
+                  </template>
+                </v-data-table>
+              </v-form>
             </v-col>
           </v-row>
           <v-row style="margin:20px">
@@ -215,40 +220,85 @@ export default {
         return `${day} ${month} ${year}`;
       } else return "";
     },
+    setDate2: function(d) {
+      var month_th = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม"
+      ];
+      if (d != null) {
+        var [day, month, year] = d.split("/");
+        year = parseInt(year) + 543;
+        month = month_th[parseInt(month) - 1];
+        return `${day} ${month} ${year}`;
+      } else return "";
+    },
     changestatus() {
       // if (this.transfer_order[this.index].status == "transport") {
       //   this.transfer_order[this.index].status = "received";
       // }
+      if (this.$refs.form.validate()) {
+        // add orderlog
+        this.each_order.forEach((element, index) => {
+          axios
+            .post("http://localhost:3000/api/log/newlog", {
+              status: "confirm",
+              start_date: dateFormat(new Date(), "yyyy/mm/dd"),
+              staff_id_log: localStorage.getItem("staff_id"),
+              order_id_log: this.each_order[index].order_id
+            })
+            .catch(e => {
+              console.log(e);
+            });
 
-      //add orderlog
-      this.each_order.forEach((element, index) => {
-        axios
-          .post("http://localhost:3000/api/log/newlog", {
-            status: "confirm",
-            start_date: dateFormat(new Date(), "yyyy/mm/dd"),
-            staff_id_log: localStorage.getItem("staff_id"),
-            order_id_log: this.each_order[index].order_id
-          })
-          .catch(e => {
-            console.log(e);
-          });
+          //change status order => prepare
+          axios
+            .post("http://localhost:3000/api/order/edit_orderstatus", {
+              status: "prepare",
+              transport_id: this.each_order[index].transport_id,
+              order_id: this.each_order[index].order_id
+            })
+            .then(res => {
+              this.transfer_order.splice(this.index, 1);
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        });
+        //loop by no of medicineAll
+        this.medicineAll.id.forEach((e, i) => {
+          axios
+            .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
+              transport_id: this.each_order[0].transport_id,
+              medicine_id: this.medicineAll.id[i]
+            })
+            .then(res => {
+              var lot = res.data;
+              console.log("lot");
+              console.log(lot);
+              lot.forEach((item, j) => {
+                axios.post("http://localhost:3000/api/lot_transfer/editlot", {
+                  lot_no_id: lot[j].lot_no_id,
+                  qty_less: lot[j].qty
+                });
+              });
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        });
 
-        //change status order => prepare
-        axios
-          .post("http://localhost:3000/api/order/edit_orderstatus", {
-            status: "prepare",
-            transport_id: this.each_order[index].transport_id,
-            order_id: this.each_order[index].order_id
-          })
-          .then(res => {
-            this.transfer_order.splice(this.index, 1);
-          })
-          .catch(e => {
-            console.log(e);
-          });
-      });
-
-      this.dialog_row = false;
+        this.dialog_row = false;
+      }
     },
     getColor(status) {
       if (status == "received") {
@@ -260,7 +310,6 @@ export default {
       this.each_order = [...this.transfer_order[this.index]];
       this.checkbox = new Array(this.each_order.length);
       this.checkbox.fill(false, 0);
-      console.log(this.checkbox);
       this.allMedicine();
       //
       this.dialog_row = true;
@@ -290,6 +339,7 @@ export default {
         }
       }
       this.medicineAll = {
+        id: id,
         name: name,
         qty: qty,
         unit: unit
@@ -343,10 +393,20 @@ export default {
               }
             }
           });
+        } else {
+          this.each_order.forEach((e, i) => {
+            var medicine = this.each_order[i].medicineItem;
+            for (let j = 0; j < medicine.length; j++) {
+              if (
+                medicine[j].medicine_generic == this.medicineAll.name[index]
+              ) {
+                this.each_order[i].medicineItem[j].qty_received = "";
+              }
+            }
+          });
         }
       });
     },
-
     each_order: {
       handler() {
         console.log(this.each_order);
