@@ -8,9 +8,9 @@
       sort-by="generic"
       class="font elevation-1"
     >
-      <template v-slot:top>
+      <template v-slot:top class="font">
         <v-toolbar flat color="white">
-          <v-toolbar-title>การจัดการข้อมูลยา</v-toolbar-title>
+          <v-toolbar-title class="font">การจัดการข้อมูลยา</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-text-field
             v-model="search"
@@ -28,11 +28,11 @@
           <v-btn color="success" dark class="ma-2" @click="editItem2()">จัดการข้อมูลโรค</v-btn>
           <!-- </template> -->
 
-          <v-form ref="form">
+          <v-form ref="form" class="font">
             <v-dialog v-model="dialog1" max-width="1000px" persistent>
               <v-card class="font">
-                <v-card-title>
-                  <span class="headline">{{ formTitle }}</span>
+                <v-card-title class="font">
+                  <span >{{ formTitle }}</span>
                 </v-card-title>
 
                 <v-card-text>
@@ -119,11 +119,11 @@
             </v-dialog>
           </v-form>
 
-          <v-form ref="form2">
+          <v-form ref="form2" >
             <v-dialog v-model="dialog2" max-width="700px" persistent>
-              <v-card>
+              <v-card class="font">
                 <v-container>
-                  <v-card-title class="headline">จัดการข้อมูลโรค</v-card-title>
+                  <v-card-title class="font">จัดการข้อมูลโรค</v-card-title>
                   <v-row class="ml-12">
                     <v-col cols="12" sm="7" md="7">
                       <v-text-field
@@ -160,12 +160,6 @@
                   </v-row>
                   <v-row class="ml-12">
                     <v-col cols="12" sm="7" md="7">
-                      <!-- <v-autocomplete
-                        :items="disease"
-                        item-text="disease_name"
-                        v-model="medicine_selected.disease_name"
-                        label="เลือกชื่อโรคที่ต้องการลบ"
-                      >-->
                       <v-autocomplete
                         label="เลือกชื่อโรคที่ต้องการลบ"
                         :items="disease"

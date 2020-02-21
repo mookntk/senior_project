@@ -90,7 +90,7 @@
               <v-btn
                 rounded
                 color="success"
-                :disabled="!valid"
+                :disabled="!checkbox"
                 dark
                 @click="successItem"
               >จัดยาเรียบร้อย</v-btn>
@@ -212,14 +212,6 @@ export default {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
     }
   },
-  // watch: {
-  //   dialog(val) {
-  //     val || this.close();
-  //   }
-  // },
-  // created() {
-  //   this.initialize();
-  // },
   methods: {
     reset() {
       this.$refs.form.reset();
@@ -436,24 +428,6 @@ export default {
       .catch(e => {
         console.log(e);
       });
-
-    // axios
-    //   .post("http://localhost:3000/api/user/getuserbyid", {
-    //     staff_id: localStorage.getItem("staff_id")
-    //   })
-    //   .then(res => {
-    //     this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
-    //     axios
-    //       .post("http://localhost:3000/api/ph_prepare/one_order", {
-    //         pharmacy_id: this.pharmacy_id
-    //       })
-    //       .then(res => {
-    //         this.oneorder = res.data;
-    //       });
-    //   })
-    //   .catch(e => {
-    //     console.log(e);
-    //   });
     var day = [
       "วันอาทิตย์",
       "วันจันทร์",
