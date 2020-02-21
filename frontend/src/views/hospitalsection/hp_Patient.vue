@@ -9,9 +9,7 @@
         <v-col align="right">
           <v-dialog v-model="dialog_edit" persistent max-width="700px">
             <template v-slot:activator="{ on }">
-              <v-btn color="primary" dark v-on="on"
-                >+ เพิ่มข้อมูลผู้ป่วยรายใหม่</v-btn
-              >
+              <v-btn color="primary" dark v-on="on">+ เพิ่มข้อมูลผู้ป่วยรายใหม่</v-btn>
             </template>
             <v-card class="blue-grey lighten-5 font">
               <v-card-title>
@@ -63,16 +61,8 @@
                           required
                           :rules="[v => !!v || 'กรุณาเลือกเพศ']"
                         >
-                          <v-radio
-                            label="ชาย"
-                            value="ชาย"
-                            style="margin-left:25px;"
-                          ></v-radio>
-                          <v-radio
-                            label="หญิง"
-                            value="หญิง"
-                            style="margin-left:25px;"
-                          ></v-radio>
+                          <v-radio label="ชาย" value="ชาย" style="margin-left:25px;"></v-radio>
+                          <v-radio label="หญิง" value="หญิง" style="margin-left:25px;"></v-radio>
                         </v-radio-group>
                       </v-col>
                       <v-col cols="12" lg="6" sm="6">
@@ -204,12 +194,8 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn @click="close" rounded color="red lighten-1" large
-                  >ปิด</v-btn
-                >
-                <v-btn rounded color="green lighten-1" large @click="save"
-                  >เสร็จสิ้น</v-btn
-                >
+                <v-btn @click="close" rounded color="red lighten-1" large>ปิด</v-btn>
+                <v-btn rounded color="green lighten-1" large @click="save">เสร็จสิ้น</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -252,20 +238,10 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field
-                    :value="patients[index].gender"
-                    label="เพศ"
-                    filled
-                    readonly
-                  ></v-text-field>
+                  <v-text-field :value="patients[index].gender" label="เพศ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="4">
-                  <v-text-field
-                    :value="age"
-                    label="อายุ"
-                    filled
-                    readonly
-                  ></v-text-field>
+                  <v-text-field :value="age" label="อายุ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="8">
                   <v-text-field
@@ -276,12 +252,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field
-                    :value="patients[index].email"
-                    label="อีเมล"
-                    filled
-                    readonly
-                  ></v-text-field>
+                  <v-text-field :value="patients[index].email" label="อีเมล" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
@@ -313,23 +284,27 @@
                   ></v-autocomplete>
                 </v-col>
               </v-row>
-              <v-data-table
-                :search="search"
-                :headers="record_headers"
-                :items="patients[index].record"
-              ></v-data-table>
+              <v-data-table :headers="record_headers" :items="record">
+                <template v-slot:body="{ items }">
+                  <tbody>
+                    <tr v-for="(item,i) in items" :key="i">
+                      <td>{{ i+1 }}</td>
+                      <td>{{ setDate(item.date) }}</td>
+                      <td style="text-align:center">{{ item.weight }}</td>
+                      <td style="text-align:center">{{ item.height}}</td>
+                      <td style="text-align:center">{{ item.pressure_sys }}/{{item.pressure_di}}</td>
+                      <td style="text-align:center">{{ item.name}} {{item.surname}}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-data-table>
             </v-container>
           </v-card-text>
         </v-card>
       </v-dialog>
 
       <!-- Data Table of patient page -->
-      <v-data-table
-        :headers="headers"
-        :items="patients"
-        :items-per-page="10"
-        class="elevation-1"
-      >
+      <v-data-table :headers="headers" :items="patients" :items-per-page="10" class="elevation-1">
         <template v-slot:body="{ items }">
           <tbody>
             <tr v-for="item in items" :key="item.name">
@@ -339,17 +314,11 @@
               <td style="text-align:center">{{ item.Telno }}</td>
               <td style="text-align:center">{{ item.pharmacy_name }}</td>
               <td style="text-align:center">
-                <v-icon small class="mr-2" @click="showItem(item)"
-                  >mdi-eye</v-icon
-                >
+                <v-icon small class="mr-2" @click="showItem(item)">mdi-eye</v-icon>
               </td>
               <td style="text-align:center">
-                <v-icon small class="mr-2" @click="editItem(item)"
-                  >mdi-pencil</v-icon
-                >
-                <v-icon small class="mr-2" @click="deleteItem(item)"
-                  >mdi-delete</v-icon
-                >
+                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+                <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
               </td>
             </tr>
           </tbody>
@@ -363,6 +332,7 @@
 import Menu from "../../components/hp_menubar";
 import ThailandAutoComplete from "../../components/vue-thailand-autocomplete";
 import axios from "axios";
+import dateFormat from "dateformat";
 export default {
   data() {
     return {
@@ -453,7 +423,8 @@ export default {
         zipcode: ""
       },
       defaultItem: {},
-      disease_selected: []
+      disease_selected: [],
+      record: [{}]
     };
   },
   computed: {
@@ -487,6 +458,27 @@ export default {
       year = parseInt(year) + 543;
       return `${day}/${month}/${year}`;
     },
+    setDate(date) {
+      if (!date) return null;
+      var month_th = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม"
+      ];
+      date = dateFormat(date, "dd/mm/yyyy");
+      var [day, month, year] = date.split("/");
+      year = parseInt(year) + 543;
+      return `${day} ${month_th[parseInt(month) - 1]} ${year}`;
+    },
     showItem(item) {
       this.disease_selected = [];
       axios
@@ -502,10 +494,21 @@ export default {
           this.patient_selected = item.name + " " + item.surname;
           this.index = this.patients.indexOf(item);
           this.calulate_age();
+
           this.dialog_record = true;
         })
         .catch(e => {
           console.log("getdisease error " + e);
+        }); //get record
+      axios
+        .post("http://localhost:3000/api/record/getrecord", {
+          patient_HN: item.patient_HN
+        })
+        .then(res => {
+          this.record = res.data;
+        })
+        .catch(e => {
+          console.log(e);
         });
     },
     editItem(item) {
