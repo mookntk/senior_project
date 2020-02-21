@@ -99,6 +99,7 @@
                                 @input="menu1[i][k] = false"
                                 class="font"
                                 :min="today"
+                                scrollable
                               ></v-date-picker>
                             </v-menu>
                           </v-col>
@@ -216,13 +217,7 @@ export default {
       all_medicine: {},
       check_medicine: [],
       check_order: [],
-      pharmacy: [
-        "บ้านเภสัชกร",
-        "ลิขิตฟาร์มาซี",
-        "ร้านฟาร์มาซี สาย2",
-        "เวิลด์ ฟาร์มาซี",
-        "ซิตี้ฟาร์มาซี"
-      ],
+      pharmacy: [],
       headers: [
         {
           text: "ร้านขายยา",
@@ -235,222 +230,7 @@ export default {
         // { text: "ร้านขายยา", align: "center", value: "order" },
         { text: "สถานะ", align: "center", value: "status" }
       ],
-      order: [
-        {
-          order_id: 234,
-          name: "บ้านเภสัชกร",
-          province: "นครปฐม",
-          patient: "วันชัย ศุภจตุรัส",
-          create_date: "20 กรกฏาคม 2562",
-          receive_date: "22 กรกฎาคม 2562",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Sara",
-              qty: 5,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-          ],
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "2 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "รอการจัดยา"
-        },
-        {
-          order_id: 309,
-          name: "ลิขิตฟาร์มาซี",
-          province: "ชลบุรี",
-          patient: "สุกรี ฉัตรรัตนกุลชัย",
-          create_date: "22 กรกฎาคม 2562",
-          receive_date: "",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Sara",
-              qty: 3,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Decolgen", qty: 1, unit: "tablet" }
-          ],
-          orders: [
-            {
-              order_id: 2,
-              name: "สุกรี ฉัตรรัตนกุลชัย",
-              create_date: "7 กันยายน 2562",
-              due_date: "12 กันยายน 2562"
-            },
-            {
-              order_id: 5,
-              name: "สมาน พิทยาพิบูลพงศ์",
-              create_date: "10 มีนาคม 2562",
-              due_date: "20 มีนาคม 2562"
-            },
-            {
-              order_id: 11,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 39,
-              name: "นภาพรรณ วัฒนประดิษฐ",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 40,
-              name: "เฉลิม ศรีเมือง",
-              create_date: "7 มกราคม 2562",
-              due_date: "15 มกราคม 2562"
-            }
-          ],
-          status: "รอการจัดยา"
-        },
-        {
-          order_id: 801,
-          name: "ร้านฟาร์มาซี สาย2",
-          province: "กรุงเทพ",
-          patient: "เอก เวสโกสิทธิ์",
-          create_date: "15 มีนาคม 2562",
-          receive_date: "18 มีนาคม 2562",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Tylenol",
-              qty: 3,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" }
-          ],
-
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "1 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            }
-          ],
-          status: "รอการจัดยา"
-        },
-        {
-          order_id: 227,
-          name: "เวิลด์ ฟาร์มาซี",
-          province: "นครปฐม",
-          patient: "สลิลลา พิทยาพิบูลพงศ์",
-          create_date: "22 กรกฎาคม 2562",
-          receive_date: "",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Decolgen",
-              qty: 2,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-          ],
-          orders: [
-            {
-              order_id: 1,
-              name: "นภาพรรณ วิทุรวงศ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "สลิลลา พิทยาพิบูลพงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "5 สิงหาคมม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "จัดยาเรียบร้อย"
-        },
-        {
-          order_id: 456,
-          name: "ซิตี้ฟาร์มาซี",
-          province: "นครปฐม",
-          patient: "สุทธิพงศ์ ภัทรมังกร",
-          create_date: "25 กรกฏาคม 2562",
-          receive_date: "",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Tiffy",
-              qty: 3,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Tylenol", qty: 3, unit: "tablet" }
-          ],
-          orders: [
-            {
-              order_id: 1,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "10 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "เฉลิม วัฒนประดิษฐ",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "จัดยาเรียบร้อย"
-        }
-      ],
+      order: [{}],
       order_filter: [],
       medicineAll: { medicine_id: [], qty: [], lot: [[]], exp: [[]] },
       status: [],
@@ -591,7 +371,7 @@ export default {
       // }
     },
     setDate(date) {
-      if (date == null) return "";
+      if (date == null || date == "") return null;
       var d = dateFormat(date, "yyyy-mm-dd");
       var [year, month, day] = d.split("-");
       return `${day}/${month}/${year}`;
@@ -676,7 +456,6 @@ export default {
         .then(res => {
           for (let i = 0; i < this.medicineAll.lot.length; i++) {
             for (let j = 0; j < this.medicineAll.lot[i].length; j++) {
-              console.log("dfdgdfgdfgdf");
               console.log(this.medicineAll.exp[i][j]);
               axios
                 .post("http://localhost:3000/api/lot_transfer/newlot", {
@@ -783,6 +562,8 @@ export default {
       }
       this.check_medicine = new Array(lot.length);
       this.check_medicine.fill(false, 0);
+      console.log("medicineAll");
+      console.log(this.medicineAll);
       return {
         id: id,
         name: name,
@@ -844,6 +625,8 @@ export default {
     },
     medicineAll: {
       handler(val) {
+        console.log(this.medicineAll.exp);
+        console.log("exp");
         if (this.medicineAll.lot_qty)
           for (let i = 0; i < this.medicineAll.lot_qty.length; i++) {
             var qty = 0;
