@@ -640,17 +640,6 @@ export default {
       else if (status == "ready") return "orange";
       else return "grey";
     },
-
-    // editItem(item) {
-    //   this.editedIndex = this.oneorder.indexOf(item);
-    //   this.editedItem = Object.assign({}, item);
-    //   this.dialog = true;
-    // },
-    // deleteItem(item) {
-    //   const index = this.oneorder.indexOf(item);
-    //   confirm("Are you sure you want to delete this item?") &&
-    //     this.oneorder.splice(index, 1);
-    // },
     close() {
       this.dialog = false;
       setTimeout(() => {
@@ -658,19 +647,8 @@ export default {
         this.editedIndex = -1;
       }, 300);
     }
-    // save() {
-    //   if (this.editedIndex > -1) {
-    //     Object.assign(this.oneorder[this.editedIndex], this.editedItem);
-    //   } else {
-    //     this.oneorder.push(this.editedItem);
-    //   }
-    //   this.close();
-    // }
   },
   watch: {
-    // patient_selected() {
-    //   console.log(this.patient_selected);
-    // }
     lot_med() {
       console.log(this.lot_med);
     }

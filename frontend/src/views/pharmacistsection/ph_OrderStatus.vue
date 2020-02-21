@@ -17,9 +17,7 @@
             <v-btn icon dark @click="dialog_sendback = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title
-              >ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title
-            >
+            <v-toolbar-title>ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title>
           </v-toolbar>
 
           <v-card-title>
@@ -37,20 +35,10 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field
-                    :value="oneorder[0].gender"
-                    label="เพศ"
-                    filled
-                    readonly
-                  ></v-text-field>
+                  <v-text-field :value="oneorder[0].gender" label="เพศ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="4">
-                  <v-text-field
-                    :value="setDate2(oneorder[0].DOB)"
-                    label="อายุ"
-                    filled
-                    readonly
-                  ></v-text-field>
+                  <v-text-field :value="setDate2(oneorder[0].DOB)" label="อายุ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="8">
                   <v-text-field
@@ -65,73 +53,71 @@
                 </v-col>
               </v-row>
 
-              <v-row>
-                <v-col cols="12">ยาที่ต้องได้รับ</v-col>
-                <v-col cols="12">
-                  <v-checkbox
-                    v-for="item in oneorder"
-                    :key="item.name"
-                    row
-                    :rules="[v => !!v || 'คุณต้องเลือกยาที่จัดแล้วก่อน']"
-                    required
-                    color="success"
-                    :label="
-                      setMed(
-                        item.medicine_generic +
-                          ';' +
-                          item.strenght +
-                          ';' +
-                          item.qty +
-                          ';' +
-                          item.unit
-                      )
-                    "
-                  ></v-checkbox>
-
-                  <v-row v-for="k in inputs" :key="k">
-                    <v-col cols="8">
-                      <v-select
-                        :items="lot_no"
-                        label="เลขรหัสสินค้า"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="2">
-                      <v-text-field label="จำนวน" solo clearable></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="2" md="2">
-                      <v-icon
-                        @click="remove(k)"
-                        v-show="k || (!k && inputs.length > 1)"
-                        >mdi-minus-circle</v-icon
-                      >
-                      <v-icon @click="add(k)" v-show="k == inputs.length"
-                        >mdi-plus-circle</v-icon
-                      >
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
+              <v-list class="font">
+                <template v-for="(i,index) in oneorder">
+                  <v-list-item :key="i">
+                    <v-list-item-content>
+                      <v-checkbox
+                        v-model="selected[index]"
+                        color="success"
+                        :label="i.medicine_generic+' '+i.strength+' '+i.qty+' '+i.unit"
+                      ></v-checkbox>
+                      <v-row>
+                        <template v-for="(item,k) in textbox[index]">
+                          <v-col cols="12" sm="2" md="2" :key="k">
+                            <v-select
+                              :items="lot_no[index]"
+                              item-text="lot_no"
+                              label="เลขรหัสสินค้า"
+                              item-value="lot_no_id"
+                              v-model="lot_med[index][k]"
+                            >
+                              <template v-slot:item="data">
+                                <template v-if="typeof data.item !== 'object'">
+                                  <v-list-item-content v-text="data.item"></v-list-item-content>
+                                </template>
+                                <template v-else>
+                                  <v-list-item-content>
+                                    <v-list-item-title
+                                      class="font"
+                                    >{{ data.item.lot_no }} (เหลือ: {{ data.item.qty_less }})</v-list-item-title>
+                                  </v-list-item-content>
+                                </template>
+                              </template>
+                            </v-select>
+                          </v-col>
+                          <v-col cols="12" sm="2" md="2">
+                            <v-text-field
+                              solo
+                              clearable
+                              label="จำนวนยา"
+                              v-model="qty_med[index][k]"
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="2" md="2">
+                            <v-icon
+                              @click="remove(index,k)"
+                              v-show="k>0 || ( !k && textbox[index].length > 1)"
+                            >mdi-minus-circle</v-icon>
+                            <v-icon
+                              @click="add(index)"
+                              v-show="k == textbox[index].length-1"
+                            >mdi-plus-circle</v-icon>
+                          </v-col>
+                        </template>
+                      </v-row>
+                    </v-list-item-content>
+                    <!-- </template> -->
+                  </v-list-item>
+                </template>
+              </v-list>
             </v-container>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              rounded
-              large
-              color="success"
-              dark
-              @click="sendback_confirm()"
-              >ส่งยาคืนโรงพยาบาล</v-btn
-            >
+            <v-btn rounded large color="success" dark @click="sendback_confirm()">ส่งยาคืนโรงพยาบาล</v-btn>
 
-            <v-btn
-              rounded
-              large
-              color="warning"
-              dark
-              @click="dialog_sendback = false"
-              >ยกเลิก</v-btn
-            >
+            <v-btn rounded large color="warning" dark @click="dialog_sendback = false">ยกเลิก</v-btn>
           </v-card-actions>
           <!-- table in pop-up page for see each of order detial -->
         </v-card>
@@ -146,37 +132,32 @@
               class="blue-grey lighten-3"
               value="all"
               @click="sortdata"
-              >ออร์เดอร์ทั้งหมด</v-btn
-            >
+            >ออร์เดอร์ทั้งหมด</v-btn>
             <v-btn
               width="200px"
               class="green lighten-1"
               value="success"
               @click="sortdata"
-              >ออร์เดอร์ที่สำเร็จแล้ว</v-btn
-            >
+            >ออร์เดอร์ที่สำเร็จแล้ว</v-btn>
             <v-btn
               width="200px"
               class="gray lighten-1"
               value="not_ready"
               @click="sortdata"
-              >ออร์เดอร์ที่ไม่พร้อมจ่ายยา</v-btn
-            >
+            >ออร์เดอร์ที่ไม่พร้อมจ่ายยา</v-btn>
             <v-btn
               width="200px"
               class="orange lighten-1"
               value="received_some"
               @click="sortdata"
-              >ออร์เดอร์ที่คืนบางส่วน</v-btn
-            >
+            >ออร์เดอร์ที่คืนบางส่วน</v-btn>
 
             <v-btn
               width="200px"
               class="red lighten-1"
               value="cancel"
               @click="sortdata"
-              >ออร์เดอร์ที่ต้องยกเลิก</v-btn
-            >
+            >ออร์เดอร์ที่ต้องยกเลิก</v-btn>
           </v-layout>
         </v-flex>
 
@@ -191,9 +172,11 @@
               class="elevation-1"
             >
               <template v-slot:item.status="{ item }">
-                <v-chip :color="getColor(item.status)" dark>{{
+                <v-chip :color="getColor(item.status)" dark>
+                  {{
                   setStatus(item.status)
-                }}</v-chip>
+                  }}
+                </v-chip>
               </template>
               <template v-slot:top>
                 <v-toolbar flat>
@@ -211,18 +194,12 @@
               <template v-slot:body="{ items }">
                 <tbody>
                   <tr v-for="item in items" :key="item.name">
-                    <td style="text-align:center">
-                      {{ item.patient_HN_order }}
-                    </td>
+                    <td style="text-align:center">{{ item.patient_HN_order }}</td>
                     <td style="text-align:left">{{ item.name }}</td>
                     <td style="text-align:left">{{ item.surname }}</td>
+                    <td style="text-align:left">{{ setDate(item.due_date) }}</td>
                     <td style="text-align:left">
-                      {{ setDate(item.due_date) }}
-                    </td>
-                    <td style="text-align:left">
-                      <v-chip :color="getColor(item.status)" dark
-                        >{{ setStatus(item.status) }}
-                      </v-chip>
+                      <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
                     </td>
                     <td style="text-align:left">
                       <v-btn
@@ -232,8 +209,7 @@
                           item.status == 'cancel' ||
                             item.status == 'received_some'
                         "
-                        >ส่งยากลับ</v-btn
-                      >
+                      >ส่งยากลับ</v-btn>
                     </td>
                   </tr>
                 </tbody>
@@ -249,6 +225,7 @@
 <script>
 import Menubar from "../../components/ph_menubar";
 import axios from "axios";
+import dateFormat from "dateformat";
 export default {
   components: {
     Menubar
@@ -341,7 +318,12 @@ export default {
     dialog_row: false,
     dialog_record: false,
     selected: [],
-    index: 0
+    index: 0,
+    textbox: [],
+    pharmacy_id: null,
+    lot_med: [],
+    qty_med: [],
+    lot_no: []
   }),
   computed: {
     formTitle() {
@@ -489,10 +471,18 @@ export default {
     },
     add(index) {
       console.log("index=" + index);
-      this.inputs.push(2);
+      if (this.textbox[index].length < this.lot_no[index].length) {
+        this.textbox[index].push("");
+        this.lot_med[index].push("");
+        this.qty_med[index].push("");
+      }
+
+      // this.inputs.push("");
     },
-    remove(index) {
-      this.inputs.splice(index, 1);
+    remove(index, subindex) {
+      this.textbox[index].splice(subindex, 1);
+      this.lot_med[index].splice(subindex, 1);
+      this.qty_med[index].splice(subindex, 1);
     },
     dialog: function(e) {
       alert(e.currentTarget);
@@ -527,16 +517,45 @@ export default {
     initialize() {
       this.order_filter = [...this.s_order];
     },
-    selectItem(item) {
-      var index = this.s_order.indexOf(item);
+    //     selectItem(item) {
+    //       // var index = this.s_order.indexOf(item);
 
-      if (this.s_order[index].status == "ready") {
-        this.index = this.s_order;
-        console.log(this.s_order[index]);
-        this.s_order = item;
-        this.dialog_row = true;
-      }
-    },
+    //       // if (this.s_order[index].status == "ready") {
+    //       //   this.index = this.s_order;
+    //       //   console.log(this.s_order[index]);
+    //       //   this.s_order = item;
+    //       //   this.dialog_row = true;
+    //       this.lot_no = [];
+    //       // this.oneorder = item;
+    //       axios
+    //         .post("http://localhost:3000/api/ready_sell/one_order", {
+    //           patient_HN_order: this.s_order[this.index].patient_HN_order
+    //         })
+    //         .then(res => {
+    //           this.oneorder = res.data;
+    //           this.selected = new Array(this.oneorder.length);
+    //           this.selected.fill(false, 0);
+    //           this.oneorder.forEach((item, index) => {
+    //             this.textbox.push([""]);
+    //             this.lot_med.push([""]);
+    //             this.qty_med.push([""]);
+    //           });
+    //           this.oneorder.forEach((e, i) => {
+    //             axios
+    //               .post("http://localhost:3000/api/ready_sell/getlot", {
+    //                 pharmacy_id: this.pharmacy_id,
+    //                 medicine_id: this.oneorder[i].medicine_id
+    //               })
+    //               .then(res => {
+    //                 this.lot_no.push(res.data);
+    //               });
+    //           });
+    //           // console.log(this.lot_no);
+    //         });
+    //  this.dialog_row = true;
+
+    //       }
+
     successItem(item) {
       console.log("success order");
       console.log(this.s_order);
@@ -563,6 +582,7 @@ export default {
     getindex_cancel(item) {
       this.index = this.s_order.indexOf(item);
       console.log("selected" + "this.index = " + this.index);
+      this.lot_no = [];
       // this.oneorder = item;
       axios
         .post("http://localhost:3000/api/order_status/one_order", {
@@ -571,8 +591,25 @@ export default {
         })
         .then(res => {
           this.oneorder = res.data;
+          this.selected = new Array(this.oneorder.length);
+          this.selected.fill(false, 0);
+          this.oneorder.forEach((item, index) => {
+            this.textbox.push([""]);
+            this.lot_med.push([""]);
+            this.qty_med.push([""]);
+          });
+          this.oneorder.forEach((e, i) => {
+            axios
+              .post("http://localhost:3000/api/ready_sell/getlot", {
+                pharmacy_id: this.pharmacy_id,
+                medicine_id: this.oneorder[i].medicine_id
+              })
+              .then(res => {
+                this.lot_no.push(res.data);
+              });
+          });
+          // console.log(this.lot_no);
         });
-
       this.dialog_sendback = true;
     },
     sendback_confirm() {
