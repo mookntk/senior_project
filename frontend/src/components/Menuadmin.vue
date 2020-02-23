@@ -4,12 +4,12 @@
       <span>การจัดการเจ้าหน้าที่และยา</span>
     </v-toolbar-title>
     <div class="flex-grow-1"></div>
-
-    <v-btn depressed class="teal lighten-3" to="/hospitalstaff" value="hosstaff">เภสัชกรของโรงพยาบาล</v-btn>
-    <v-btn depressed class="teal lighten-3" to="/pharmacy" value="pharmacy">ร้านขายยา</v-btn>
-    <v-btn depressed class="teal lighten-3" to="/pharmacist" value="pharmacist">เภสัชกรร้านขายยา</v-btn>
-    <v-btn depressed class="teal lighten-3" to="/medicine" value="medicine">ยา</v-btn>
-
+    <v-toolbar-items>
+      <v-btn depressed class="teal lighten-3" to="/hospitalstaff" >เภสัชกรของโรงพยาบาล</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/pharmacy" >ร้านขายยา</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/pharmacist" >เภสัชกรร้านขายยา</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/medicine" >ยา</v-btn>
+    
     <v-menu offset-y>
       <template v-slot:activator="{ on }">
         <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
@@ -25,6 +25,7 @@
         </v-list-item>
       </v-list>
     </v-menu>
+    </v-toolbar-items>
   </v-app-bar>
 </template>
 

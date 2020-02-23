@@ -19,8 +19,8 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn depressed @click="click" value="return" :color="btncolor">การคืนยา</v-btn>
-      <v-btn depressed @click="click" value="patient" :color="btncolor">ข้อมูลผู้ป่วย</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/recall" >การคืนยา</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/patient" >ข้อมูลผู้ป่วย</v-btn>
       <v-menu offset-y open-on-hover>
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" text>
@@ -45,7 +45,7 @@
           <v-icon color="grey darken-1">mdi-bell</v-icon>
         </v-badge>
       </v-btn>
-    </v-toolbar-items>
+    
     <v-menu offset-y open-on-hover>
       <template v-slot:activator="{ on }">
         <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
@@ -56,6 +56,7 @@
         </v-list-item>
       </v-list>
     </v-menu>
+    </v-toolbar-items>
   </v-app-bar>
 </template>
 

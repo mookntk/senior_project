@@ -355,7 +355,7 @@ export default {
       this.oneorder = item;
       axios
         .post("http://localhost:3000/api/ph_prepare/one_order", {
-          patient_HN_order: this.p_order[this.index].patient_HN_order
+          order_id: this.p_order[this.index].order_id
         })
         .then(res => {
           this.oneorder = res.data;

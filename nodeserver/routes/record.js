@@ -52,4 +52,39 @@ var getRecord = function(item) {
   });
 };
 
+
+//cancel order in prepare medication
+router.post(
+  "/cancel_order",
+  [
+    check("order_id")
+      .not()
+      .isEmpty()
+  ],
+  async (req, res) => {
+    try {
+      const cancel = await cancel_order(req.body);
+      res.json(cancel);
+    } catch (error) {
+      res.status(400).json({
+        message: error.message
+      });
+    }
+  }
+);
+
+var cancel_order = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "UPDATE orders SET status='cancel'" +
+        "WHERE order_id='" +
+        item.order_id +
+        "'",
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+  });
+};
 module.exports = router;
