@@ -371,7 +371,7 @@ export default {
       console.log("formtitle");
       console.log(this.transfer_order[this.index].status);
       if (this.transfer_order[this.index].status === "transport") {
-        return "received";
+        return "ได้รับยาเรียบร้อย";
       } else if (this.transfer_order[this.index].status === "receieved") {
         return "";
       }

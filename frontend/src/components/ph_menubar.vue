@@ -7,7 +7,7 @@
     <v-spacer></v-spacer>
 
     <v-toolbar-items>
-      <v-btn depressed @click="click" value="้home" :color="btncolor">ออร์เดอร์พร้อมจำหน่าย</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/ready_sell">ออร์เดอร์พร้อมจำหน่าย</v-btn>
 
       <!-- ยืนยันออร์เดอร์ -->
       <v-menu offset-y open-on-hover>
@@ -26,7 +26,7 @@
       </v-menu>
       <!-- ยืนยันออร์เดอร์ -->
 
-      <v-btn depressed @click="click" value="prepareorder" :color="btncolor4">จัดยาตามออร์เดอร์</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/prepare" >จัดยาตามออร์เดอร์</v-btn>
 
       <!-- <v-btn depressed @click="click" value="returnmedicine" :color="btncolor">การคืนยา</v-btn> -->
       <v-menu offset-y open-on-hover>
@@ -44,8 +44,8 @@
         </v-list>
       </v-menu>
 
-      <v-btn depressed @click="click" value="orderstatus" :color="btncolor2">สถานะออร์เดอร์</v-btn>
-      <v-btn depressed @click="click" value="notification" :color="btncolor3">
+      <v-btn depressed class="teal lighten-3" to="/order_status" >สถานะออร์เดอร์</v-btn>
+      <v-btn depressed class="teal lighten-3" @click="click" value="/notification" >
         <v-icon>mdi-bell</v-icon>
       </v-btn>
     </v-toolbar-items>

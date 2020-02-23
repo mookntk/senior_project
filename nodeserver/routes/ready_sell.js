@@ -71,7 +71,7 @@ router.post(
 var one_order = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT o.order_id,p.name,p.surname,p.gender,p.DOB,o.status,o.patient_HN_order,m.medicine_generic,m.strength,od.qty,m.unit,m.medicine_id " +
+      "SELECT o.order_id,p.name,p.surname,p.gender,p.DOB,o.status,o.patient_HN_order,m.medicine_generic,m.strenght,od.qty,m.unit,m.medicine_id " +
         // "group_concat(m.medicine_generic) as medicine_generic, " +
         // "group_concat(m.strenght) as strenght, " +
         // "group_concat(od.qty) as qty, " +
@@ -148,7 +148,7 @@ var getMedicine = function(item) {
 router.post(
   "/success",
   [
-    check("patient_HN_order")
+    check("order_id")
       .not()
       .isEmpty()
   ],
@@ -167,7 +167,7 @@ router.post(
 var successOrder = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE orders SET status=? WHERE order_id=?`,
+      `UPDATE orders SET status=? , receive_date = NOW() WHERE order_id=? `,
       [item.status, item.order_id],
       (error, result) => {
         if (error) return reject(error);

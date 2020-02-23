@@ -3,11 +3,25 @@
     <div class="menu-header">
       <Menu />
     </div>
-    <v-content class="main font">
+
+
+    <v-content class="font main">
       <v-row>
         <v-col align="left" style="font-size:25px">ข้อมูลผู้ป่วย</v-col>
+
+        <v-col align="center">
+          <!-- ช่อง search -->
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="ค้นหา"
+            single-line
+            hide-details
+          ></v-text-field>
+          </v-col>
+          
         <v-col align="right">
-          <v-dialog v-model="dialog_edit" persistent max-width="700px">
+          <v-dialog v-model="dialog_edit" persistent max-width="700px"> 
             <template v-slot:activator="{ on }">
               <v-btn color="primary" dark v-on="on">+ เพิ่มข้อมูลผู้ป่วยรายใหม่</v-btn>
             </template>
@@ -201,18 +215,7 @@
           </v-dialog>
         </v-col>
       </v-row>
-      <!-- <v-col>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="ค้นหา"
-          single-line
-          hide-details
-        ></v-text-field>
-      </v-col>-->
-      <!-- End of Add new patient -->
 
-      <!-- watch patient history -->
       <v-dialog
         v-model="dialog_record"
         fullscreen
@@ -304,7 +307,14 @@
       </v-dialog>
 
       <!-- Data Table of patient page -->
-      <v-data-table :headers="headers" :items="patients" :items-per-page="10" class="elevation-1">
+      <v-data-table 
+      :headers="headers" 
+      :search="search"
+      :items="patients" 
+      :items-per-page="10" 
+      sort-by="name"
+      class="elevation-1"
+      >
         <template v-slot:body="{ items }">
           <tbody>
             <tr v-for="item in items" :key="item.name">
@@ -350,14 +360,14 @@ export default {
           text: "HN",
           align: "left",
           sortable: false,
-          value: "hn"
+          value: "patient_HN"
         },
         { text: "ชื่อ-นามสกุลผู้ป่วย", align: "center", value: "name" },
         { text: "อีเมล", align: "center", value: "email" },
-        { text: "เบอร์โทรศัพท์", align: "center", value: "phone" },
-        { text: "ร้านขายยา", align: "center", value: "pharmacy" },
+        { text: "เบอร์โทรศัพท์", align: "center", value: "Telno" },
+        { text: "ร้านขายยา", align: "center", value: "pharmacy_name" },
         { text: "ประวัติการตรวจ", align: "center", value: "history" },
-        { text: "แก้ไข/ลบ", align: "center", value: "edit" }
+        { text: "แก้ไข/ลบ", align: "center" }
       ],
       record_headers: [
         {
@@ -671,6 +681,6 @@ export default {
 }
 .main {
   margin: 20px;
-  margin-top: 120px;
+  margin-top: 80px;
 }
 </style>

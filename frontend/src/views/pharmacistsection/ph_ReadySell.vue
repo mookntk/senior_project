@@ -133,7 +133,7 @@
                               </template>
                             </v-select>
                           </v-col>
-                          <v-col cols="12" sm="2" md="2">
+                          <v-col cols="12" sm="2" md="2" :key="k">
                             <v-text-field
                               solo
                               clearable
@@ -141,7 +141,7 @@
                               v-model="qty_med[index][k]"
                             ></v-text-field>
                           </v-col>
-                          <v-col cols="12" sm="2" md="2">
+                          <v-col cols="12" sm="2" md="2" :key="k">
                             <v-icon
                               @click="remove(index,k)"
                               v-show="k>0 || ( !k && textbox[index].length > 1)"
@@ -193,7 +193,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn rounded color="success" dark @click="successItem(item)">ผู้ป่วยรับยาเรียบร้อย</v-btn>
-            <v-btn rounded color="red" dark @click="dialog_row = false">ยกเลิกออร์เดอร์</v-btn>
+            <v-btn rounded color="red" dark @click="cancelItem(item)">ยกเลิกออร์เดอร์</v-btn>
             <v-btn rounded color="grey" dark @click="dialog_row = false">ปิด</v-btn>
           </v-card-actions>
           <!-- table in pop-up page for see each of order detial -->
@@ -542,8 +542,49 @@ export default {
         this.dialog_row = true;
       }
     },
+    refreshOfReadyTable() {
+      axios
+      .post("http://localhost:3000/api/user/getuserbyid", {
+        staff_id: localStorage.getItem("staff_id")
+      })
+      .then(res => {
+        this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
+        axios
+          .post("http://localhost:3000/api/ready_sell/ready_order", {
+            pharmacy_id: this.pharmacy_id
+          })
+          .then(res => {
+            this.r_order = res.data;
+            console.log("r_order");
+            console.log(this.r_order);
+          });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    },
+    cancelItem(item){
+      // const index = this.oneorder.indexOf(item);
+      confirm(
+        "คุณต้องการที่จะยกเลิกออร์เดอร์ของคุณ "+ this.oneorder[0].name + ' ' + this.oneorder[0].surname +" ใช่หรือไม่?"
+          
+      ) &&
+      axios
+          .post("http://localhost:3000/api/record/cancel_order", {
+            order_id: this.oneorder[0].order_id
+          })
+          .then(res => {
+            console.log(res);
+            this.refreshOfReadyTable();
+            this.dialog_row = false;
+          })
+          .catch(e => {
+            console.log(e);
+          });
+    },
     successItem(item) {
       if (this.$refs.form.validate() && this.checkpressure()) {
+        console.log("successOrder");
         //axios new record
         axios
           .post("http://localhost:3000/api/record/newrecord", {
@@ -605,6 +646,7 @@ export default {
             .post("http://localhost:3000/api/ready_sell/success", {
               status: "success",
               order_id: this.oneorder[0].order_id
+              // staff_id_log: localStorage.getItem("staff_id"),
             })
             .then(res => {
               this.r_order.splice(this.index, 1);
@@ -613,6 +655,25 @@ export default {
               console.log(e);
             });
         }
+        var month = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม"
+      ];
+      var date = new Date();
+      var date_format =
+        date.getDate() + " " + (date.getMonth() + 1) + " " + date.getFullYear();
+
+      this.oneorder[0].receive_date = date_format;
         this.dialog_row = false;
       }
     },
