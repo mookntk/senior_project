@@ -27,7 +27,7 @@ router.post(
 var orderstatus = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT o.order_id,o.patient_HN_order,p.name,p.surname,o.status,DATE_FORMAT(o.due_date,'%Y %m %d') AS due_date " +
+      "SELECT o.order_id,o.patient_HN_order,p.name,p.surname,o.status,DATE_FORMAT(o.due_date,'%Y %m %d') AS due_date,o.return_id " +
         "from orders as o " +
         "left join patients as p ON o.patient_HN_order = p.patient_HN " +
         "WHERE o.pharmacy_id ='" +

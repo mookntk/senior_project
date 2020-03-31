@@ -16,6 +16,7 @@ const ph_prepare = require("./ph_prepare");
 const ready_sell = require("./ready_sell");
 const order_status = require("./order_status");
 const record = require("./record");
+const return_order = require("./return_orders");
 
 router.use("/user", user);
 router.use("/medicine", medicine);
@@ -33,5 +34,6 @@ router.use("/ph_prepare", ph_prepare);
 router.use("/ready_sell", ready_sell);
 router.use("/order_status", order_status);
 router.use("/record", record);
+router.use("/return", return_order);
 
 module.exports = router;
