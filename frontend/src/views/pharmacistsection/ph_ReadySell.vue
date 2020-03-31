@@ -512,7 +512,7 @@ export default {
       // this.oneorder = item;
       axios
         .post("http://localhost:3000/api/ready_sell/one_order", {
-          patient_HN_order: this.r_order[this.index].patient_HN_order
+          order_id: this.r_order[this.index].order_id
         })
         .then(res => {
           this.oneorder = res.data;
@@ -644,7 +644,7 @@ export default {
           console.log("yeah!!!");
           axios
             .post("http://localhost:3000/api/ready_sell/success", {
-              status: "success",
+              // status: "success",
               order_id: this.oneorder[0].order_id
               // staff_id_log: localStorage.getItem("staff_id"),
             })

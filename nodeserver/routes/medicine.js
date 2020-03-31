@@ -232,6 +232,67 @@ var new_medicine = function (item) {
   });
 };
 
+
+//check before delete medicine ; check post medicine
+// router.post("/checkbeforedeletemedicine",
+// [
+//   check("medicine_id")
+//   .not()
+//   .isEmpty()
+// ],
+// async (req, res) => {
+//   try {
+//     const checkbeforedeletemedicine = await check_before_delete_medicine(req.body);
+//     res.json(checkbeforedeletemedicine);
+//   } catch (error) {
+//     res.status(400).json({
+//       message: error.message
+//     });
+//   }
+// });
+
+// var check_before_delete_medicine = function (item) {
+//   return new Promise((resolve, reject) => {
+//     db.query(
+//       "SELECT * " +
+//       "FROM order_detail " +
+//       "WHERE medicine_id ='" + item.medicine_id +"'",
+//       (error, result) => {
+//         if (error) return reject(error);
+//         resolve({
+//           message: "check success"
+//         });
+//       }
+//     );
+//   });
+// };
+
+
+//check get medicine
+router.get("/checkmedicinebeforedelete", async (req, res) => {
+  try {
+    const checkmedicine = await check_medicine();
+    res.json(checkmedicine);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message
+    });
+  }
+});
+
+var check_medicine = function () {
+  return new Promise((resolve, reject) => {
+    db.query("SELECT ot.order_id, m.medicine_id " +
+    "FROM medicine as m "+
+    "INNER JOIN order_detail AS ot ON  m.medicine_id = ot.medicine_id " +
+    "order by ot.medicine_id ", 
+    (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+  });
+};
+
 //deletemedicine
 router.post("/deletemedicine", async (req, res) => {
   try {

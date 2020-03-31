@@ -211,8 +211,12 @@ var new_user = function (item) {
         var info = transporter.sendMail({
           from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
           to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-          subject: 'Senior Hospital : This is your Password', // หัวข้ออีเมล
-          text: 'Your username is ' + item.username + '\n' + 'Your password is ' + randomstring, // plain text body
+          subject: 'Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)', // หัวข้ออีเมล
+          text: "ยินดีต้อนรับคุณ" + item.name + " " + item.surname + " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
+            "คุณคือเภสัชกรร้านยา '" + item.pharmacy_name + "'" + "\n" +
+            "ชื่อผู้ใช้ของคุณคือ " + item.username + "\n" +
+            "รหัสผ่านคือ " + randomstring + "\n" + // plain text body
+            "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้"
         });
       }
     );
@@ -304,22 +308,56 @@ var show_allpharmacist = function () {
 
 var send_mail = function (item) {
   return new Promise((resolve, reject) => {
-    var transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: { // ข้อมูลการเข้าสู่ระบบ
-        user: 'seniorhospital111@gmail.com', // email user ของเรา
-        pass: 'hospital111' // email password
-      }
-    });
-    // เริ่มทำการส่งอีเมล
-    var info = transporter.sendMail({
-      from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
-      to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: 'Senior Hospital : Pharmacist of Pharmacy (Username and Password) ', // หัวข้ออีเมล
-      text: 'You are Pharmacist of Pharmacy\n' + 'Your username is ' + item.username + '\n' + 'Your password is ' + item.password, // plain text body
-    });
+
+    db.query("SELECT * FROM users AS d1 INNER JOIN phamacist AS d2 ON (d2.staff_id_pharmacist=d1.staff_id) " +
+      "INNER JOIN pharmacy AS d3 ON (d2.pharmacy_id_pharmacist=d3.pharmacy_id) where d1.username='" + item.username + "'",
+      (error, result) => {
+        name = result[0].name;
+        surname = result[0].surname;
+
+        var transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false, // true for 465, false for other ports
+          auth: { // ข้อมูลการเข้าสู่ระบบ
+            user: 'seniorhospital111@gmail.com', // email user ของเรา
+            pass: 'hospital111' // email password
+          }
+        });
+        // เริ่มทำการส่งอีเมล
+        var info = transporter.sendMail({
+          from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
+          to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
+          subject: 'Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)', // หัวข้ออีเมล
+          text: "ยินดีต้อนรับคุณ" + name + " " + surname + " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
+            "คุณคือเภสัชกรร้านยา '" + item.pharmacy_name + "'" + "\n" +
+            "ชื่อผู้ใช้ของคุณคือ " + item.username + "\n" +
+            "รหัสผ่านคือ " + item.password + "\n" + // plain text body
+            "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้"
+        });
+      });
+
+    // var transporter = nodemailer.createTransport({
+    //   host: 'smtp.gmail.com',
+    //   port: 587,
+    //   secure: false, // true for 465, false for other ports
+    //   auth: { // ข้อมูลการเข้าสู่ระบบ
+    //     user: 'seniorhospital111@gmail.com', // email user ของเรา
+    //     pass: 'hospital111' // email password
+    //   }
+    // });
+    // // เริ่มทำการส่งอีเมล
+    // var info = transporter.sendMail({
+    //   from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
+    //   to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
+    //   subject: 'Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)', // หัวข้ออีเมล
+    //   text:
+    //     "ยินดีต้อนรับคุณ"+ item.name + " " + item.surname + " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
+    //     "คุณคือเภสัชกรร้านยา '" + item.pharmacy_name + "'" + "\n" +
+    //     "ชื่อผู้ใช้ของคุณคือ " + item.username +"\n" +
+    //     "รหัสผ่านคือ " + item.password +"\n"+ // plain text body
+    //     "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้"
+    // });
   });
 };
 

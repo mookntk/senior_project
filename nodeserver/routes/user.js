@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { check } = require("express-validator");
+const {
+  check
+} = require("express-validator");
 const db = require("../configs/db");
 const nodemailer = require("nodemailer");
 
@@ -9,11 +11,11 @@ router.post(
   "/login",
   [
     check("username")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("password")
-      .not()
-      .isEmpty()
+    .not()
+    .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -31,23 +33,23 @@ router.post(
   "/newuser",
   [
     check("username")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("name")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("surname")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("telno")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("email")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("sex")
-      .not()
-      .isEmpty()
+    .not()
+    .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -65,23 +67,23 @@ router.post(
   "/edituser",
   [
     check("username")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("name")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("surname")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("telno")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("email")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("sex")
-      .not()
-      .isEmpty()
+    .not()
+    .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -121,14 +123,14 @@ router.post(
   "/sendmail",
   [
     check("username")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("email")
-      .not()
-      .isEmpty(),
+    .not()
+    .isEmpty(),
     check("password")
-      .not()
-      .isEmpty()
+    .not()
+    .isEmpty()
   ],
   async (req, res) => {
     try {
@@ -147,11 +149,13 @@ router.get("/showallstaff", async (req, res) => {
     const staff = await show_allstaff();
     res.json(staff);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({
+      message: error.message
+    });
   }
 });
 
-var Login = function(item) {
+var Login = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT * FROM users WHERE username=?",
@@ -171,7 +175,7 @@ var Login = function(item) {
   });
 };
 
-var new_user = function(item) {
+var new_user = function (item) {
   return new Promise((resolve, reject) => {
     var chars =
       "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -188,23 +192,25 @@ var new_user = function(item) {
     }
     db.query(
       "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
-        item.username +
-        "','" +
-        randomstring +
-        "','hos_staff','" +
-        item.name +
-        "','" +
-        item.surname +
-        "','" +
-        item.telno +
-        "','" +
-        item.email +
-        "','" +
-        item.sex +
-        "')",
+      item.username +
+      "','" +
+      randomstring +
+      "','hos_staff','" +
+      item.name +
+      "','" +
+      item.surname +
+      "','" +
+      item.telno +
+      "','" +
+      item.email +
+      "','" +
+      item.sex +
+      "')",
       (error, result) => {
         if (error) return reject(error);
-        resolve({ message: "success" });
+        resolve({
+          message: "success"
+        });
       }
     );
     var transporter = nodemailer.createTransport({
@@ -221,18 +227,17 @@ var new_user = function(item) {
     var info = transporter.sendMail({
       from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
       to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: "Senior Hospital : This is your Password", // หัวข้ออีเมล
-      text:
-        "Your username is " +
-        item.username +
-        "\n" +
-        "Your password is " +
-        randomstring // plain text body
+      subject: "Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)", // หัวข้ออีเมล
+      text: "ยินดีต้อนรับคุณ" + item.name + " " + item.surname + " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
+        "คุณคือเภสัชกรโรงพยาบาล " + "\n" +
+        "ชื่อผู้ใช้ของคุณคือ " + item.username + "\n" +
+        "รหัสผ่านคือ " + randomstring + "\n" + // plain text body
+        "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้"
     });
   });
 };
 
-var edit_user = function(item) {
+var edit_user = function (item) {
   return new Promise((resolve, reject) => {
     if (item.sex === 0) {
       item.sex = "Male";
@@ -241,40 +246,44 @@ var edit_user = function(item) {
     }
     db.query(
       "UPDATE users SET name='" +
-        item.name +
-        "',surname='" +
-        item.surname +
-        "',email='" +
-        item.email +
-        "',telno='" +
-        item.telno +
-        "',sex='" +
-        item.sex +
-        "' WHERE username='" +
-        item.username +
-        "'",
+      item.name +
+      "',surname='" +
+      item.surname +
+      "',email='" +
+      item.email +
+      "',telno='" +
+      item.telno +
+      "',sex='" +
+      item.sex +
+      "' WHERE username='" +
+      item.username +
+      "'",
       (error, result) => {
         if (error) return reject(error);
-        resolve({ message: "success" });
+        resolve({
+          message: "success"
+        });
       }
     );
   });
 };
 
-var delete_user = function(item) {
+var delete_user = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `DELETE FROM users WHERE staff_id = ?`,
       [item.staff_id],
       (error, result) => {
         if (error) return reject(error);
-        resolve({ message: "success" });
+        resolve({
+          message: "success"
+        });
       }
     );
   });
 };
 
-var show_hospital = function() {
+var show_hospital = function () {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT * FROM users WHERE user_type=?",
@@ -287,34 +296,42 @@ var show_hospital = function() {
   });
 };
 
-var send_mail = function(item) {
+var send_mail = function (item) {
   return new Promise((resolve, reject) => {
-    var transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        // ข้อมูลการเข้าสู่ระบบ
-        user: "seniorhospital111@gmail.com", // email user ของเรา
-        pass: "hospital111" // email password
-      }
-    });
-    // เริ่มทำการส่งอีเมล
-    var info = transporter.sendMail({
-      from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
-      to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: "Senior Hospital : This is your Password", // หัวข้ออีเมล
-      text:
-        "Your username is " +
-        item.username +
-        "\n" +
-        "Your password is " +
-        item.password // plain text body
-    });
+
+    db.query("SELECT * FROM users AS d1  " +
+      "where d1.username='" + item.username + "'",
+      (error, result) => {
+
+        name = result[0].name;
+        surname = result[0].surname;
+
+        var transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false, // true for 465, false for other ports
+          auth: {
+            // ข้อมูลการเข้าสู่ระบบ
+            user: "seniorhospital111@gmail.com", // email user ของเรา
+            pass: "hospital111" // email password
+          }
+        });
+        // เริ่มทำการส่งอีเมล
+        var info = transporter.sendMail({
+          from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
+          to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
+          subject: "Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)", // หัวข้ออีเมล
+          text: "ยินดีต้อนรับคุณ" + name + " " + surname + " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
+            "คุณคือเภสัชกรโรงพยาบาล " + "\n" +
+            "ชื่อผู้ใช้ของคุณคือ " + item.username + "\n" +
+            "รหัสผ่านคือ " + item.password + "\n" + // plain text body
+            "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้"
+        });
+      });
   });
 };
 
-var show_allstaff = function() {
+var show_allstaff = function () {
   return new Promise((resolve, reject) => {
     db.query("SELECT * FROM users ", (error, result) => {
       if (error) return reject(error);
@@ -328,11 +345,13 @@ router.post("/getuserbyid", async (req, res) => {
     const staff = await getUserById(req.body);
     res.json(staff);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({
+      message: error.message
+    });
   }
 });
 
-var getUserById = function(item) {
+var getUserById = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT ph.pharmacy_id_pharmacist FROM users inner join phamacist as ph on ph.staff_id_pharmacist = users.staff_id WHERE user_type=? AND staff_id=?",

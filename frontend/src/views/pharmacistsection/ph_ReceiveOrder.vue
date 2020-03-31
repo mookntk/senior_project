@@ -83,6 +83,7 @@
         :headers="headers"
         :items="transfer_order"
         :items-per-page="10"
+        sort-by="status"
         class="elevation-1"
       >
         <template v-slot:body="{ items }">

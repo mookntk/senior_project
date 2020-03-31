@@ -31,7 +31,7 @@
           >ทำการจัดยา</v-btn>
         </v-col>
       </v-row>
-      <!-- //! dialog edit -->
+      <!-- ! dialog edit -->
       <v-dialog v-model="dialog_edit" persistent max-width="600px">
         <v-card class="blue-grey lighten-5 font">
           <v-card-title>
@@ -74,7 +74,7 @@
         </v-card>
       </v-dialog>
 
-      <!-- //! table of order -->
+      <!-- ! table of order -->
       <v-data-table
         :headers="headers"
         :items="order_filter"
@@ -141,7 +141,7 @@
       </v-data-table>
       <br />
 
-      <!-- //! table of missing medicine -->
+      <!-- ! table of missing medicine -->
       <!-- <v-col align="left" style="font-size:25px">ออร์เดอร์ที่ยาขาด</v-col>
       <v-data-table
         :headers="headers_missing"
@@ -215,37 +215,26 @@ export default {
     return {
       date: "",
       editedItem: {
-        order_id: 46,
-        due_date: "2020-02-21T17:00:00.000Z",
-        status: "create-order",
+        order_id: "",
+        due_date: "",
+        status: "create-",
         receive_date: null,
         remark: null,
-        patient_HN_order: 2554,
-        staff_id_order: 1248,
+        patient_HN_order: "",
+        staff_id_order: "",
         pharmacist_id_order: null,
-        create_date: "10/02/2020",
-        pharmacy_id: 5,
-        name: "สันติ",
-        surname: "มั่นคั่ง",
-        id: 21,
+        create_date: "",
+        pharmacy_id: "",
+        name: "",
+        surname: "",
+        id: "",
         lot_no: null,
         expdate: null,
-        administration: "ก่อนอาหาร-เช้า,ก่อนอาหาร-กลางวัน,ก่อนอาหาร-เย็น",
+        administration: "",
         recieved: null,
-        disease_id_medicine: 1,
-        pharmacy_name: "จิตนาคลังยา",
-        medicineItem: [
-          {
-            medicine_id: 1,
-            medicine_tmt: 0,
-            medicine_generic: "aaa",
-            medicine_trade: "aaa",
-            strength: "12",
-            unit: "tablet",
-            qty: 50,
-            price: "250"
-          }
-        ]
+        disease_id_medicine: "",
+        pharmacy_name: "",
+        medicineItem: []
       },
       index: 0,
       dialog_edit: false,
@@ -278,172 +267,9 @@ export default {
         { text: "ยาที่ได้รับ", align: "center", value: "order" }
       ],
       order: [
-        {
-          order_id: 48,
-          due_date: "2020-02-13T17:00:00.000Z",
-          status: "waiting-medicine",
-          receive_date: null,
-          remark: null,
-          patient_HN_order: 148,
-          staff_id_order: 1248,
-          pharmacist_id_order: null,
-          create_date: "10/02/2020",
-          pharmacy_id: 3,
-          transport_id: 82,
-          name: "ประเสริฐ",
-          surname: "มั่งคั่ง",
-          id: 26,
-          lot_no: null,
-          expdate: null,
-          administration: "หลังอาหาร-เช้า,หลังอาหาร-เย็น",
-          recieved: null,
-          disease_id_medicine: 4,
-          pharmacy_name: "ใกล้เภสัชกร",
-          province: "กรุงเทพมหานคร",
-          transport_status: "waiting-medicine",
-          medicineItem: [
-            {
-              medicine_id: 5,
-              medicine_tmt: 0,
-              medicine_generic: "eee",
-              medicine_trade: "eee",
-              strength: "20",
-              unit: "tablet",
-              qty: 30,
-              price: "130"
-            }
-          ]
-        }
+        
       ],
       order_missing: [
-        {
-          order_id: 234,
-          name: "บ้านเภสัชกร",
-          patient: "วันชัย ศุภจตุรัส",
-          create_date: "20 กรกฏาคม 2562",
-          receive_date: "22 กรกฎาคม 2562",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Sara",
-              qty: 4,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Tiffy", qty: 3, unit: "tablet" },
-            { tmt: "1234", name: "Paracetamol", qty: 3, unit: "tablet" }
-          ],
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "2 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "หยุดชั่วคราว"
-        },
-
-        {
-          order_id: 227,
-          name: "เวิลด์ ฟาร์มาซี",
-          patient: "สลิลลา พิทยาพิบูลพงศ์",
-          create_date: "22 กรกฎาคม 2562",
-          receive_date: "",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Aspirin",
-              qty: 2,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Tiffy", qty: 2, unit: "tablet" }
-          ],
-          orders: [
-            {
-              order_id: 1,
-              name: "นภาพรรณ วิทุรวงศ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "สลิลลา พิทยาพิบูลพงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "5 สิงหาคมม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "รอการจัดส่ง"
-        },
-        {
-          order_id: 456,
-          name: "ซิตี้ฟาร์มาซี",
-          patient: "สุทธิพงศ์ ภัทรมังกร",
-          create_date: "25 กรกฏาคม 2562",
-          receive_date: "",
-          checkbox: false,
-          medicine: [
-            {
-              tmt: "1234",
-              name: "Paracetamol",
-              qty: 4,
-              unit: "tablet"
-            },
-            { tmt: "1234", name: "Sara", qty: 3, unit: "tablet" }
-          ],
-          orders: [
-            {
-              order_id: 1,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "10 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "เฉลิม วัฒนประดิษฐ",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "กำลังจัดส่ง"
-        }
       ],
       order_filter: [],
       order_missing_filter: [],

@@ -52,7 +52,7 @@ router.post(
   //     .isEmpty()
   // ],
   [
-    check("patient_HN_order")
+    check("order_id")
       .not()
       .isEmpty()
   ],
@@ -84,8 +84,8 @@ var one_order = function(item) {
         // "AND o.pharmacy_id ='" +
         // item.pharmacy_id +
         // "'" +
-        "AND o.patient_HN_order ='" +
-        item.patient_HN_order +
+        "AND o.order_id ='" +
+        item.order_id +
         "'",
       // +
       // "group by o.order_id",
@@ -167,8 +167,8 @@ router.post(
 var successOrder = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE orders SET status=? , receive_date = NOW() WHERE order_id=? `,
-      [item.status, item.order_id],
+      `UPDATE orders SET status='success' , receive_date = NOW() WHERE order_id=? `,
+      [item.order_id],
       (error, result) => {
         if (error) return reject(error);
         resolve(result);

@@ -23,16 +23,20 @@
           <div class="flex-grow-1"></div>
           <!-- <v-dialog v-model="dialog1" max-width="1000px"> -->
           <!-- <template v-slot:activator="{ on }"> -->
-          <v-btn color="primary" class="ma-2" @click="editItem(item)">+ เพิ่มข้อมูลยา</v-btn>
+          <v-btn color="primary" class="ma-2" @click="editItem(item)"
+            >+ เพิ่มข้อมูลยา</v-btn
+          >
 
-          <v-btn color="success" dark class="ma-2" @click="editItem2()">จัดการข้อมูลโรค</v-btn>
+          <v-btn color="success" dark class="ma-2" @click="editItem2()"
+            >จัดการข้อมูลโรค</v-btn
+          >
           <!-- </template> -->
 
           <v-form ref="form" class="font">
             <v-dialog v-model="dialog1" max-width="1000px" persistent>
               <v-card class="font">
                 <v-card-title class="font">
-                  <span >{{ formTitle }}</span>
+                  <span>{{ formTitle }}</span>
                 </v-card-title>
 
                 <v-card-text>
@@ -112,14 +116,18 @@
 
                 <v-card-actions>
                   <div class="flex-grow-1"></div>
-                  <v-btn color="blue darken-1" text @click="close()">ยกเลิก</v-btn>
-                  <v-btn color="blue darken-1" text @click="save()">เสร็จสิ้น</v-btn>
+                  <v-btn color="blue darken-1" text @click="close()"
+                    >ยกเลิก</v-btn
+                  >
+                  <v-btn color="blue darken-1" text @click="save()"
+                    >เสร็จสิ้น</v-btn
+                  >
                 </v-card-actions>
               </v-card>
             </v-dialog>
           </v-form>
 
-          <v-form ref="form2" >
+          <v-form ref="form2">
             <v-dialog v-model="dialog2" max-width="700px" persistent>
               <v-card class="font">
                 <v-container>
@@ -171,7 +179,10 @@
                             v-bind="data.attrs"
                             :input-value="data.selected"
                             @click="data.select"
-                          >{{ data.item.disease_name }},{{ data.item.icd10 }}</v-chip>
+                            >{{ data.item.disease_name }},{{
+                              data.item.icd10
+                            }}</v-chip
+                          >
                         </template>
 
                         <template v-slot:selection="data">
@@ -179,7 +190,10 @@
                             v-bind="data.attrs"
                             :input-value="data.selected"
                             @click="data.select"
-                          >{{ data.item.disease_name }},{{ data.item.icd10 }}</v-chip>
+                            >{{ data.item.disease_name }},{{
+                              data.item.icd10
+                            }}</v-chip
+                          >
                         </template>
                       </v-autocomplete>
                     </v-col>
@@ -193,9 +207,7 @@
                         color="red"
                       >
                         <v-icon color="white" large>
-                          {{
-                          icons.mdiMinus
-                          }}
+                          {{ icons.mdiMinus }}
                         </v-icon>
                       </v-btn>
                     </v-col>
@@ -203,7 +215,9 @@
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="close2()">ยกเลิก</v-btn>
+                    <v-btn color="green darken-1" text @click="close2()"
+                      >ยกเลิก</v-btn
+                    >
                     <!-- <v-btn color="green darken-1" text @click="save2()">เสร็จสิ้น</v-btn> -->
                   </v-card-actions>
                 </v-container>
@@ -339,21 +353,85 @@ export default {
 
     deleteItem(item) {
       const index = this.medicine.indexOf(item);
-      confirm(
-        "คุณต้องการที่จะลบข้อมูลยานี้ใช่หรือไม่?\n" +
-          " " +
-          item.medicine_generic
-      ) &&
-        axios
-          .post("http://localhost:3000/api/medicine/deletemedicine", {
-            medicine_id: item.medicine_id
-          })
-          .then(res => {
-            this.medicine.splice(index, 1);
-          })
-          .catch(e => {
-            console.log("delete error " + e);
-          });
+
+
+      // console.log(item.medicine_id);
+      // axios.post(
+      //   "http://localhost:3000/api/medicine/checkbeforedeletemedicine",
+      //   { medicine_id: item.medicine_id })
+      //   .then(res => {
+      //     console.log(res.data[0].medicine_id);
+      //     if (res.data[0].medicine_id === "") {
+      //       confirm(
+      //         "คุณต้องการที่จะลบข้อมูลยานี้ใช่หรือไม่?\n" +
+      //           " " +
+      //           item.medicine_generic
+      //       ) &&
+      //         axios
+      //           .post("http://localhost:3000/api/medicine/deletemedicine", {
+      //             medicine_id: item.medicine_id
+      //           })
+      //           .then(res => {
+      //             this.medicine.splice(index, 1);
+      //           })
+      //           .catch(e => {
+      //             console.log("delete error " + e);
+      //           });
+
+      //     } else {
+      //       alert("ไม่สามารถลบได้ เนื่องจากข้อมูลยาได้ผูกกับข้อมูลผู้ป่วยแล้ว");
+      //     }
+      //   });
+
+      axios
+        .get("http://localhost:3000/api/medicine/checkmedicinebeforedelete")
+        .then(res => {
+          for (var i = 0; i < res.data.length; i++) {
+            if (item.medicine_id === res.data[i].medicine_id) {
+              console.log(res.data[i].medicine_id);
+              alert(
+                "ไม่สามารถลบได้ เนื่องจากข้อมูลยาได้ผูกกับข้อมูลผู้ป่วยแล้ว"
+              );
+              break;
+            }
+            else {
+
+              confirm(
+                "คุณต้องการที่จะลบข้อมูลยานี้ใช่หรือไม่?\n" +
+                  " " +
+                  item.medicine_generic
+              ) &&
+                axios
+                  .post("http://localhost:3000/api/medicine/deletemedicine", {
+                    medicine_id: item.medicine_id
+                  })
+                  .then(res => {
+                    this.medicine.splice(index, 1);
+                  })
+                  .catch(e => {
+                    console.log("delete error " + e);
+                  });
+                  break;
+            }
+          }
+        });
+
+      // const index = this.medicine.indexOf(item);
+      // confirm(
+      //   "คุณต้องการที่จะลบข้อมูลยานี้ใช่หรือไม่?\n" +
+      //     " " +
+      //     item.medicine_generic
+      // ) &&
+      //   axios
+      //     .post("http://localhost:3000/api/medicine/deletemedicine", {
+      //       medicine_id: item.medicine_id
+      //     })
+      //     .then(res => {
+      //       this.medicine.splice(index, 1);
+      //     })
+      //     .catch(e => {
+      //       console.log("delete error " + e);
+      //     });
     },
 
     close() {

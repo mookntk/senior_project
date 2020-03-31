@@ -140,7 +140,7 @@ var sortTransportId = function(item) {
             medicine_tmt: element.medicine_tmt,
             medicine_generic: element.medicine_generic,
             medicine_trade: element.medicine_trade,
-            strength: element.strength,
+            strenght: element.strenght,
             unit: element.unit,
             qty: element.qty,
             price: element.price,
@@ -154,7 +154,7 @@ var sortTransportId = function(item) {
           delete element.medicine_tmt;
           delete element.medicine_generic;
           delete element.medicine_trade;
-          delete element.strength;
+          delete element.strenght;
           delete element.unit;
           delete element.qty;
           delete element.price;
@@ -297,7 +297,7 @@ var sortDataFormat = function(result) {
       medicine_tmt: element.medicine_tmt,
       medicine_generic: element.medicine_generic,
       medicine_trade: element.medicine_trade,
-      strength: element.strength,
+      strenght: element.strenght,
       unit: element.unit,
       qty: element.qty,
       price: element.price,
@@ -312,7 +312,7 @@ var sortDataFormat = function(result) {
     delete element.medicine_tmt;
     delete element.medicine_generic;
     delete element.medicine_trade;
-    delete element.strength;
+    delete element.strenght;
     delete element.unit;
     delete element.qty;
     delete element.price;

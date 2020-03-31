@@ -160,7 +160,7 @@ export default {
       // counter: value => value.length <= 20 || "Max 20 characters",
       email: input => {
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return pattern.test(input) || "Invalid e-mail.";
+        return pattern.test(input) || "รูปแบบอีเมลไม่ถูกต้อง";
       }
     },
     headers: [
@@ -291,9 +291,12 @@ export default {
       ) &&
         axios
           .post("http://localhost:3000/api/pharmacist/sendmail", {
+            name : item.name,
+            surname : item.surname,
             username: item.username,
             password: item.password,
-            email: item.email
+            email: item.email,
+            pharmacy_name : item.pharmacy_name
           })
           .then(res => {
             this.pharmacist.splice(index, 1);

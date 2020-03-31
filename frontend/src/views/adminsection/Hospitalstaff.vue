@@ -146,10 +146,11 @@ export default {
     formHasErrors: false,
     rules: {
       required: input => !!input || "โปรดใส่ข้อมูล",
-      // counter: input => input.length <= 20 || "Max 20 characters",
+      // number: input => {
+      //   input.length <= 20 || "Max 20 characters"},
       email: input => {
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return pattern.test(input) || "Invalid e-mail.";
+        return pattern.test(input) || "รูปแบบอีเมลไม่ถูกต้อง";
       }
     },
     headers: [

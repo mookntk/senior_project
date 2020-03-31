@@ -33,7 +33,7 @@ var orderstatus = function(item) {
         "WHERE o.pharmacy_id ='" +
         item.pharmacy_id +
         "'" +
-        "AND o.status != 'ready'AND o.status != 'prepare' " +
+        "AND o.status = 'success'OR o.status = 'cancel' OR o.status = 'received_some' OR o.status = 'not_ready' " +
         "group by o.order_id",
       (error, result) => {
         if (error) return reject(error);
@@ -71,7 +71,7 @@ router.post(
 var one_order = function(item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT o.order_id,p.name,p.surname,p.gender,p.DOB,o.status,o.patient_HN_order,m.medicine_id,m.medicine_generic,m.strength,od.qty,m.unit " +
+      "SELECT o.order_id,p.name,p.surname,p.gender,p.DOB,o.status,o.patient_HN_order,m.medicine_id,m.medicine_generic,m.strenght,od.qty,m.unit " +
         "from orders AS o " +
         "left join patients as p ON o.patient_HN_order = p.patient_HN " +
         "left join order_detail as od on od.order_id = o.order_id " +
@@ -90,5 +90,6 @@ var one_order = function(item) {
     );
   });
 };
+
 
 module.exports = router;
