@@ -283,4 +283,48 @@ var GetOrderByPhId = function(item) {
     );
   });
 };
+
+router.get("/getorder_history", async (req, res) => {
+  try {
+    const item = await GetOrderHistory();
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var GetOrderHistory = function() {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT o.* , p.name , p.surname , ph.pharmacy_name from orders as o left join patients as p ON o.patient_HN_order = p.patient_HN inner join pharmacy as ph on o.pharmacy_id = ph.pharmacy_id WHERE o.status in ('prepare','ready','cancel','success') order by o.order_id DESC;`,
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.post("/getorder_detail", async (req, res) => {
+  try {
+    const item = await GetOrderDetail(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var GetOrderDetail = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT od.*,m.* from order_detail as od inner join medicine as m on od.medicine_id = m.medicine_id WHERE od.order_id =?`,
+      [item.order_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = router;

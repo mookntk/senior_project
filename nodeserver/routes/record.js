@@ -52,6 +52,31 @@ var getRecord = function(item) {
   });
 };
 
+router.post(
+  "/getrecordorder",
+
+  async (req, res) => {
+    try {
+      const newrecord = await getRecordOrder(req.body);
+      res.json(newrecord);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  }
+);
+
+var getRecordOrder = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT * FROM ${record} WHERE order_id_record = ? `,
+      [item.order_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
+  });
+};
 
 //cancel order in prepare medication
 router.post(
