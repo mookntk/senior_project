@@ -31,54 +31,6 @@
           ></v-select>
         </v-col>
       </v-row>
-
-      <!-- <v-dialog
-        v-model="dialog_record"
-        fullscreen
-        hide-overlay
-        transition="dialog-bottom-transition"
-      >
-        <v-card class="font">
-          <v-card-title class="teal lighten-2 elevation-3">
-            <v-btn icon dark @click="dialog_record = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-            <span>ข้อมูลผู้ป่วย</span>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field
-                    :value="patient_selected"
-                    label="ชื่อ-นามสกุลผู้ป่วย"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field :value="patients[index].gender" label="เพศ" filled readonly></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="4">
-                  <v-text-field :value="patients[index].age" label="อายุ" filled readonly></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="8">
-                  <v-text-field
-                    :value="patients[index].dob"
-                    label="วัน/เดือน/ปีเกิด"
-                    filled
-                    readonly
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" sm="12">
-                  <v-text-field :value="patients[index].pharmacy" label="ร้านขายยา" filled readonly></v-text-field>
-                </v-col>
-              </v-row>
-              <v-data-table :headers="record_headers" :items="patients[index].record"></v-data-table>
-            </v-container>
-          </v-card-text>
-        </v-card>
-      </v-dialog>-->
       <v-data-table
         :headers="headers"
         :items="filterOrders"
@@ -88,13 +40,13 @@
         :search="search"
       >
         <template v-slot:item.name="{ item }">
-          <td>{{ item.name }} {{item.surname}}</td>
+          <p style="text-align:left;margin:auto">{{ item.name }} {{item.surname}}</p>
         </template>
         <template v-slot:item.create_date="{ item }">
-          <td>{{ setDate(item.create_date) }}</td>
+          <p style="text-align:center;margin:auto">{{ setDate(item.create_date) }}</p>
         </template>
         <template v-slot:item.receive_date="{ item }">
-          <td>{{ setDate(item.receive_date) }}</td>
+          <p style="text-align:center;margin:auto">{{ setDate(item.receive_date) }}</p>
         </template>
         <template v-slot:item.status="{ item }">
           <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
@@ -185,13 +137,13 @@ export default {
       headers: [
         {
           text: "เลขออร์เดอร์",
-          align: "left",
+          align: "center",
           value: "order_id",
           divider: true
         },
         {
           text: "รหัสผู้ป่วย",
-          align: "start",
+          align: "center",
           value: "patient_HN_order",
           divider: true
         },
@@ -220,7 +172,7 @@ export default {
           divider: true
         },
         { text: "สถานะ", align: "center", value: "status", divider: true },
-        { text: "หมายเหตุ", align: "center", value: "remark" }
+        { text: "หมายเหตุ", align: "center", value: "remark", divider: true }
       ],
       orders: [],
       record_headers: [
@@ -357,5 +309,9 @@ export default {
 .main {
   margin: 20px;
   margin-top: 120px;
+}
+td {
+  text-align: center;
+  vertical-align: middle;
 }
 </style>

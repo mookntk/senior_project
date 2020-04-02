@@ -264,6 +264,49 @@ var TransportStatus = function() {
   });
 };
 
+router.get("/transporthistory", async (req, res) => {
+  try {
+    const item = await TransportHistory();
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var TransportHistory = function() {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select t.* ,count(order_id) as num_order , p.pharmacy_name from orders as o inner join orders_transport as t on o.transport_id = t.transport_id inner join pharmacy as p on t.pharmacy_id_transport = p.pharmacy_id group by t.transport_id`,
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.post("/transport_order", async (req, res) => {
+  try {
+    const item = await getTransportOrder(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getTransportOrder = function(item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT o.due_date,o.create_date,o.status,od.*,m.*,p.name,p.surname FROM orders as o inner join order_detail as od on o.order_id = od.order_id inner join medicine as m on m.medicine_id = od.medicine_id inner join patients as p on p.patient_HN=o.patient_HN_order where o.transport_id = ? order by od.order_id;`,
+      [item.transport_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
 router.post("/transportreceived", async (req, res) => {
   try {
     const item = await TransportReceived(req.body);

@@ -3,111 +3,108 @@
     <div class="menu-header">
       <Menu />
     </div>
-    <v-content class="main">
-      <v-dialog v-model="dialog_row" fullscreen hide-overlay transition="dialog-bottom-transition">
+    <v-content class="main font">
+      <v-dialog
+        v-model="dialog_detail"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
         <v-card class="font">
           <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog_row = false">
+            <v-btn icon dark @click="dialog_detail = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{pharmacy}}</v-toolbar-title>
+            <v-toolbar-title></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn dark text @click="changestatus">{{formtitle}}</v-btn>
-            </v-toolbar-items>
           </v-toolbar>
           <v-row></v-row>
           <v-row style="margin:20px">
             <v-col cols="12" sm="12">
               <v-data-table
-                v-model="selected"
-                :items="order[index].orders"
+                :items="transport_order"
                 :items-per-page="10"
                 class="elevation-1"
                 :headers="sub_headers"
               >
-                <template v-slot:body="{ items }">
-                  <tbody>
-                    <tr v-for="item in items" :key="item.name">
-                      <td>{{ item.order_id }}</td>
-                      <td style="text-align:center">{{ item.name }}</td>
-                      <td style="text-align:center">{{ item.create_date }}</td>
-                      <td style="text-align:center">{{ item.due_date }}</td>
-                      <td>
-                        <tr>Enalapril 20 mg 2 tablets</tr>
-                        <tr>Januvia 100 mg 1 tablet</tr>
-                      </td>
-                    </tr>
-                  </tbody>
+                <template v-slot:item.create_date="{ item }">
+                  <p style="text-align:center;margin:auto">{{ setDate(item.create_date) }}</p>
+                </template>
+                <template v-slot:item.due_date="{ item }">
+                  <p style="text-align:center;margin:auto">{{ setDate(item.due_date) }}</p>
+                </template>
+                <template v-slot:item.name="{ item }">
+                  <p style="text-align:center;margin:auto">{{ item.name }} {{item.surname}}</p>
+                </template>
+                <template v-slot:item.medicine="{ item }">
+                  <td
+                    style="vertical-align:middle; text-align:center; white-space:pre-wrap; word-wrap:break-word; "
+                  >{{ setMed(item.medicineItem)}}</td>
+                </template>
+                <template v-slot:item.status="{ item }">
+                  <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
                 </template>
               </v-data-table>
             </v-col>
           </v-row>
           <v-row style="margin:20px">
-            <v-list subheader two-line flat class="font">
+            <v-list flat class="font">
               <v-header>จำนวนยาทั้งหมด</v-header>
-              <v-list-item-group v-model="settings" multiple>
-                <v-list-item>
-                  <template v-slot:default="{ active, toggle }">
-                    <v-list-item-action>
-                      <v-checkbox v-model="active" color="primary" @click="toggle"></v-checkbox>
-                    </v-list-item-action>
-
-                    <v-list-item-content>
-                      <v-list-item-title>Enalapril 20 mg 20 tablet</v-list-item-title>
-                    </v-list-item-content>
-                  </template>
+              <template v-for="(item, i) in medicineAll">
+                <v-list-item :key="i">
+                  <v-list-item-content>
+                    <v-list-item-title>{{item.name}} {{item.qty}} {{item.unit}}</v-list-item-title>
+                  </v-list-item-content>
                 </v-list-item>
-              </v-list-item-group>
+              </template>
             </v-list>
           </v-row>
         </v-card>
       </v-dialog>
       <v-row>
         <v-col align="left" style="font-size:25px">ประวัติการจัดส่งยา</v-col>
-        <v-col sm="2" align="right" style="font-size:12px">
-          <v-text-field
-            :value="date_th"
-            outlined
-            @click="calendar = true"
-            label="เลือกวัน/เดือน/ปี"
-          ></v-text-field>
+        <v-spacer></v-spacer>
+        <v-col cols="12" sm="2" md="2" align="right">
+          <v-text-field v-model="search" label="ค้นหา" solo></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="2" md="2" align="right">
+          <v-select
+            :items="default_status"
+            chips
+            label="เลือกสถานะ"
+            multiple
+            solo
+            v-model="filters.status"
+          ></v-select>
+        </v-col>
+        <v-col cols="12" sm="2" md="2" align="right">
+          <v-select
+            :items="pharmacy"
+            item-text="pharmacy_name"
+            chips
+            label="เลือกร้านขายยา"
+            multiple
+            solo
+            v-model="filters.pharmacy_name"
+          ></v-select>
         </v-col>
       </v-row>
-      <v-dialog v-model="calendar" width="300px">
-        <v-row justify="space-around">
-          <v-date-picker
-            v-model="picker2"
-            color="green lighten-1"
-            header-color="primary"
-            locale="th"
-          ></v-date-picker>
-        </v-row>
-      </v-dialog>
       <v-data-table
-        v-model="selected"
         :headers="headers"
-        :items="order"
+        :items="filterOrders"
         :items-per-page="10"
         class="elevation-1"
+        :search="search"
+        @click:row="showDetail"
       >
-        <template v-slot:body="{ items }">
-          <tbody>
-            <tr
-              v-for="item in items"
-              :key="item.name"
-              @click="selectItem(item)"
-              :class="{'selectedRow': item === selectedItem}"
-            >
-              <td>{{ item.name }}</td>
-              <td style="text-align:center">{{ item.orders.length }}</td>
-              <td style="text-align:center">{{ item.create_date }}</td>
-              <td style="text-align:center">{{ item.receive_date }}</td>
-              <td style="text-align:center">
-                <v-chip :color="getColor(item.status)" dark>{{ item.status }}</v-chip>
-              </td>
-            </tr>
-          </tbody>
+        <template v-slot:item.transport_date="{ item }">
+          <p style="text-align:center;margin:auto">{{ setDate(item.transport_date) }}</p>
+        </template>
+        <template v-slot:item.receive_date="{ item }">
+          <p style="text-align:center;margin:auto">{{ setDate(item.receive_date) }}</p>
+        </template>
+        <template v-slot:item.status="{ item }">
+          <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
         </template>
       </v-data-table>
     </v-content>
@@ -118,420 +115,116 @@
 // import ConnectDatabase from '../server/server'
 import axios from "axios";
 import Menu from "../../components/hp_menubar";
+import dateFormat from "dateformat";
 export default {
   data() {
     return {
-      picker2: "",
-      calendar: false,
-      picker: new Date().toISOString().substr(0, 10),
-      order_id: 1,
-      order_name: null,
-      order_surname: null,
-      order_date: null,
-      click: false,
-      dialog: false,
-      dialog_row: false,
-      selected: [],
+      dialog_detail: false,
       pharmacy: "",
-      index: 0,
       headers: [
         {
           text: "ชื่อร้านขายยา",
           align: "left",
           sortable: false,
-          value: "name"
+          value: "pharmacy_name",
+          divider: true
         },
-        { text: "จำนวนออร์เดอร์", align: "center", value: "order" },
-        { text: "วันที่จัดส่งยา", align: "center", value: "order" },
-        { text: "วันที่ร้านยาได้รับ", align: "center", value: "order" },
-        { text: "สถานะ", align: "center", value: "status" }
+        {
+          text: "จำนวนออร์เดอร์",
+          align: "center",
+          value: "num_order",
+          divider: true
+        },
+        {
+          text: "วันที่จัดส่งยา",
+          align: "center",
+          value: "transport_date",
+          divider: true
+        },
+        {
+          text: "วันที่ร้านยาได้รับ",
+          align: "center",
+          value: "receive_date",
+          divider: true
+        },
+        { text: "สถานะ", align: "center", value: "status", divider: true }
       ],
       sub_headers: [
         {
           text: "เลขออร์เดอร์",
           align: "left",
-          sortable: false,
-          value: "name"
+          sortable: true,
+          value: "order_id",
+          divider: true
         },
-        { text: "ชื่อ-นามสกุลผู้ป่วย", align: "center", value: "order" },
-        { text: "วันที่สร้างออร์เดอร์", align: "center", value: "order" },
-        { text: "วันนัดรับยา", align: "center", value: "status" },
-        { text: "ข้อมูลยา", align: "center", value: "status" }
+        {
+          text: "ชื่อ-นามสกุลผู้ป่วย",
+          align: "center",
+          value: "name",
+          divider: true
+        },
+        {
+          text: "วันที่สร้างออร์เดอร์",
+          align: "center",
+          value: "create_date",
+          divider: true
+        },
+        {
+          text: "วันนัดรับยา",
+          align: "center",
+          value: "due_date",
+          divider: true
+        },
+        { text: "ข้อมูลยา", align: "center", value: "medicine", divider: true },
+        { text: "สถานะ", align: "center", value: "status", divider: true }
       ],
-      order: [
-        {
-          id: 0,
-          name: "บ้านเภสัชกร",
-          create_date: "20 กรกฏาคม 2562",
-          receive_date: "22 กรกฎาคม 2562",
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "2 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "ได้รับยาแล้ว"
-        },
-        {
-          id: 1,
-          name: "ลิขิตฟาร์มาซี",
-          create_date: "",
-          receive_date: "",
-          orders: [
-            {
-              order_id: 2,
-              name: "สุกรี ฉัตรรัตนกุลชัย",
-              create_date: "7 กันยายน 2562",
-              due_date: "12 กันยายน 2562"
-            },
-            {
-              order_id: 5,
-              name: "สมาน พิทยาพิบูลพงศ์",
-              create_date: "10 มีนาคม 2562",
-              due_date: "20 มีนาคม 2562"
-            },
-            {
-              order_id: 11,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 39,
-              name: "นภาพรรณ วัฒนประดิษฐ",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 40,
-              name: "เฉลิม ศรีเมือง",
-              create_date: "7 มกราคม 2562",
-              due_date: "15 มกราคม 2562"
-            }
-          ],
-          status: "รอการจัดยา"
-        },
-        {
-          id: 2,
-          name: "ร้านฟาร์มาซี สาย2",
-          create_date: "15 มีนาคม 2562",
-          receive_date: "18 มีนาคม 2562",
-
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "1 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            }
-          ],
-          status: "หยุดชั่วคราว"
-        },
-        {
-          id: 3,
-          name: "เวิลด์ ฟาร์มาซี",
-          create_date: "",
-          receive_date: "",
-          orders: [
-            {
-              order_id: 1,
-              name: "นภาพรรณ วิทุรวงศ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 ตุลาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "สลิลลา พิทยาพิบูลพงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "5 สิงหาคมม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "5 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "รอการจัดส่ง"
-        },
-        {
-          id: 4,
-          name: "ซิตี้ฟาร์มาซี",
-          create_date: "25 กรกฏาคม 2562",
-          receive_date: "",
-          orders: [
-            {
-              order_id: 1,
-              name: "สุทธิพงศ์ ภัทรมังกร",
-              create_date: "10 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "5 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "เฉลิม วัฒนประดิษฐ",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "กำลังจัดส่ง"
-        },
-        {
-          id: 0,
-          name: "บ้านเภสัชกร",
-          create_date: "25 กรกฏาคม 2562",
-          receive_date: "30 กรกฎาคม 2562",
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "2 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 15,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 70,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "25 ตุลาคม 2562",
-              due_date: "31 ตุลาคม 2562"
-            }
-          ],
-          status: "ได้รับยาแล้ว"
-        },
-        {
-          id: 1,
-          name: "ลิขิตฟาร์มาซี",
-          create_date: "10 มกราคม 2562",
-          receive_date: "20 มกราคม 2562",
-          orders: [
-            {
-              order_id: 2,
-              name: "สุกรี ฉัตรรัตนกุลชัย",
-              create_date: "7 กันยายน 2562",
-              due_date: "12 กันยายน 2562"
-            },
-            {
-              order_id: 5,
-              name: "สมาน พิทยาพิบูลพงศ์",
-              create_date: "10 มีนาคม 2562",
-              due_date: "20 มีนาคม 2562"
-            },
-            {
-              order_id: 11,
-              name: "วิชัย วิทุรวงศ์",
-              create_date: "15 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            },
-            {
-              order_id: 39,
-              name: "นภาพรรณ วัฒนประดิษฐ",
-              create_date: "7 สิงหาคม 2562",
-              due_date: "30 สิงหาคม 2562"
-            }
-          ],
-          status: "ได้รับยาแล้ว"
-        },
-        {
-          id: 2,
-          name: "ร้านฟาร์มาซี สาย2",
-          create_date: "",
-          receive_date: "",
-
-          orders: [
-            {
-              order_id: 1,
-              name: "วันชัย ศุภจตุรัส",
-              create_date: "7 ตุลาคม 2562",
-              due_date: "15 ตุลาคม 2562"
-            },
-            {
-              order_id: 3,
-              name: "เอก เวสโกสิทธิ์",
-              create_date: "1 มีนาคม 2562",
-              due_date: "9 มีนาคม 2562"
-            },
-            {
-              order_id: 40,
-              name: "เฉลิม ศรีเมือง",
-              create_date: "7 มกราคม 2562",
-              due_date: "15 มกราคม 2562"
-            }
-          ],
-          status: "รอการจัดยา"
-        }
+      orders: [],
+      filters: {
+        status: [],
+        pharmacy_name: []
+      },
+      default_status: [
+        { text: "รอจัดยา", value: "waiting-medicine" },
+        { text: "จัดยาเรียบร้อย", value: "medicine-complete" },
+        { text: "รอจัดส่ง", value: "waiting-transport" },
+        { text: "กำลังจัดส่ง", value: "transport" },
+        { text: "ได้รับยาเรียบร้อย", value: "received" }
       ],
-      date: "",
-      selectedpharmacy: "",
-      selectedItem: ""
+      search: "",
+      transport_order: [],
+      medicineidAll: [],
+      medicineAll: [{ name: "", qty: "", unit: "" }]
     };
-  },
-
-  mounted() {
-    var day = [
-      "วันอาทิตย์",
-      "วันจันทร์",
-      "วันอังคาร",
-      "วันพุธ",
-      "วันพฤหัสบดี",
-      "วันศุกร์",
-      "วันเสาร์"
-    ];
-    var month = [
-      "มกราคม",
-      "กุมภาพันธ์",
-      "มีนาคม",
-      "เมษายน",
-      "พฤษภาคม",
-      "มิถุนายน",
-      "กรกฎาคม",
-      "สิงหาคม",
-      "กันยายน",
-      "ตุลาคม",
-      "พฤศจิกายน",
-      "ธันวาคม"
-    ];
-    var date = new Date();
-    var date_format =
-      day[date.getDay()] +
-      " " +
-      date.getDate() +
-      " " +
-      month[date.getMonth()] +
-      " " +
-      (date.getFullYear() + 543);
-
-    this.date = date_format;
   },
   components: {
     Menu
   },
   methods: {
-    changestatus() {
-      if (this.order[this.index].status == "รอการจัดส่ง") {
-        this.order[this.index].status = "กำลังจัดส่ง";
-      } else if (this.order[this.index].status == "รอการจัดยา") {
-        this.order[this.index].status = "รอการจัดส่ง";
-      } else if (this.order[this.index].status == "หยุดชั่วคราว") {
-        this.order[this.index].status = "รอการจัดยา";
-      }
-      this.dialog_row = false;
-    },
     getColor(status) {
-      if (status == "หยุดชั่วคราว") return "red";
-      else if (status == "รอการจัดส่ง") return "grey";
-      else if (status == "รอการจัดยา") return "grey";
-      else if (status == "กำลังจัดส่ง") return "orange";
+      if (status == "cancel") return "red";
+      else if (status == "ready") return "orange";
+      else if (status == "prepare") return "grey";
+      else if (status == "success") return "green";
+      else if (status == "waiting-medicine") return "grey";
+      else if (status == "medicine-complete") return "grey";
+      else if (status == "waiting-transport") return "grey";
+      else if (status == "transport") return "orange";
       else return "green";
     },
-    selectItem(item) {
-      this.index = this.order.indexOf(item);
-      if (item.status == "") {
-      }
-      this.pharmacy = item.name;
-      this.dialog_row = true;
+    getTransportHistory() {
+      axios
+        .get("http://localhost:3000/api/transport/transporthistory")
+        .then(res => {
+          this.orders = res.data;
+        });
     },
-    save() {
-      this.dialog = false;
-      var count = 0;
-      var i = 0;
-      var new_detail = {
-        order_id: this.order_id,
-        name: this.order_name + " " + this.order_surname,
-        due_date: this.picker
-      };
-      console.log(new_detail);
-      for (i = 0; i < this.order.length; i++) {
-        if (this.order[i].status == "ยังไม่ได้จัดส่ง") {
-          if (this.selectedpharmacy == this.order[i].name) {
-            this.order[i].orders.push(new_detail);
-            count++;
-            console.log(this.order);
-            break;
-          }
-        }
-      }
-      if (count == 0) {
-        var new_order = {
-          id: this.order.length,
-          name: this.selectedpharmacy,
-          orders: [new_detail],
-          status: "ยังไม่ได้จัดส่ง"
-        };
-        this.order.push(new_order);
-      }
-      this.order_id++;
-      this.order_name = "";
-      this.order_surname = "";
-      this.order_date = "";
+    getPharmacyname() {
+      axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
+        this.pharmacy = res.data;
+      });
     },
-    selectpharmacy(e) {
-      this.selectedpharmacy = e;
-      console.log(this.selectedpharmacy);
-    }
-  },
-  computed: {
-    formtitle() {
-      if (this.order[this.index].status == "หยุดชั่วคราว") {
-        return "ได้รับยาเรียบร้อย";
-      } else if (this.order[this.index].status == "รอการจัดส่ง") {
-        return "จัดส่ง";
-      } else if (this.order[this.index].status == "รอการจัดยา") {
-        return "จัดยาเรียบร้อย";
-      } else if (this.order[this.index].status == "กำลังจัดส่ง") {
-        return "";
-      } else if (this.order[this.index].status == "ได้รับยาแล้ว") {
-        return "";
-      }
-    },
-    date_th() {
+    setDate(date) {
+      if (date == null) return null;
       var month = [
         "มกราคม",
         "กุมภาพันธ์",
@@ -546,14 +239,107 @@ export default {
         "พฤศจิกายน",
         "ธันวาคม"
       ];
-      if (this.picker2 != "") {
-        var date = this.picker2.split("-");
-        date[0] = parseInt(date[0]) + 543;
-        date = date[2] + " " + month[date[1] - 1] + " " + date[0];
-        console.log(date);
-        return date;
-      } else return "";
+      date = dateFormat(date, "dd/mm/yyyy");
+      var [d, m, y] = date.split("/");
+      return d + " " + month[parseInt(m) - 1] + " " + (parseInt(y) + 543);
+    },
+    setStatus(status) {
+      if (status == "waiting-medicine") return "รอจัดยา";
+      else if (status == "medicine-complete") return "จัดยาเรียบร้อย";
+      else if (status == "waiting-transport") return "รอจัดส่ง";
+      else if (status == "transport") return "กำลังจัดส่ง";
+      else if (status == "received") return "ได้รับยาเรียบร้อย";
+      else if (status == "prepare") return "รอจัดยา";
+      else if (status == "ready") return "พร้อมจ่ายยา";
+      else if (status == "success") return "สำเร็จ";
+      else if (status == "cancel") return "ยกเลิก";
+    },
+    showDetail(item) {
+      axios
+        .post("http://localhost:3000/api/transport/transport_order", {
+          transport_id: item.transport_id
+        })
+        .then(res => {
+          var transport = res.data;
+          var format = [];
+          var pre_orderid = null;
+          this.medicineidAll = [];
+          this.medicineAll = [{ name: "", qty: "", unit: "" }];
+          transport.forEach((item, i) => {
+            var medicine = {
+              id: item.medicine_id,
+              medicine_generic: item.medicine_generic,
+              strength: item.strength,
+              unit: item.unit,
+              qty: item.qty
+            };
+            if (i == 0) {
+              this.medicineidAll.push(item.medicine_id);
+              this.medicineAll[0].name = item.medicine_generic;
+              this.medicineAll[0].qty = item.qty;
+              this.medicineAll[0].unit = item.unit;
+              pre_orderid = item.order_id;
+              item["medicineItem"] = [medicine];
+              format.push(item);
+            } else {
+              if (item.order_id == pre_orderid) {
+                format[format.length - 1].medicineItem.push(medicine);
+              } else {
+                item["medicineItem"] = [medicine];
+                format.push(item);
+              }
+              pre_orderid = item.order_id;
+              var index = this.medicineidAll.indexOf(item.medicine_id);
+              if (index == -1) {
+                var med = {
+                  name: item.medicine_generic,
+                  qty: item.qty,
+                  unit: item.unit
+                };
+                this.medicineidAll.push(item.medicine_id);
+                this.medicineAll.push(med);
+              } else {
+                this.medicineAll[index].qty += parseInt(item.qty);
+              }
+            }
+          });
+          console.log(this.medicineidAll);
+          this.transport_order = [...format];
+        })
+        .catch(e => {
+          console.log(e);
+        });
+      this.dialog_detail = true;
+    },
+    setMed(medicineItem) {
+      var setmed = "";
+      medicineItem.forEach(item => {
+        setmed +=
+          item.medicine_generic +
+          " " +
+          item.strength +
+          " " +
+          item.qty +
+          " " +
+          item.unit +
+          "\n";
+      });
+      console.log(setmed);
+      return setmed;
     }
+  },
+  computed: {
+    filterOrders() {
+      return this.orders.filter(d => {
+        return Object.keys(this.filters).every(f => {
+          return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
+        });
+      });
+    }
+  },
+  mounted() {
+    this.getTransportHistory();
+    this.getPharmacyname();
   }
 };
 </script>
