@@ -10,7 +10,7 @@ router.get("/showpatients", async (req, res) => {
     res.json(patients);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -18,33 +18,15 @@ router.get("/showpatients", async (req, res) => {
 router.post(
   "/newpatient",
   [
-    check("patient_HN")
-      .not()
-      .isEmpty(),
-    check("name")
-      .not()
-      .isEmpty(),
-    check("surname")
-      .not()
-      .isEmpty(),
-    check("DOB")
-      .not()
-      .isEmpty(),
-    check("gender")
-      .not()
-      .isEmpty(),
-    check("address")
-      .not()
-      .isEmpty(),
-    check("subdistrinct")
-      .not()
-      .isEmpty(),
-    check("distrinct")
-      .not()
-      .isEmpty(),
-    check("province")
-      .not()
-      .isEmpty()
+    check("patient_HN").not().isEmpty(),
+    check("name").not().isEmpty(),
+    check("surname").not().isEmpty(),
+    check("DOB").not().isEmpty(),
+    check("gender").not().isEmpty(),
+    check("address").not().isEmpty(),
+    check("subdistrinct").not().isEmpty(),
+    check("distrinct").not().isEmpty(),
+    check("province").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -53,7 +35,7 @@ router.post(
       res.json(newpatient);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -65,7 +47,7 @@ router.post("/deletepatient", async (req, res) => {
     res.json(patient);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -76,12 +58,12 @@ router.post("/editpatient", async (req, res) => {
     res.json(edited);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-var all_patients = function() {
+var all_patients = function () {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT patients.* , pharmacy.pharmacy_id , pharmacy.pharmacy_name FROM ${patient} LEFT JOIN pharmacy ON patients.pharmacy_id_patient = pharmacy.pharmacy_id`,
@@ -93,18 +75,18 @@ var all_patients = function() {
   });
 };
 
-var new_patient = function(item) {
+var new_patient = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${patient} SET ?`, item, (error, result) => {
       if (error) return reject(error);
       resolve({
-        message: "success"
+        message: "success",
       });
     });
   });
 };
 
-var delete_patient = function(item) {
+var delete_patient = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       "DELETE FROM ${patient} WHERE patient_HN = ?",
@@ -112,23 +94,23 @@ var delete_patient = function(item) {
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
   });
 };
 
-var edit_patient = function(item) {
+var edit_patient = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, Telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, zipcode = ?,pharmacy_id_patient = ?, email = ?, lastupdate_date = NOW() WHERE patient_HN = ?`,
+      `UPDATE ${patient} SET name = ?, surname = ?, gender = ?, DOB = ?, telno = ?, address = ?, subdistrict = ?, district = ?, province = ?, zipcode = ?,pharmacy_id_patient = ?, email = ?, lastupdate_date = NOW() WHERE patient_HN = ?`,
       [
         item.name,
         item.surname,
         item.gender,
         item.DOB,
-        item.Telno,
+        item.telno,
         item.address,
         item.subdistrict,
         item.district,
@@ -136,12 +118,12 @@ var edit_patient = function(item) {
         item.zipcode,
         item.pharmacy_id_patient,
         item.email,
-        item.patient_HN
+        item.patient_HN,
       ],
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );

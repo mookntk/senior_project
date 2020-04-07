@@ -4,7 +4,6 @@
       <Menu />
     </div>
 
-
     <v-content class="font main">
       <v-row>
         <v-col align="left" style="font-size:25px">ข้อมูลผู้ป่วย</v-col>
@@ -18,10 +17,10 @@
             single-line
             hide-details
           ></v-text-field>
-          </v-col>
-          
+        </v-col>
+
         <v-col align="right">
-          <v-dialog v-model="dialog_edit" persistent max-width="700px"> 
+          <v-dialog v-model="dialog_edit" persistent max-width="700px">
             <template v-slot:activator="{ on }">
               <v-btn color="primary" dark v-on="on">+ เพิ่มข้อมูลผู้ป่วยรายใหม่</v-btn>
             </template>
@@ -119,7 +118,7 @@
                       </v-col>
                       <v-col cols="12" sm="6">
                         <v-text-field
-                          v-model="editedItem.Telno"
+                          v-model="editedItem.telno"
                           label="เบอร์โทรศัพท์"
                           outlined
                           :rules="phonerules"
@@ -259,7 +258,7 @@
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    :value="patients[index].Telno"
+                    :value="patients[index].telno"
                     label="เบอร์โทรศัพท์"
                     filled
                     readonly
@@ -307,13 +306,13 @@
       </v-dialog>
 
       <!-- Data Table of patient page -->
-      <v-data-table 
-      :headers="headers" 
-      :search="search"
-      :items="patients" 
-      :items-per-page="10" 
-      sort-by="name"
-      class="elevation-1"
+      <v-data-table
+        :headers="headers"
+        :search="search"
+        :items="patients"
+        :items-per-page="10"
+        sort-by="name"
+        class="elevation-1"
       >
         <template v-slot:body="{ items }">
           <tbody>
@@ -321,7 +320,7 @@
               <td>{{ item.patient_HN }}</td>
               <td>{{ item.name }} {{ item.surname }}</td>
               <td style="text-align:center">{{ item.email }}</td>
-              <td style="text-align:center">{{ item.Telno }}</td>
+              <td style="text-align:center">{{ item.telno }}</td>
               <td style="text-align:center">{{ item.pharmacy_name }}</td>
               <td style="text-align:center">
                 <v-icon small class="mr-2" @click="showItem(item)">mdi-eye</v-icon>
@@ -364,7 +363,7 @@ export default {
         },
         { text: "ชื่อ-นามสกุลผู้ป่วย", align: "center", value: "name" },
         { text: "อีเมล", align: "center", value: "email" },
-        { text: "เบอร์โทรศัพท์", align: "center", value: "Telno" },
+        { text: "เบอร์โทรศัพท์", align: "center", value: "telno" },
         { text: "ร้านขายยา", align: "center", value: "pharmacy_name" },
         { text: "ประวัติการตรวจ", align: "center", value: "history" },
         { text: "แก้ไข/ลบ", align: "center" }
@@ -388,7 +387,7 @@ export default {
         gender: "",
         DOB: "",
         email: "",
-        Telno: "",
+        telno: "",
         pharmacy_id_patient: "",
         address: "",
         subdistrict: "",
@@ -424,7 +423,7 @@ export default {
         gender: "",
         DOB: "",
         email: "",
-        Telno: "",
+        telno: "",
         pharmacy_id_patient: "",
         address: "",
         subdistrict: "",
