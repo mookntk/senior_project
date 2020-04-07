@@ -10,17 +10,17 @@ router.post("/show_transfer_order", async (req, res) => {
     res.json(transfer_order);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-var show_transfer_order = function(item) {
+var show_transfer_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT count(*) AS qty_orders,t.transport_id,t.status, DATE_FORMAT(t.transport_date,'%d %m %Y') AS transport_date, DATE_FORMAT(t.receive_date,'%d %m %Y') AS receive_date FROM orders_transport as t, orders as o WHERE t.transport_id = o.transport_id and t.pharmacy_id_transport = '" +
         item.pharmacy_id +
-        "' and t.status in('transport' ,'received' )  group by t.transport_id,t.transport_date,t.receive_date",
+        "' and t.status in('transport' ,'received' )  group by t.transport_id,t.transport_date,t.receive_date order by t.status DESC;",
 
       (error, result) => {
         if (error) return reject(error);
@@ -38,12 +38,12 @@ router.post("/show_confirm_order", async (req, res) => {
     res.json(transfer_order);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-var show_confirm_order = function(item) {
+var show_confirm_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT count(*) AS qty_orders,t.transport_id,t.status, DATE_FORMAT(t.transport_date,'%d %m %Y') AS transport_date, DATE_FORMAT(t.receive_date,'%d %m %Y') AS receive_date FROM orders_transport as t, orders as o WHERE t.transport_id = o.transport_id and t.pharmacy_id_transport = '" +
@@ -63,29 +63,26 @@ var show_confirm_order = function(item) {
 //show order in dialog
 router.post(
   "/show_order",
-  [
-    check("transport_id")
-      .not()
-      .isEmpty()
-  ],
+  [check("transport_id").not().isEmpty()],
   async (req, res) => {
     try {
       const each_order = await show_order(req.body);
       res.json(each_order);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
 );
 
-var show_order = function(item) {
+var show_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       "SELECT o.order_id,p.name,p.surname, DATE_FORMAT(o.create_date,'%d %m %Y') AS create_date," +
         "DATE_FORMAT(o.due_date,'%d %m %Y') AS due_date," +
         "group_concat(m.medicine_generic) as medicine_generic, " +
+        "group_concat(m.strength) as strength, " +
         "group_concat(od.qty) as qty, " +
         "group_concat(m.unit) as unit " +
         "from orders as o " +
@@ -117,24 +114,20 @@ var show_order = function(item) {
 
 router.post(
   "/edit_receivedate",
-  [
-    check("transport_id")
-      .not()
-      .isEmpty()
-  ],
+  [check("transport_id").not().isEmpty()],
   async (req, res) => {
     try {
       const editedItem = await editReceivedate(req.body);
       res.json(editedItem);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
 );
 
-var editReceivedate = function(item) {
+var editReceivedate = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `UPDATE orders_transport SET receive_date = NOW() ,status = ? WHERE transport_id = ?`,
@@ -142,7 +135,7 @@ var editReceivedate = function(item) {
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
