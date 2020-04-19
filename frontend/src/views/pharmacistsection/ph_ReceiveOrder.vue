@@ -57,6 +57,7 @@
       >
         <template v-slot:item.transport_date="{item}">{{setDate(item.transport_date)}}</template>
         <template v-slot:item.receive_date="{item}">{{setDate(item.receive_date)}}</template>
+        <template v-slot:item.name="{item}">{{item.name}} {{item.surname}}</template>
         <template v-slot:item.status="{item}">
           <v-chip :color="getColor(item.status)">{{setStatus(item.status)}}</v-chip>
         </template>
@@ -102,6 +103,12 @@ export default {
           value: "receive_date",
           divider: true
         },
+        {
+          text: "ชื่อผู้รับ",
+          align: "center",
+          value: "name",
+          divider: true
+        },
         { text: "สถานะ", align: "center", value: "status", divider: true }
       ],
       sub_headers: [
@@ -138,6 +145,31 @@ export default {
   components: {
     Menubar
   },
+  mounted() {
+    axios
+      .post("http://localhost:3000/api/user/getuserbyid", {
+        staff_id: localStorage.getItem("staff_id")
+      })
+      .then(res => {
+        this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
+        axios
+          .post("http://localhost:3000/api/receive_order/show_transfer_order", {
+            pharmacy_id: this.pharmacy_id
+          })
+          .then(res => {
+            this.transfer_order = res.data;
+          });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+
+    axios
+      .get("http://localhost:3000/api/receive_order/show_order")
+      .then(res => {
+        this.each_order = res.data;
+      });
+  },
   methods: {
     setStatus: function(s) {
       if (s === "transport") {
@@ -152,8 +184,8 @@ export default {
         var med_detail = m.split(";");
         var med_name = med_detail[0];
         var med_name2 = med_name.split(",");
-        var med_strenght = med_detail[1];
-        var med_strenght2 = med_strenght.split(",");
+        var med_strength = med_detail[1];
+        var med_strength2 = med_strength.split(",");
         var med_qty = med_detail[2];
         var med_qty2 = med_qty.split(",");
         var med_unit = med_detail[3];
@@ -165,7 +197,7 @@ export default {
             med_show +=
               med_name2[i] +
               " " +
-              med_strenght2[i] +
+              med_strength2[i] +
               " " +
               med_qty2[i] +
               " " +
@@ -174,7 +206,7 @@ export default {
             med_show +=
               med_name2[i] +
               " " +
-              med_strenght2[i] +
+              med_strength2[i] +
               " " +
               med_qty2[i] +
               " " +
@@ -290,31 +322,6 @@ export default {
         });
       this.dialog_row = true;
     }
-  },
-  mounted() {
-    axios
-      .post("http://localhost:3000/api/user/getuserbyid", {
-        staff_id: localStorage.getItem("staff_id")
-      })
-      .then(res => {
-        this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
-        axios
-          .post("http://localhost:3000/api/receive_order/show_transfer_order", {
-            pharmacy_id: this.pharmacy_id
-          })
-          .then(res => {
-            this.transfer_order = res.data;
-          });
-      })
-      .catch(e => {
-        console.log(e);
-      });
-
-    axios
-      .get("http://localhost:3000/api/receive_order/show_order")
-      .then(res => {
-        this.each_order = res.data;
-      });
   }
 };
 </script>

@@ -18,7 +18,7 @@ router.post("/show_transfer_order", async (req, res) => {
 var show_transfer_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT count(*) AS qty_orders,t.transport_id,t.status, DATE_FORMAT(t.transport_date,'%d %m %Y') AS transport_date, DATE_FORMAT(t.receive_date,'%d %m %Y') AS receive_date FROM orders_transport as t, orders as o WHERE t.transport_id = o.transport_id and t.pharmacy_id_transport = '" +
+      "SELECT count(*) AS qty_orders,t.transport_id,t.status, DATE_FORMAT(t.transport_date,'%d %m %Y') AS transport_date, DATE_FORMAT(t.receive_date,'%d %m %Y') AS receive_date,u.name,u.surname FROM orders as o ,orders_transport as t left join users as u on u.staff_id = t.pharmacist_id_transport WHERE t.transport_id = o.transport_id and t.pharmacy_id_transport = '" +
         item.pharmacy_id +
         "' and t.status in('transport' ,'received' )  group by t.transport_id,t.transport_date,t.receive_date order by t.status DESC;",
 
