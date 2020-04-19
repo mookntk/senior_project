@@ -6,10 +6,11 @@
     <v-content class="main font">
       <v-row>
         <v-col cols="12" sm="3" md="3" align="left" style="font-size:25px">ประวัติการรับยา</v-col>
-        <v-col cols="12" sm="3" md="3" align="right">
+        <v-spacer></v-spacer>
+        <v-col cols="12" sm="2" md="2" align="right">
           <v-text-field v-model="search" label="ค้นหา" solo></v-text-field>
         </v-col>
-        <v-col cols="12" sm="3" md="3" align="right">
+        <v-col cols="12" sm="2" md="2" align="right">
           <v-select
             :items="default_status"
             chips
@@ -19,7 +20,7 @@
             v-model="filters.status"
           ></v-select>
         </v-col>
-        <v-col cols="12" sm="3" md="3" align="right">
+        <v-col cols="12" sm="2" md="2" align="right" class="font">
           <v-select
             :items="pharmacy"
             item-text="pharmacy_name"
@@ -39,17 +40,11 @@
         @click:row="showDetail"
         :search="search"
       >
-        <template v-slot:item.name="{ item }">
-          <p style="text-align:left;margin:auto">{{ item.name }} {{item.surname}}</p>
-        </template>
-        <template v-slot:item.create_date="{ item }">
-          <p style="text-align:center;margin:auto">{{ setDate(item.create_date) }}</p>
-        </template>
-        <template v-slot:item.receive_date="{ item }">
-          <p style="text-align:center;margin:auto">{{ setDate(item.receive_date) }}</p>
-        </template>
+        <template v-slot:item.name="{ item }">{{ item.name }} {{item.surname}}</template>
+        <template v-slot:item.create_date="{ item }">{{ setDate(item.create_date) }}</template>
+        <template v-slot:item.receive_date="{ item }">{{ setDate(item.receive_date) }}</template>
         <template v-slot:item.status="{ item }">
-          <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
+          <v-chip :color="getColor(item.status)">{{ setStatus(item.status) }}</v-chip>
         </template>
       </v-data-table>
       <v-dialog v-model="dialog_detail" max-width="500" class="bg">
@@ -208,10 +203,10 @@ export default {
   },
   methods: {
     getColor(status) {
-      if (status == "cancel") return "red";
-      else if (status == "ready") return "orange";
-      else if (status == "prepare") return "grey";
-      else return "green";
+      if (status == "cancel") return "#C85D5C";
+      else if (status == "ready") return "#E1995E";
+      else if (status == "prepare") return "#bdc3c7";
+      else return "#76C3AF";
     },
     getAllOrder() {
       axios

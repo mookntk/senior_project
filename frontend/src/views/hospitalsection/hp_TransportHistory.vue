@@ -264,7 +264,7 @@ export default {
           var format = [];
           var pre_orderid = null;
           this.medicineidAll = [];
-          this.medicineAll = [{ name: "", qty: "", unit: "" }];
+          this.medicineAll = [{ id: "", name: "", qty: "", unit: "" }];
           transport.forEach((item, i) => {
             var medicine = {
               id: item.medicine_id,
@@ -275,6 +275,7 @@ export default {
             };
             if (i == 0) {
               this.medicineidAll.push(item.medicine_id);
+              this.medicineAll[0].id = item.medicine_id;
               this.medicineAll[0].name = item.medicine_generic;
               this.medicineAll[0].qty = item.qty;
               this.medicineAll[0].unit = item.unit;
@@ -292,6 +293,7 @@ export default {
               var index = this.medicineidAll.indexOf(item.medicine_id);
               if (index == -1) {
                 var med = {
+                  id: item.medicine_id,
                   name: item.medicine_generic,
                   qty: item.qty,
                   unit: item.unit
@@ -303,7 +305,7 @@ export default {
               }
             }
           });
-          console.log(this.medicineidAll);
+
           this.transport_order = [...format];
         })
         .catch(e => {
