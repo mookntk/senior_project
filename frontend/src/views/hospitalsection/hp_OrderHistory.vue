@@ -187,6 +187,7 @@ export default {
       default_status: [
         { text: "รอจัดยา", value: "prepare" },
         { text: "พร้อมจ่ายยา", value: "ready" },
+        { text: "ไม่พร้อมจ่ายยา", value: "missing" },
         { text: "สำเร็จ", value: "success" },
         { text: "ยกเลิก", value: "cancel" }
       ],
@@ -206,6 +207,7 @@ export default {
       if (status == "cancel") return "#C85D5C";
       else if (status == "ready") return "#E1995E";
       else if (status == "prepare") return "#bdc3c7";
+      else if (status == "missing") return "#bdc3c7";
       else return "#76C3AF";
     },
     getAllOrder() {
@@ -248,6 +250,7 @@ export default {
       if (status == "prepare") return "รอจัดยา";
       else if (status == "ready") return "พร้อมจ่ายยา";
       else if (status == "success") return "สำเร็จ";
+      else if (status == "missing") return "ไม่พร้อมจ่ายยา";
       else if (status == "cancel") return "ยกเลิก";
     },
     showDetail(item) {

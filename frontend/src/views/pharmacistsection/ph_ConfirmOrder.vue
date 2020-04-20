@@ -5,85 +5,175 @@
     </div>
 
     <v-content class="main font">
-      <v-dialog v-model="dialog_row" fullscreen hide-overlay transition="dialog-bottom-transition">
-        <v-card class="font">
-          <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog_row = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-            <!-- <v-toolbar-title>{{pharmacy}}</v-toolbar-title> -->
-            <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn dark text @click="changestatus">{{formtitle}}</v-btn>
-            </v-toolbar-items>
-          </v-toolbar>
-          <v-row></v-row>
-          <v-row style="margin:20px">
-            <v-col cols="12" sm="12">
-              <v-form ref="form">
-                <v-data-table
-                  :items="each_order"
-                  :items-per-page="10"
-                  class="elevation-1"
-                  :headers="sub_headers"
-                >
-                  <template v-slot:body="{ items }">
-                    <tbody v-for="(item,index) in items" :key="item.order_id">
-                      <tr>
-                        <td>{{ item.order_id }}</td>
-                        <td style="text-align:center">{{ item.name}}</td>
-                        <td style="text-align:center">{{ setDate2(item.create_date)}}</td>
-                        <td style="text-align:center">{{ setDate(item.due_date) }}</td>
-                        <td>
-                          <p
-                            v-for="(medicine,i) in each_order[index].medicineItem"
-                            :key="medicine.medicineid"
-                            style="display: inline"
-                          >
-                            <v-row>
-                              <v-col cols="12" sm="6" md="6" align="right">
-                                <p
-                                  style="margin-top:15px"
-                                >{{medicine.medicine_generic}} {{medicine.qty}} {{medicine.unit}}</p>
-                              </v-col>
-                              <v-col cols="12" sm="4" md="4">
-                                <v-text-field
-                                  solo
-                                  label="จำนวนยาที่ได้รับ"
-                                  v-model="each_order[index].medicineItem[i].qty_received"
-                                  :rules="[v => !!v || 'กรุณากรอกข้อมูล',
-                                          v => !isNaN(v) || 'กรุณากรอกข้อมูลตัวเลข']"
-                                  required
-                                ></v-text-field>
-                              </v-col>
-                            </v-row>
-                            <br />
-                          </p>
-                        </td>
-                      </tr>
-                      <v-divider></v-divider>
-                    </tbody>
-                  </template>
-                </v-data-table>
-              </v-form>
-            </v-col>
-          </v-row>
-          <v-row style="margin:20px">
-            <v-list flat class="font">
-              <v-header>จำนวนยาทั้งหมด</v-header>
-              <template v-for="(item, i) in medicineAll.qty">
-                <v-list-item :key="i">
-                  <v-list-item-action>
-                    <v-checkbox v-model="checkbox[i]" color="primary"></v-checkbox>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>{{medicineAll.name[i]}} {{medicineAll.qty[i]}} {{medicineAll.unit[i]}}</v-list-item-title>
-                  </v-list-item-content>
+      <v-dialog v-model="dialog_all" persistent max-width="500">
+        <v-form ref="form">
+          <v-card class="font">
+            <v-card-title style="background-color:#f5ce88">ยาที่ได้รับทั้งหมด</v-card-title>
+            <v-card-text>
+              <div style="margin-top:10px">
+                <p style="font-size:12px">
+                  *กรุณา
+                  <v-icon color="#76C3AF" small>mdi-checkbox-marked</v-icon>เมื่อยาที่ได้รับครบตามจำนวน หากไม่ครบกรุณากรอกจำนวนยาที่ได้รับ
+                </p>
+              </div>
+              <v-list v-for="(item,i) in medicineAll" :key="item.medicine_id">
+                <v-list-item>
+                  <v-row>
+                    <v-col cols="1">
+                      <v-checkbox color="#76C3AF" v-model="cb_all[i]" @change="checkBoxMedAll(i)"></v-checkbox>
+                    </v-col>
+                    <v-col cols="6">
+                      <p
+                        style="padding-top:17px"
+                      >{{item.medicine_generic}} {{item.strength}} {{item.qty}} {{item.unit}}</p>
+                    </v-col>
+                    <v-col cols="5">
+                      <v-text-field
+                        solo
+                        label="จำนวนยาที่ได้รับ"
+                        v-model="medall_txt[i]"
+                        @input="checkQtyAll(i)"
+                        required
+                        :rules="[v=>!!v||'กรุณากรอกข้อมูล',v => !isNaN(v) || 'กรุณากรอกข้อมูลตัวเลข']"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
                 </v-list-item>
-                <!-- <v-divider :key="i"></v-divider> -->
-              </template>
-            </v-list>
-          </v-row>
+              </v-list>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="green darken-1" text @click="confirmAll">ยืนยันการตรวจยา</v-btn>
+              <v-btn color="green darken-1" text @click="resetDialog">ปิด</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-form>
+      </v-dialog>
+
+      <v-dialog
+        v-model="dialog_missing"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
+        <v-card class="font" style="background-color:#f5f7f5">
+          <v-toolbar color="#77B3D5">
+            <v-btn
+              fab
+              small
+              depressed
+              @click="dialog_missing = false"
+              @mouseover="tooltips=true"
+              @mouseleave="tooltips=false"
+            >
+              <v-icon>mdi-arrow-left-thick</v-icon>
+            </v-btn>
+            <v-tooltip bottom v-model="tooltips">
+              <span class="font" style="font-size:12px">กลับไปยังหน้ายาที่ได้รับทั้งหมด</span>
+            </v-tooltip>
+            <v-spacer></v-spacer>
+            <v-btn color="#f5ce88" large @click="changestatus">บันทึก</v-btn>
+          </v-toolbar>
+          <v-card-text>
+            <v-row style="margin:10px">
+              <v-col cols="12">
+                <div style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4">
+                  <p style="font-size:18px;margin:auto">ข้อมูลยาที่ขาด</p>
+                </div>
+              </v-col>
+              <v-col style="margin-left:10px">
+                <v-list style="background-color:#f5f7f5">
+                  <p style="font-size:16px;margin:0">จำนวนยาที่ได้รับ</p>
+                  <p style="font-size:11px;margin:0;color:red">*เลือกรหัสสินค้าและจำนวนยาที่ได้รับ</p>
+                  <v-list-item v-for="(element,i) in missing_medinfo" :key="element.medicine_id">
+                    <v-col cols="3">
+                      <v-row color="orange">
+                        <v-checkbox disabled v-model="cb_missing[i]"></v-checkbox>
+                        <p
+                          style="padding-top:17px"
+                        >{{element.medicine_generic}} {{element.strength}} {{element.qty}} {{element.unit}}</p>
+                      </v-row>
+                      <!-- <v-row v-for="(lot,j) in 2" :key="lot">
+                        <v-col cols="4" md>
+                          <v-autocomplete :items="missing_lot_no"></v-autocomplete>
+                        </v-col>
+                        <v-col cols="4" md>
+                          <v-text-field solo label="จำนวนยา"></v-text-field>
+                        </v-col>
+                        <v-col cols="2">
+                          <v-icon
+                            @click="remove(index,k)"
+                            v-show="k>0 || ( !k && textbox[index].length > 1)"
+                          >mdi-minus-circle</v-icon>
+                          <v-icon
+                            @click="add(index)"
+                            v-show="k == textbox[index].length-1"
+                          >mdi-plus-circle</v-icon>
+                        </v-col>
+                      </v-row>-->
+                    </v-col>
+                  </v-list-item>
+                </v-list>
+              </v-col>
+            </v-row>
+            <v-row style="margin:10px">
+              <v-col cols="12">
+                <div style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4">
+                  <p style="font-size:18px;margin:auto">ออร์เดอร์ที่มียาขาด</p>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row style="margin:20px">
+              <v-col
+                cols="12"
+                md="4"
+                v-for="(element,i) in missing_order"
+                :key="element.order_id"
+                class="d-flex"
+              >
+                <v-card class="d-flex flex-column">
+                  <v-card-title style="background-color:#DFE4DE;padding:0 15px;font-size:18px">
+                    <v-checkbox disabled v-model="cb_missing_card[i]"></v-checkbox>
+                    <v-spacer></v-spacer>
+                    ออร์เดอร์ที่ {{element.order_id}}
+                  </v-card-title>
+                  <v-card-text>
+                    <p class="font-card">คุณ{{element.name}} {{element.surname}}</p>
+                    <p class="font-card">
+                      วันที่นัดรับยา
+                      <span
+                        style="background-color:#E1995E"
+                      >{{setDate(element.due_date)}}</span>
+                    </p>
+                    <p class="font-card">ยาที่ได้รับ</p>
+                    <v-list>
+                      <v-list-item
+                        v-for="(element2,j) in element.medicineItem"
+                        :key="element2.medicine_id+i"
+                      >
+                        <v-row>
+                          <v-col cols="6">
+                            <p
+                              style="padding-top:10px"
+                            >{{element2.medicine_generic}} {{element2.strength}} {{element2.qty}} {{element2.unit}}</p>
+                          </v-col>
+                          <v-col cols="6">
+                            <v-text-field
+                              solo
+                              label="จำนวนยา"
+                              v-model="missing_medtxt[i][j]"
+                              v-if="missing_medid.indexOf(element2.medicine_id)>-1"
+                              @input="checkOrderMissing(i,j,element2)"
+                            ></v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-list-item>
+                    </v-list>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card-text>
         </v-card>
       </v-dialog>
       <v-row>
@@ -94,23 +184,13 @@
         :items="transfer_order"
         :items-per-page="10"
         class="elevation-1"
+        @click:row="selectItem"
       >
-        <template v-slot:body="{ items }">
-          <tbody>
-            <tr v-for="item in items" :key="item.transport_id" @click="selectItem(item)">
-              <td>{{ item[0].transport_id }}</td>
-              <td style="text-align:center">{{ item.length }}</td>
-              <td style="text-align:center">{{ setDate(item[0].transport_date) }}</td>
-              <td style="text-align:center">{{ setDate(item[0].receive_date) }}</td>
-              <td style="text-align:center">
-                <v-chip :color="getColor(item[0].status)" dark>
-                  {{
-                  setStatus(item[0].status)
-                  }}
-                </v-chip>
-              </td>
-            </tr>
-          </tbody>
+        <template v-slot:no-data>ไม่มีออร์เดอร์ที่รอการตรวจสอบ</template>
+        <template v-slot:item.transport_date="{item}">{{ setDate(item.transport_date) }}</template>
+        <template v-slot:item.receive_date="{item}">{{ setDate(item.receive_date) }}</template>
+        <template v-slot:item.status>
+          <v-chip color="#E1995E">รอการตรวจสอบ</v-chip>
         </template>
       </v-data-table>
     </v-content>
@@ -136,12 +216,27 @@ export default {
         {
           text: "ออร์เดอร์ที่",
           align: "left",
-          sortable: false,
-          value: "name"
+          value: "transport_id",
+          divider: true
         },
-        { text: "จำนวนออร์เดอร์", align: "center", value: "order" },
-        { text: "วันที่จัดส่งยา", align: "center", value: "order" },
-        { text: "วันที่ร้านยาได้รับ", align: "center", value: "order" },
+        {
+          text: "จำนวนออร์เดอร์",
+          align: "center",
+          value: "num_order",
+          divider: true
+        },
+        {
+          text: "วันที่จัดส่งยา",
+          align: "center",
+          value: "transport_date",
+          divider: true
+        },
+        {
+          text: "วันที่ร้านยาได้รับ",
+          align: "center",
+          value: "receive_date",
+          divider: true
+        },
         { text: "สถานะ", align: "center", value: "status" }
       ],
       sub_headers: [
@@ -156,15 +251,32 @@ export default {
         { text: "วันนัดรับยา", align: "center", value: "status" },
         { text: "ข้อมูลยา", align: "center", value: "status" }
       ],
+      transport_id: null,
+      dialog_missing: false,
+      dialog_all: false,
+      tooltips: false,
+      medicineAll: [],
+      cb_all: [],
+      cb_missing: [],
+      cb_missing_card: [],
+      medall_txt: [],
+      missing_medtxt: [],
+      missing_lot_no: [],
+      missing_order: [],
+      missing_medid: [],
+      missing_medinfo: [],
       date: "",
-      transfer_order: [{ status: "" }],
+      transfer_order: [],
+      each_transfer: [],
       each_order: [{ status: "" }],
       pharmacy_id: null,
-      medicineAll: [{ name: "", qty: "", unit: "" }],
+
       checkbox: []
     };
   },
-
+  components: {
+    Menubar
+  },
   mounted() {
     axios
       .post("http://localhost:3000/api/user/getuserbyid", {
@@ -178,24 +290,105 @@ export default {
           })
           .then(res => {
             this.transfer_order = res.data;
-            console.log(this.transfer_order);
           });
       })
       .catch(e => {
         console.log(e);
       });
   },
-  components: {
-    Menubar
-  },
+
   methods: {
-    setStatus: function(s) {
-      if (s === "received") {
-        s = "รอการตรวจสอบ";
-      } else if (s === "received") {
-        s = "ได้รับเรียบร้อยแล้ว";
+    resetDialog() {
+      this.dialog_all = false;
+      setTimeout(() => {
+        this.$refs.form.reset();
+      }, 300);
+    },
+    checkBoxMedAll(index) {
+      if (this.cb_all[index] == true) {
+        this.medall_txt[index] = this.medicineAll[index].qty;
+      } else {
+        this.medall_txt[index] = "";
       }
-      return s;
+    },
+    checkQtyAll(index) {
+      if (!isNaN(this.medall_txt[index])) {
+        if (this.medall_txt[index] == this.medicineAll[index].qty) {
+          this.cb_all[index] = true;
+        } else if (this.medall_txt[index] < this.medicineAll[index].qty) {
+          this.cb_all[index] = false;
+        } else {
+          alert("กรอกจำนวนยาเกิน กรุณากรอกใหม่");
+          this.medall_txt[index] = "";
+          this.cb_all[index] = false;
+        }
+      }
+    },
+    confirmAll() {
+      if (this.$refs.form.validate()) {
+        if (this.cb_all.every(element => element)) {
+          //complete
+          this.resetDialog();
+        } else {
+          //missing
+          this.missing_medid = [];
+          this.missing_medinfo = [];
+          this.missing_lot_no = [];
+          this.medicineAll.forEach((element, i) => {
+            if (!this.cb_all[i]) {
+              this.missing_medid.push(element.medicine_id);
+              this.missing_medinfo.push({
+                medicine_id: element.medicine_id,
+                medicine_generic: element.medicine_generic,
+                strength: element.strength,
+                unit: element.unit,
+                qty: this.medall_txt[i]
+              });
+              this.missing_lot_no.push([]);
+            }
+          });
+          this.getMissingLotno();
+          this.filterMissingOrder();
+          this.dialog_missing = true;
+        }
+      }
+    },
+    getMissingLotno() {
+      this.missing_medid.forEach(element => {
+        console.log(element);
+        axios
+          .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
+            transport_id: this.transport_id,
+            medicine_id: element
+          })
+          .then(res => {
+            console.log("object");
+            console.log(res.data);
+          });
+      });
+    },
+    filterMissingOrder() {
+      var filters = { medicine_id: this.missing_medid };
+      this.missing_order = this.each_transfer.filter(d => {
+        var a = null;
+        a = d.medicineItem.filter(e => {
+          return Object.keys(filters).every(f => {
+            return filters[f].includes(e[f]);
+          });
+        });
+        if (a.length > 0) {
+          this.missing_medtxt.push([]);
+          return true;
+        }
+      });
+    },
+    checkOrderMissing(i, j, med) {
+      if (this.missing_medtxt[i][j] > med.qty) {
+        alert("กรอกจำนวนยาเกิน กรุณากรอกใหม่");
+      }
+      this.missing_order.forEach((element, index) => {
+        // ele;
+      });
     },
     setDate: function(d) {
       var month_th = [
@@ -300,82 +493,58 @@ export default {
         this.dialog_row = false;
       }
     },
-    getColor(status) {
-      if (status == "received") {
-        return "orange";
-      } else if (status == "received") return "success";
-    },
     selectItem(item) {
-      this.index = this.transfer_order.indexOf(item);
-      this.each_order = [...this.transfer_order[this.index]];
-      this.checkbox = new Array(this.each_order.length);
-      this.checkbox.fill(false, 0);
-      this.allMedicine();
-      //
-      this.dialog_row = true;
-    },
-    allMedicine() {
-      var order_selected = [...this.transfer_order[this.index]];
-      var name = [];
-      var qty = [];
-      var unit = [];
-      var id = [];
-      for (let index = 0; index < order_selected.length; index++) {
-        for (let j = 0; j < order_selected[index].medicineItem.length; j++) {
-          var indexof = id.indexOf(
-            order_selected[index].medicineItem[j].medicine_id
-          );
-          if (indexof > -1) {
-            qty[indexof] += parseInt(order_selected[index].medicineItem[j].qty);
-          } else {
-            qty.push(0);
-            qty[qty.length - 1] += parseInt(
-              order_selected[index].medicineItem[j].qty
-            );
-            id.push(order_selected[index].medicineItem[j].medicine_id);
-            name.push(order_selected[index].medicineItem[j].medicine_generic);
-            unit.push(order_selected[index].medicineItem[j].unit);
-          }
-        }
-      }
-      this.medicineAll = {
-        id: id,
-        name: name,
-        qty: qty,
-        unit: unit
-      };
-    }
-  },
-  computed: {
-    formtitle() {
-      if (this.each_order[0].status === "received") {
-        return "ตรวจสอบเรียบร้อย";
-      } else if (this.each_order[0].status === "receieved") {
-        return "";
-      }
-    },
-    date_th() {
-      var month = [
-        "มกราคม",
-        "กุมภาพันธ์",
-        "มีนาคม",
-        "เมษายน",
-        "พฤษภาคม",
-        "มิถุนายน",
-        "กรกฎาคม",
-        "สิงหาคม",
-        "กันยายน",
-        "ตุลาคม",
-        "พฤศจิกายน",
-        "ธันวาคม"
-      ];
-      if (this.picker2 != "") {
-        var date = this.picker2.split("-");
-        date[0] = parseInt(date[0]) + 543;
-        date = date[2] + " " + month[date[1] - 1] + " " + date[0];
-        console.log(date);
-        return date;
-      } else return "";
+      this.transport_id = item.transport_id;
+      axios
+        .post("http://localhost:3000/api/transport/transport_order", {
+          transport_id: item.transport_id
+        })
+        .then(res => {
+          this.each_transfer = res.data;
+          var res_data = [...res.data];
+          var format = [];
+          this.medicineAll = [];
+          var med_id = [];
+          var pre_orderid = null;
+
+          res_data.forEach((item, i) => {
+            var element = { ...item };
+            var medicine = {
+              medicine_id: element.medicine_id,
+              medicine_generic: element.medicine_generic,
+              strength: element.strength,
+              unit: element.unit,
+              qty: element.qty
+            };
+            if (i == 0) {
+              med_id.push(item.medicine_id);
+              this.medicineAll[0] = { ...medicine };
+              element["medicineItem"] = [];
+              element["medicineItem"][0] = { ...medicine };
+              format.push(element);
+              console.log(format);
+            } else {
+              if (pre_orderid === element.order_id) {
+                format[format.length - 1].medicineItem.push(medicine);
+              } else {
+                element["medicineItem"] = [];
+                element["medicineItem"][0] = { ...medicine };
+                format.push(element);
+              }
+              var index = med_id.indexOf(item.medicine_id);
+              if (index > -1) {
+                this.medicineAll[index].qty += parseInt(item.qty);
+              } else {
+                this.medicineAll.push(medicine);
+                med_id.push(item.medicine_id);
+              }
+            }
+            pre_orderid = element.order_id;
+          });
+
+          this.each_transfer = [...format];
+          this.dialog_all = true;
+        });
     }
   },
   watch: {
@@ -427,5 +596,9 @@ export default {
 .main {
   margin: 20px;
   margin-top: 120px;
+}
+.font-card {
+  font-size: 16px;
+  margin-top: 10px;
 }
 </style>

@@ -21,7 +21,7 @@
               <v-row>
                 <v-col cols="12" md="10" sm="11">
                   <div
-                    style="border-left: 10px solid #5B48A2;padding:12px;background-color:#F5CE88"
+                    style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4"
                   >
                     <p style="font-size:18px;margin:auto">
                       <v-icon v-if="oneorder[0].gender=='ชาย'">mdi-face-profile</v-icon>
@@ -72,7 +72,7 @@
                 <v-row>
                   <v-col cols="12" md="10" sm="11">
                     <div
-                      style="border-left: 10px solid #5B48A2;padding:12px;background-color:#F5CE88"
+                      style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4"
                     >
                       <v-row>
                         <p style="font-size:18px;margin:auto">

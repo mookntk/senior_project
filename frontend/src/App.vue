@@ -39,4 +39,7 @@ tbody tr:nth-of-type(odd) {
   font-size: 14px;
   color: black;
 }
+p {
+  color: black;
+}
 </style>
