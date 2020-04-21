@@ -9,18 +9,10 @@ const detail = "order_detail";
 router.post(
   "/neworder",
   [
-    check("patient_HN_order")
-      .not()
-      .isEmpty(),
-    check("due_date")
-      .not()
-      .isEmpty(),
-    check("status")
-      .not()
-      .isEmpty(),
-    check("staff_id_order")
-      .not()
-      .isEmpty()
+    check("patient_HN_order").not().isEmpty(),
+    check("due_date").not().isEmpty(),
+    check("status").not().isEmpty(),
+    check("staff_id_order").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -32,7 +24,7 @@ router.post(
   }
 );
 
-var NewOrder = function(item) {
+var NewOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${order} SET ?`, item, (error, result) => {
       if (error) return reject(error);
@@ -44,18 +36,10 @@ var NewOrder = function(item) {
 router.post(
   "/neworder_detail",
   [
-    check("order_id")
-      .not()
-      .isEmpty(),
-    check("medicine_id")
-      .not()
-      .isEmpty(),
-    check("qty")
-      .not()
-      .isEmpty(),
-    check("administration")
-      .not()
-      .isEmpty()
+    check("order_id").not().isEmpty(),
+    check("medicine_id").not().isEmpty(),
+    check("qty").not().isEmpty(),
+    check("administration").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -67,7 +51,7 @@ router.post(
   }
 );
 
-var NewOrderDetail = function(item) {
+var NewOrderDetail = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${detail} SET ?`, item, (error, result) => {
       if (error) return reject(error);
@@ -85,7 +69,7 @@ router.post("/del_detail_orderid", async (req, res) => {
   }
 });
 
-var DeleteDetailOrderid = function(item) {
+var DeleteDetailOrderid = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `DELETE FROM ${detail} WHERE order_id = ?`,
@@ -107,7 +91,7 @@ router.post("/del_order", async (req, res) => {
   }
 });
 
-var DeleteOrder = function(item) {
+var DeleteOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `DELETE FROM ${order} WHERE order_id = ?`,
@@ -129,7 +113,7 @@ router.post("/edit_orderstatus", async (req, res) => {
   }
 });
 
-var EditOrderStatus = function(item) {
+var EditOrderStatus = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `UPDATE ${order} SET status = ? , transport_id =? WHERE order_id = ?`,
@@ -151,7 +135,7 @@ router.post("/getorder_status", async (req, res) => {
   }
 });
 
-var GetOrderByStatus = function(item) {
+var GetOrderByStatus = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status= ? order by o.order_id ASC;`,
@@ -161,7 +145,7 @@ var GetOrderByStatus = function(item) {
         var dataformat = [];
         var count = 0;
         result.forEach((element, index) => {
-          element.create_date = dateFormat(element.create_date, "dd/mm/yyyy");
+          // element.create_date = dateFormat(element.create_date, "dd/mm/yyyy");
           var medicineObj = {
             medicine_id: element.medicine_id,
             medicine_tmt: element.medicine_tmt,
@@ -171,7 +155,8 @@ var GetOrderByStatus = function(item) {
             unit: element.unit,
             qty: element.qty,
             price: element.price,
-            lotno: element.lotno
+            lotno: element.lotno,
+            qty_missing: element.qty_missing,
           };
           delete element.medicine_id;
           delete element.medicine_tmt;
@@ -182,6 +167,7 @@ var GetOrderByStatus = function(item) {
           delete element.qty;
           delete element.price;
           delete element.lotno;
+          delete element.qty_missing;
           if (index == 0) {
             dataformat.push(element);
             dataformat[index]["medicineItem"] = [medicineObj];
@@ -211,7 +197,7 @@ router.post("/edit_nummed", async (req, res) => {
   }
 });
 
-var EditNumMedicine = function(item) {
+var EditNumMedicine = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `UPDATE ${detail} SET qty = ? WHERE order_id = ? AND medicine_id = ?`,
@@ -233,7 +219,7 @@ router.post("/getorder_phid", async (req, res) => {
   }
 });
 
-var GetOrderByPhId = function(item) {
+var GetOrderByPhId = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status= ? and o.pharmacy_id = ? order by o.order_id ASC;`,
@@ -253,7 +239,7 @@ var GetOrderByPhId = function(item) {
             unit: element.unit,
             qty: element.qty,
             price: element.price,
-            lotno: element.lotno
+            lotno: element.lotno,
           };
           delete element.medicine_id;
           delete element.medicine_tmt;
@@ -293,7 +279,7 @@ router.get("/getorder_history", async (req, res) => {
   }
 });
 
-var GetOrderHistory = function() {
+var GetOrderHistory = function () {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT o.* , p.name , p.surname , ph.pharmacy_name from orders as o left join patients as p ON o.patient_HN_order = p.patient_HN inner join pharmacy as ph on o.pharmacy_id = ph.pharmacy_id WHERE o.status in ('prepare','ready','cancel','success') order by o.order_id DESC;`,
@@ -314,7 +300,7 @@ router.post("/getorder_detail", async (req, res) => {
   }
 });
 
-var GetOrderDetail = function(item) {
+var GetOrderDetail = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT od.*,m.* from order_detail as od inner join medicine as m on od.medicine_id = m.medicine_id WHERE od.order_id =?`,

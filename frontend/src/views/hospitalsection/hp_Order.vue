@@ -5,9 +5,14 @@
     </div>
     <v-content class="main font">
       <v-row>
-        <v-col align="left" style="font-size:25px">{{ date }}</v-col>
+        <v-col align="left" style="font-size:25px">ออร์เดอร์</v-col>
+      </v-row>
+      <v-row>
         <v-spacer></v-spacer>
-        <v-col>
+        <v-col cols="6" sm="4" md="2">
+          <v-text-field label="ค้นหา" solo clearable v-model="search" append-icon="mdi-magnify"></v-text-field>
+        </v-col>
+        <v-col cols="6" sm="5" md="3">
           <v-autocomplete
             :items="pharmacy"
             chips
@@ -17,40 +22,64 @@
             item-value="pharmacy_name"
             solo
             clearable
-            v-model="selected_ph"
+            v-model="filters.pharmacy_name"
           ></v-autocomplete>
         </v-col>
-        <v-col cols="12" sm="2" md="2" justify="right" align="right">
-          <v-btn
-            color="primary"
-            style="width:100%;"
-            dark
-            v-on="on"
-            x-large
-            @click="prepare_medicine"
-          >ทำการจัดยา</v-btn>
+        <v-col cols="12" sm="2" md="2" style="margin:0 5px">
+          <v-btn color="#207B8E" style="width:90%;" dark large @click="prepare_medicine">ทำการจัดยา</v-btn>
         </v-col>
       </v-row>
+
+      <!-- ! table of order -->
+
+      <v-data-table
+        :search="search"
+        :headers="headers"
+        :items="filterOrders"
+        :items-per-page="10"
+        class="elevation-1"
+        show-select
+        v-model="selectedItem"
+      >
+        <template v-slot:no-data>ไม่มีข้อมูลออร์เดอร์</template>
+        <template v-slot:item.due_date="{item}">{{ setDate(item.due_date) }}</template>
+        <template v-slot:item.name="{item}">{{ item.name }} {{item.surname}}</template>
+        <template v-slot:item.medicine="{item}">
+          <p v-for="medicine in item.medicineItem" :key="medicine.medicine_id">
+            {{ medicine.medicine_generic }} {{medicine.strength}}
+            <span
+              style="font-weight:bold"
+            >{{ medicine.qty }}</span>
+            {{ medicine.unit }}
+          </p>
+        </template>
+        <template v-slot:item.action="{item}">
+          <v-icon class="mr-2" @click="editDialog(item)" color="#77B3D5" size="18">mdi-pencil</v-icon>
+          <v-icon class="mr-2" @click="deleteDialog(item)" color="#C85D5C" size="18">mdi-delete</v-icon>
+        </template>
+      </v-data-table>
+      <br />
+
       <!-- ! dialog edit -->
-      <v-dialog v-model="dialog_edit" persistent max-width="600px">
-        <v-card class="blue-grey lighten-5 font">
-          <v-card-title>
-            <span>แก้ไขข้อมูล</span>
-          </v-card-title>
+      <v-dialog v-model="dialog_edit" persistent max-width="450px">
+        <v-card class="font">
+          <v-card-title style="background-color:#77B3D5">แก้ไขข้อมูล</v-card-title>
+          <v-divider></v-divider>
+          <br />
           <v-card-text>
             <v-container>
               <v-form ref="form">
-                <v-row v-for="(item, i) in order[index].medicineItem" :key="i">
-                  <v-col>
-                    <v-text-field
-                      v-model="order[index].medicineItem[i].medicine_generic"
-                      readonly
-                      disabled
-                    ></v-text-field>
+                <v-row v-for="(item, i) in order_selected.medicineItem" :key="i">
+                  <v-col cols="4" sm="6" md="6">
+                    <v-row>
+                      <p style="margin-top:15px">{{item.medicine_generic}} {{item.strength}}</p>
+                      <v-spacer></v-spacer>
+                      <p style="margin-top:15px">จำนวน</p>
+                    </v-row>
                   </v-col>
-                  <v-col>
+                  <v-col cols="4" sm="3" md="3">
                     <v-text-field
-                      v-model="order[index].medicineItem[i].qty"
+                      v-model="qty_txt[i]"
                       solo
                       :rules="[
                         v => !!v || 'กรุณากรอกข้อมูล',
@@ -59,148 +88,67 @@
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col>
-                    <v-text-field v-model="order[index].medicineItem[i].unit" readonly disabled></v-text-field>
+                  <v-col cols="4" sm="3" md="3">
+                    <p style="margin-top:15px">{{item.unit}}</p>
                   </v-col>
                 </v-row>
               </v-form>
             </v-container>
           </v-card-text>
+          <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn rounded color="green lighten-1" large @click="save">เสร็จสิ้น</v-btn>
-            <v-btn @click="close" rounded color="red lighten-1" large>ปิด</v-btn>
+            <v-btn color="green lighten-1" text @click="editItem">เสร็จสิ้น</v-btn>
+            <v-btn color="red lighten-1" text @click="dialog_edit=false">ปิด</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
-      <!-- ! table of order -->
+      <v-dialog v-model="dialog_delete" persistent max-width="350">
+        <v-card class="font">
+          <v-card-title style="background-color:#C85D5C">ลบออร์เดอร์</v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <br />
+            <p>ต้องการลบออร์เดอร์ที่ {{order_selected.order_id}} ของคุณ{{order_selected.name}} {{order_selected.surname}}</p>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="deleteItem">ยืนยัน</v-btn>
+            <v-btn color="green darken-1" text @click="dialog_delete=false">ปิด</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-row>
+        <v-col align="left" style="font-size:25px">ออร์เดอร์ที่มียาขาด</v-col>
+      </v-row>
       <v-data-table
-        :headers="headers"
-        :items="order_filter"
+        :search="search_missing"
+        :headers="headers_missing"
+        :items="filterOrdersMissing"
         :items-per-page="10"
         class="elevation-1"
-        hide-default-header
+        show-select
+        v-model="selectedItem"
       >
-        <template v-slot:header="{ props }">
-          <tr>
-            <th>
-              <v-checkbox
-                primary
-                hide-details
-                label="เลือกทั้งหมด"
-                v-model="selectall_order"
-                @change="selectall"
-              ></v-checkbox>
-            </th>
-            <th
-              v-for="header in props.headers"
-              :key="header.text"
-              :style="header.align"
-            >{{ header.text }}</th>
-          </tr>
-        </template>
-        <!-- <template v-slot:header="{props}">
-          <tr>
-            <th>
-              <v-checkbox primary></v-checkbox>
-            </th>
-            <th v-for="header in props.headers" :key="header.text" style="text-align:center">
-              <v-icon small>arrow_upward</v-icon>
-              {{ header.text }}
-            </th>
-          </tr>
-        </template>-->
-        <template v-slot:body="{ items }">
-          <tbody>
-            <tr
-              v-for="(item, index) in items"
-              :key="item.order_id"
-              :class="{ selectedRow: checkbox[index] === true }"
-            >
-              <td>
-                <v-checkbox primary v-model="checkbox[index]"></v-checkbox>
-              </td>
-              <td>{{ item.order_id }}</td>
-              <td>{{ item.name }} {{ item.surname }}</td>
-              <td style="text-align:center">{{ item.create_date }}</td>
-              <td style="text-align:center">{{ item.pharmacy_name }}</td>
-              <td style="text-align:center">
-                <p v-for="medicine in item.medicineItem" :key="medicine.medicine_id">
-                  {{ medicine.medicine_generic }} {{ medicine.qty }}
-                  {{ medicine.unit }}
-                </p>
-              </td>
-              <td style="text-align:center">
-                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-                <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
-              </td>
-            </tr>
-          </tbody>
+        <template v-slot:no-data>ไม่มีข้อมูลออร์เดอร์</template>
+
+        <template v-slot:item.due_date="{item}">{{ setDate(item.due_date) }}</template>
+        <template v-slot:item.name="{item}">{{ item.name }} {{item.surname}}</template>
+        <template v-slot:item.medicine="{item}">
+          <div v-for="medicine in item.medicineItem" :key="medicine.medicine_id">
+            <p v-if="medicine.qty_missing>0">
+              {{ medicine.medicine_generic }} {{medicine.strength}}
+              <span
+                style="font-weight:bold"
+              >{{ medicine.qty_missing }}</span>
+              {{ medicine.unit }}
+            </p>
+          </div>
         </template>
       </v-data-table>
-      <br />
-
-      <!-- ! table of missing medicine -->
-      <!-- <v-col align="left" style="font-size:25px">ออร์เดอร์ที่ยาขาด</v-col>
-      <v-data-table
-        :headers="headers_missing"
-        :items="order_missing_filter"
-        :items-per-page="10"
-        class="elevation-1"
-        hide-default-header
-      >
-        <template v-slot:header="{ props }">
-          <tr>
-            <th>
-              <v-checkbox
-                primary
-                hide-details
-                label="เลือกทั้งหมด"
-                v-model="selectAll_missing"
-              ></v-checkbox>
-            </th>
-            <th
-              v-for="header in props.headers"
-              :key="header.text"
-              style="text-align:left;"
-            >
-              {{ header.text }}
-            </th>
-        
-          </tr>
-        </template>
-        <template v-slot:body="{ items }">
-          <tbody v-for="item in items" :key="item.name">
-            <tr>
-              <td :rowspan="item.medicine.length">
-                <v-checkbox
-                  primary
-                  hide-details
-                  v-model="item.checkbox"
-                ></v-checkbox>
-              </td>
-              <td :rowspan="item.medicine.length" style="text-align:center">
-                {{ item.order_id }}
-              </td>
-              <td :rowspan="item.medicine.length" style="text-align:center">
-                {{ item.patient }}
-              </td>
-              <td :rowspan="item.medicine.length" style="text-align:center">
-                {{ item.create_date }}
-              </td>
-              <td :rowspan="item.medicine.length" style="text-align:center">
-                {{ item.name }}
-              </td>
-              <td>
-                <p v-for="medicine in item.medicine" :key="medicine.name">
-                  {{ medicine.name }} {{ medicine.qty }} {{ medicine.unit }}
-                </p>
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </v-data-table>-->
     </v-content>
   </v-app>
 </template>
@@ -213,255 +161,190 @@ import dateFormat from "dateformat";
 export default {
   data() {
     return {
-      date: "",
-      editedItem: {
-        order_id: "",
-        due_date: "",
-        status: "create-",
-        receive_date: null,
-        remark: null,
-        patient_HN_order: "",
-        staff_id_order: "",
-        pharmacist_id_order: null,
-        create_date: "",
-        pharmacy_id: "",
-        name: "",
-        surname: "",
-        id: "",
-        lot_no: null,
-        expdate: null,
-        administration: "",
-        recieved: null,
-        disease_id_medicine: "",
-        pharmacy_name: "",
-        medicineItem: []
-      },
       index: 0,
       dialog_edit: false,
-      selectall_order: false,
-      selectall_missing: false,
+      dialog_delete: false,
       pharmacy: [],
-      selected_ph: [],
+      selectedItem: [],
       headers: [
         {
           text: "เลขออร์เดอร์",
-          align: "center",
-          sortable: false
+          align: "left",
+          value: "order_id",
+          divider: true
         },
-        { text: "ชื่อ-นามสกุลผู้ป่วย", align: "text-align:left" },
-        { text: "วันที่สร้างออร์เดอร์", align: "text-align:center" },
-        { text: "ร้านขายยา", align: "text-align:center" },
-        { text: "ยาที่ได้รับ", align: "text-align:center" },
-        { text: "แก้ไข/ยกเลิก", align: "text-align:center" }
+        {
+          text: "ชื่อ-นามสกุลผู้ป่วย",
+          align: "left",
+          value: "name",
+          divider: true
+        },
+        {
+          text: "วันที่นัดรับยา",
+          align: "center",
+          value: "due_date",
+          divider: true
+        },
+        {
+          text: "ร้านขายยา",
+          align: "center",
+          value: "pharmacy_name",
+          divider: true
+        },
+        {
+          text: "ยาที่ได้รับ",
+          align: "center",
+          value: "medicine",
+          divider: true
+        },
+        {
+          text: "แก้ไข/ยกเลิก",
+          align: "center",
+          value: "action",
+          divider: true
+        }
       ],
       headers_missing: [
         {
           text: "เลขออร์เดอร์",
-          align: "center",
-          sortable: false,
-          value: "name"
+          align: "left",
+          value: "order_id",
+          divider: true
         },
-        { text: "ชื่อ-นามสกุลผู้ป่วย", align: "center", value: "order" },
-        { text: "วันที่สร้างออร์เดอร์", align: "center", value: "order" },
-        { text: "ร้านขายยา", align: "center", value: "order" },
-        { text: "ยาที่ได้รับ", align: "center", value: "order" }
+        {
+          text: "ชื่อ-นามสกุลผู้ป่วย",
+          align: "left",
+          value: "name",
+          divider: true
+        },
+        {
+          text: "วันที่นัดรับยา",
+          align: "center",
+          value: "due_date",
+          divider: true
+        },
+        {
+          text: "ร้านขายยา",
+          align: "center",
+          value: "pharmacy_name",
+          divider: true
+        },
+        {
+          text: "ยาที่ขาด",
+          align: "center",
+          value: "medicine",
+          divider: true
+        }
       ],
-      order: [
-        
-      ],
-      order_missing: [
-      ],
+      order: [],
       order_filter: [],
       order_missing_filter: [],
-      checkbox: [],
-      checknumrule: true
+      filters: {
+        pharmacy_name: []
+      },
+      search: "",
+      search_missing: "",
+      order_missing: [],
+      dialog_delete: false,
+      order_selected: [],
+      qty_txt: []
     };
   },
+  components: {
+    Menu
+  },
   mounted() {
-    var day = [
-      "วันอาทิตย์",
-      "วันจันทร์",
-      "วันอังคาร",
-      "วันพุธ",
-      "วันพฤหัสบดี",
-      "วันศุกร์",
-      "วันเสาร์"
-    ];
-    var month = [
-      "มกราคม",
-      "กุมภาพันธ์",
-      "มีนาคม",
-      "เมษายน",
-      "พฤษภาคม",
-      "มิถุนายน",
-      "กรกฎาคม",
-      "สิงหาคม",
-      "กันยายน",
-      "ตุลาคม",
-      "พฤศจิกายน",
-      "ธันวาคม"
-    ];
-    var date = new Date();
-    var date_format =
-      day[date.getDay()] +
-      " " +
-      date.getDate() +
-      " " +
-      month[date.getMonth()] +
-      " " +
-      (date.getFullYear() + 543);
-
-    this.date = date_format;
-
     axios
       .post("http://localhost:3000/api/order/getorder_status", {
         status: "create-order"
       })
       .then(res => {
         this.order = res.data;
-        this.order_filter = [...this.order];
-        this.checkbox = new Array(this.order.length);
+      });
+    axios
+      .post("http://localhost:3000/api/order/getorder_status", {
+        status: "missing"
+      })
+      .then(res => {
+        this.order_missing = res.data;
       });
     axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
       this.pharmacy = res.data;
     });
   },
-  components: {
-    Menu
-  },
-  watch: {
-    // selectAll_missing() {
-    //   var count = 0;
-    //   var i;
-    //   if (this.selectAll_missing == true) {
-    //     console.log("selectAll true");
-    //     for (let key in this.order) {
-    //       if (this.order_missing.hasOwnProperty(key)) {
-    //         this.order_missing[key].checkbox = true;
-    //       }
-    //     }
-    //   } else {
-    //     for (let key in this.order) {
-    //       if (this.order_missing.hasOwnProperty(key)) {
-    //         this.order_missing[key].checkbox = false;
-    //       }
-    //     }
-    //   }
-    // },
-    selected_ph() {
-      if (this.selected_ph.length == 0) {
-        this.order_filter = [...this.order];
 
-        // this.order_missing_filter = [...this.order_missing];
-      } else {
-        this.order_filter = this.order.filter(store => {
-          for (var i in this.selected_ph) {
-            if (store.pharmacy_name == this.selected_ph[i]) return true;
-          }
-        });
-        // this.order_missing_filter = this.order_missing.filter(store => {
-        //   for (var i in item) {
-        //     if (store.name == item[i]) return true;
-        //   }
-        // });
-      }
-      this.checkbox = new Array(this.order_filter.length);
-    },
-    checkbox() {
-      var all = 1;
-      for (var i = 0; i < this.checkbox.length; i++) {
-        if (!this.checkbox[i]) {
-          this.selectall_order = false;
-          all = 0;
-          break;
-        }
-      }
-      if (all) {
-        this.selectall_order = true;
-      }
-      // this.selectall_order = this.checkbox.every(item => item == true);
-      // console.log(this.selectall_order);
-    }
-  },
   methods: {
-    selectall() {
-      var i;
-      if (this.selectall_order == true) {
-        for (i = 0; i < this.order_filter.length; i++) {
-          this.checkbox[i] = true;
-        }
-      } else {
-        for (i = 0; i < this.order_filter.length; i++) {
-          this.checkbox[i] = false;
-        }
-      }
+    setDate(date) {
+      if (date == null) return null;
+      var month = [
+        "มกราคม",
+        "กุมภาพันธ์",
+        "มีนาคม",
+        "เมษายน",
+        "พฤษภาคม",
+        "มิถุนายน",
+        "กรกฎาคม",
+        "สิงหาคม",
+        "กันยายน",
+        "ตุลาคม",
+        "พฤศจิกายน",
+        "ธันวาคม"
+      ];
+      date = dateFormat(date, "dd/mm/yyyy");
+      var [d, m, y] = date.split("/");
+      return d + " " + month[parseInt(m) - 1] + " " + (parseInt(y) + 543);
     },
-    check_pharmacy_id() {
-      var count_pharmacy = [];
-      var ph_id = [];
-      for (let i = 0; i < this.order_filter.length; i++) {
-        if (this.checkbox[i]) {
-          ph_id.push(this.order_filter[i].pharmacy_id);
-        }
-      }
+    checkPharmacyId() {
+      var ph_id = this.selectedItem.map(v => v.pharmacy_id);
       return ph_id.filter((item, index) => ph_id.indexOf(item) === index);
     },
     prepare_medicine() {
       var transport_pharmacy = [];
-      var id_selected = this.check_pharmacy_id();
+      var id_selected = this.checkPharmacyId();
+      //ดีง transport_id ของ waiting-medicine && medicine-complete
       axios
-        .post("http://localhost:3000/api/transport/gettransport", {
-          status: "waiting-medicine"
-        })
+        .get("http://localhost:3000/api/transport/gettransport")
         .then(res => {
           transport_pharmacy = res.data;
-          axios
-            .post("http://localhost:3000/api/transport/gettransport", {
-              status: "medicine-complete"
-            })
-            .then(res2 => {
-              for (let i = 0; i < res2.data.length; i++) {
-                transport_pharmacy.push(res2.data[i]);
-              }
-              console.log(transport_pharmacy);
-              var trans_id = transport_pharmacy.map(
-                val => val.pharmacy_id_transport
-              );
-              console.log(trans_id);
-              for (let i = 0; i < id_selected.length; i++) {
-                if (trans_id.indexOf(id_selected[i]) < 0) {
-                  //edit order_id
-                  axios
-                    .post("http://localhost:3000/api/transport/newtransport", {
-                      status: "waiting-medicine",
-                      pharmacy_id_transport: id_selected[i]
-                    })
-                    .then(res => {
-                      this.changeOrderStatus(
-                        [{ transport_id: res.data.insertId }],
-                        id_selected[i]
-                      );
-                    });
-                } else {
-                  //add transport id
-                  var t_id = transport_pharmacy.filter(
-                    (item, index) =>
-                      item.pharmacy_id_transport == id_selected[i]
+
+          var trans_id = transport_pharmacy.map(
+            val => val.pharmacy_id_transport
+          );
+
+          for (let i = 0; i < id_selected.length; i++) {
+            if (trans_id.indexOf(id_selected[i]) < 0) {
+              //ยังไม่มีของส่งร้านขายยานี้
+              //edit order_id
+              axios
+                .post("http://localhost:3000/api/transport/newtransport", {
+                  status: "waiting-medicine",
+                  pharmacy_id_transport: id_selected[i]
+                })
+                .then(res => {
+                  this.changeOrderStatus(
+                    [{ transport_id: res.data.insertId }],
+                    id_selected[i]
                   );
-                  this.changeOrderStatus(t_id, id_selected[i]);
-                }
-              }
-            });
+                });
+            } else {
+              //add transport id
+              //t_id =
+              var t_id = transport_pharmacy.filter(
+                (item, index) => item.pharmacy_id_transport == id_selected[i]
+              );
+              this.changeOrderStatus(t_id, id_selected[i]);
+            }
+          }
         });
     },
     changeOrderStatus(t_id, ph_id) {
       //edit order
-      for (let i = 0; i < this.order_filter.length; i++) {
-        if (this.checkbox[i] && this.order_filter[i].pharmacy_id == ph_id) {
+      for (let i = 0; i < this.selectedItem.length; i++) {
+        if (this.selectedItem[i].pharmacy_id == ph_id) {
           axios
             .post("http://localhost:3000/api/order/edit_orderstatus", {
               status: "waiting-medicine",
-              order_id: this.order_filter[i].order_id,
+              order_id: this.selectedItem[i].order_id,
               transport_id: t_id[0].transport_id
             })
             .then(res => {
@@ -483,71 +366,74 @@ export default {
           console.log(e);
         });
     },
-    deleteItem(item) {
-      const index = this.order.indexOf(item);
-      confirm(
-        "คุณต้องการที่จะลบออร์เดอร์ใช่หรือไม่?\nคุณ" +
-          item.name +
-          " " +
-          item.surname
-      ) &&
-        axios
-          .post("http://localhost:3000/api/order/del_order", {
-            order_id: item.order_id
-          })
-          .then(res => {
-            this.order_filter.splice(index, 1);
-            this.order.splice(index, 1);
-          })
-          .catch(e => {
-            console.log(e);
-          });
+    deleteDialog(item) {
+      this.order_selected = item;
+      this.dialog_delete = true;
     },
-    editItem(item) {
+    deleteItem() {
+      axios
+        .post("http://localhost:3000/api/order/del_order", {
+          order_id: this.order_selected.order_id
+        })
+        .then(res => {
+          var index = this.order.indexOf(this.order_selected);
+          this.order.splice(index, 1);
+          this.dialog_delete = false;
+        })
+        .catch(e => {
+          console.log(e);
+          this.dialog_delete = false;
+        });
+    },
+    editDialog(item) {
+      this.order_selected = Object.assign({}, item);
       this.index = this.order.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      item.medicineItem.forEach((element, i) => {
+        this.qty_txt[i] = element.qty;
+      });
       this.dialog_edit = true;
     },
-    save() {
+    editItem() {
       if (this.$refs.form.validate()) {
-        if (this.index > -1) {
-          for (let i = 0; i < this.order[this.index].medicineItem.length; i++) {
-            axios
-              .post("http://localhost:3000/api/order/edit_nummed", {
-                medicine_id: this.order[this.index].medicineItem[i].medicine_id,
-                qty: this.order[this.index].medicineItem[i].qty,
-                order_id: this.order[this.index].order_id
-              })
-              .then(res => {
-                Object.assign(this.order[this.index], this.editedItem);
-              })
-              .catch(e => {
-                console.log(e);
-              });
-          }
-        } else {
-          console.log("index < -1");
+        for (let i = 0; i < this.order_selected.medicineItem.length; i++) {
+          console.log("object");
+          this.order_selected.medicineItem[i].qty = this.qty_txt[i];
+          axios
+            .post("http://localhost:3000/api/order/edit_nummed", {
+              medicine_id: this.order_selected.medicineItem[i].medicine_id,
+              qty: parseInt(this.qty_txt[i]),
+              order_id: this.order_selected.order_id
+            })
+            .then(res => {
+              Object.assign(this.order[this.index], this.order_selected);
+              this.dialog_edit = false;
+            })
+            .catch(e => {
+              console.log(e);
+            });
         }
-        this.close();
-      } else {
-        alert("กรอกข้อมูลไม่ถูกต้อง");
       }
+    }
+  },
+  computed: {
+    filterOrders() {
+      return this.order.filter(d => {
+        return Object.keys(this.filters).every(f => {
+          return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
+        });
+      });
     },
-    close() {
-      if (this.$refs.form.validate()) {
-        axios
-          .post("http://localhost:3000/api/order/getorder_status", {
-            status: "create-order"
-          })
-          .then(res => {
-            this.order = res.data;
-            this.order_filter = [...this.order];
-            this.checkbox = new Array(this.order.length);
-          });
-        this.dialog_edit = false;
-      } else {
-        alert("กรอกข้อมูลไม่ถูกต้อง");
-      }
+    filterOrdersMissing() {
+      return this.order_missing.filter(d => {
+        return Object.keys(this.filters).every(f => {
+          return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
+        });
+      });
+    }
+  },
+  watch: {
+    selectedItem(newValue, oldValue) {
+      console.log(this.selectedItem);
     }
   }
 };
@@ -563,11 +449,5 @@ export default {
 .main {
   margin: 20px;
   margin-top: 120px;
-}
-th {
-  background-color: #ffd54f;
-}
-.selectedRow {
-  background-color: #f0f0f0;
 }
 </style>
