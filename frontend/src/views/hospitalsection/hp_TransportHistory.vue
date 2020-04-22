@@ -106,6 +106,7 @@
         <template v-slot:item.status="{ item }">
           <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
         </template>
+        <template v-slot:no-data>ไม่มีออร์เดอร์ที่ถูกจัดส่ง</template>
       </v-data-table>
     </v-content>
   </v-app>
@@ -198,6 +199,10 @@ export default {
   },
   components: {
     Menu
+  },
+  mounted() {
+    this.getTransportHistory();
+    this.getPharmacyname();
   },
   methods: {
     getColor(status) {
@@ -338,10 +343,6 @@ export default {
         });
       });
     }
-  },
-  mounted() {
-    this.getTransportHistory();
-    this.getPharmacyname();
   }
 };
 </script>
