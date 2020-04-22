@@ -5,10 +5,10 @@ const db = require("../configs/db");
 const transport = "orders_transport";
 const detail = "orders_transport_detail";
 
-router.post("/gettransport", async (req, res) => {
+router.get("/gettransport", async (req, res) => {
   try {
-    const patients = await getTransportStatus(req.body);
-    res.json(patients);
+    const item = await getTransportStatus();
+    res.json(item);
   } catch (error) {
     res.status(400).json({
       message: error.message,
@@ -16,11 +16,11 @@ router.post("/gettransport", async (req, res) => {
   }
 });
 
-var getTransportStatus = function (item) {
+var getTransportStatus = function () {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT DISTINCT o.transport_id , o.pharmacy_id_transport FROM ${transport} as o WHERE status = ?`,
-      [item.status],
+      `SELECT DISTINCT o.transport_id , o.pharmacy_id_transport FROM ${transport} as o WHERE status in ('waiting-medicine' , 'medicine-complete')`,
+
       (error, result) => {
         if (error) return reject(error);
         return resolve(result);

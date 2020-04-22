@@ -36,12 +36,12 @@ router.post("/editorderreturnid", async (req, res) => {
     res.json(newitem);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-var editOrderReturnId = function(item) {
+var editOrderReturnId = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `UPDATE orders SET return_id = ? , remark = ? WHERE order_id = ?`,
@@ -61,12 +61,12 @@ router.post("/newreturn", async (req, res) => {
     res.json(newitem);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-var newReturnOrder = function(item) {
+var newReturnOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${returnorder} SET ?`, item, (error, result) => {
       if (error) return reject(error);
@@ -84,7 +84,7 @@ router.post("/getwaitingreturn", async (req, res) => {
   }
 });
 
-var getWaitingReturn = function(item) {
+var getWaitingReturn = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `select orders_return.return_id FROM ${returnorder} WHERE status = 'waiting-return' and pharmacy_id_return = ?`,
@@ -105,7 +105,7 @@ router.post("/del_detail_transid", async (req, res) => {
   }
 });
 
-var DeleteTransportDetail = function(item) {
+var DeleteTransportDetail = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `DELETE FROM ${detail} WHERE transport_id = ?`,
@@ -127,7 +127,7 @@ router.post("/edit_transportstatus", async (req, res) => {
   }
 });
 
-var EditTransportStatus = function(item) {
+var EditTransportStatus = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `UPDATE ${transport} SET status = ? WHERE transport_id = ?`,
@@ -149,7 +149,7 @@ router.post("/sorttransportid", async (req, res) => {
   }
 });
 
-var sortTransportId = function(item) {
+var sortTransportId = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status= ? order by o.order_id ASC;`,
@@ -173,7 +173,7 @@ var sortTransportId = function(item) {
             administration: element.administration,
             expdate: element.expdate,
             received: element.received,
-            disease_id_medicine: element.disease_id_medicine
+            disease_id_medicine: element.disease_id_medicine,
           };
           delete element.medicine_id;
           delete element.medicine_tmt;
@@ -231,7 +231,7 @@ router.post("/edit_transportdate", async (req, res) => {
   }
 });
 
-var EditTransportDate = function(item) {
+var EditTransportDate = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `UPDATE ${transport} SET status = ? , transport_date = NOW() WHERE transport_id = ?`,
@@ -253,33 +253,11 @@ router.post("/sorttransportid", async (req, res) => {
   }
 });
 
-var sortTransportId = function(item) {
+var sortTransportId = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status= ? order by o.order_id ASC;`,
       [item.status],
-      (error, result) => {
-        if (error) return reject(error);
-        var sorttransport = sortDataFormat(result);
-        return resolve(sorttransport);
-      }
-    );
-  });
-};
-
-router.get("/transportstatus", async (req, res) => {
-  try {
-    const item = await TransportStatus();
-    res.json(item);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-var TransportStatus = function() {
-  return new Promise((resolve, reject) => {
-    db.query(
-      `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' ,tr.transport_date,tr.receive_date from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE tr.status IN ('received','transport') order by o.order_id ASC;`,
       (error, result) => {
         if (error) return reject(error);
         var sorttransport = sortDataFormat(result);
@@ -298,7 +276,7 @@ router.post("/transportreceived", async (req, res) => {
   }
 });
 
-var TransportReceived = function(item) {
+var TransportReceived = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' ,tr.transport_date,tr.receive_date from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status = 'received' AND o.pharmacy_id=? order by o.order_id ASC;`,
@@ -312,7 +290,7 @@ var TransportReceived = function(item) {
   });
 };
 
-var sortDataFormat = function(result) {
+var sortDataFormat = function (result) {
   var order = [];
   var count = 0;
   result.forEach((element, index) => {
@@ -331,7 +309,7 @@ var sortDataFormat = function(result) {
       expdate: element.expdate,
       received: element.received,
       disease_id_medicine: element.disease_id_medicine,
-      qty_received: element.qty_received
+      qty_received: element.qty_received,
     };
     delete element.medicine_id;
     delete element.medicine_tmt;
