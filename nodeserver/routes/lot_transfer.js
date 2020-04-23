@@ -113,4 +113,50 @@ var EditOrderStatus = function (item) {
     );
   });
 };
+
+router.post("/editlotreturn", async (req, res) => {
+  try {
+    const item = await EditLotReturn(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var EditLotReturn = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE ${lot} SET qty_less = qty_less+? WHERE lot_no_id =? `,
+      [parseInt(item.qty_less), item.lot_no_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+router.post("/getonelot", async (req, res) => {
+  try {
+    const patients = await getoneLot(req.body);
+    res.json(patients);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+});
+
+var getoneLot = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT lot_no ,lot_no_id,qty,medicine_id,transport_id, DATE_FORMAT(lot_transfer.exp_date,'%Y-%m-%d') as exp_date FROM ${lot} WHERE lot_no_id = ?`,
+      [item.lot_no_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = router;

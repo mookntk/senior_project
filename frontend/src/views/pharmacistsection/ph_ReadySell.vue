@@ -173,36 +173,6 @@
                   </v-list-item>
                 </template>
               </v-list>
-              <!-- <v-row v-for="k in inputs.length" :key="k">
-                  <v-col cols="4">
-                    <v-select :items="lot_no[index]" item-text="lot_no" label="เลขรหัสสินค้า">
-                      <template v-slot:item="data">
-                        <template v-if="typeof data.item !== 'object'">
-                          <v-list-item-content v-text="data.item"></v-list-item-content>
-                        </template>
-                        <template v-else>
-                          <v-list-item-content>
-                            <v-list-item-title
-                              class="font"
-                            >{{ data.item.lot_no }} (เหลือ: {{ data.item.qty_less }})</v-list-item-title>
-                          </v-list-item-content>
-                        </template>
-                      </template>
-                    </v-select>
-                  </v-col>
-                  <v-col cols="3">
-                    <v-text-field label="จำนวน" solo clearable></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="2" md="2">
-                    <v-icon
-                      @click="remove(k)"
-                      v-show="k || (!k && inputs.length > 1)"
-                    >mdi-minus-circle</v-row>
-                    <v-icon @click="add(k)" v-show="k == inputs.length">mdi-plus-circle</v-icon>
-                  </v-col>
-              </v-row>-->
-
-              <!-- </v-row> -->
             </v-container>
           </v-card-text>
           <v-card-actions>
@@ -551,7 +521,6 @@ export default {
       // this.inputs.push("");
     },
     remove(index, subindex) {
-      // this.textbox[index].splice(subindex, 1);
       this.lot_med[index].splice(subindex, 1);
       this.qty_med[index].splice(subindex, 1);
     },
@@ -628,9 +597,18 @@ export default {
             order_id: this.oneorder[0].order_id
           })
           .then(res => {
-            console.log(res);
-            this.refreshOfReadyTable();
-            this.dialog_row = false;
+            this.oneorder.forEach((onemed, m) => {
+              axios
+                .post("http://localhost:3000/api/ready_sell/editreceived", {
+                  medicine_id: onemed.medicine_id,
+                  order_id: this.oneorder[0].order_id,
+                  received: "false"
+                })
+                .then(res => {
+                  this.refreshOfReadyTable();
+                  this.dialog_row = false;
+                });
+            });
           })
           .catch(e => {
             console.log(e);
@@ -681,30 +659,6 @@ export default {
           //   .catch(e => {
           //     console.log(e);
           //   });
-
-          //edit lot qty_less
-          // this.lot_med.forEach((e, i) => {
-          //   this.lot_med[i].forEach((item, j) => {
-          //     var filter = this.lot_no[i].filter((filter, k) => {
-          //       return this.lot_no[i][k].lot_no_id == this.lot_med[i][j];
-          //     });
-
-          //     console.log("object");
-          //     //filter[0] = lot_no_id
-          //     console.log(filter);
-          //     if (filter.length > 0) {
-          //       axios
-          //         .post("http://localhost:3000/api/lot_transfer/editlot", {
-          //           lot_no_id: filter[0].lot_no_id,
-          //           qty_less: filter[0].qty_less - parseInt(this.qty_med[i][j])
-          //         })
-          //         .catch(e => {
-          //           console.log(e);
-          //         });
-          //     }
-          //   });
-          // });
-          console.log(this.lot_med);
           this.lot_med.forEach((element, i) => {
             if (element != null && element != "") {
               this.lot_med[i].forEach((element2, j) => {

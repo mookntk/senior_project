@@ -22,4 +22,25 @@ var NewLot = function (item) {
   });
 };
 
+router.post("/dellot", async (req, res) => {
+  try {
+    const item = await DeleteLot(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var DeleteLot = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `DELETE FROM ${lot} WHERE lot_no_id = ?`,
+      [item.lot_no_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
 module.exports = router;

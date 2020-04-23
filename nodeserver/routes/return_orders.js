@@ -54,6 +54,31 @@ var editOrderReturnId = function (item) {
   });
 };
 
+router.post("/editstatus", async (req, res) => {
+  try {
+    //   console.log(req.body);
+    const newitem = await editStatus(req.body);
+    res.json(newitem);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+});
+
+var editStatus = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE orders_return SET status = ? , send_date = Now(),pharmacist_id_return=? WHERE return_id = ?`,
+      [item.status, item.pharmacist_id, item.return_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+
 router.post("/newreturn", async (req, res) => {
   try {
     //   console.log(req.body);
@@ -91,11 +116,56 @@ var getWaitingReturn = function (item) {
       [item.pharmacy_id],
       (error, result) => {
         if (error) return reject(error);
-        resolve(result);
+        return resolve(result);
       }
     );
   });
 };
+
+router.post("/getorderbyid", async (req, res) => {
+  try {
+    const item = await getOrderById(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getOrderById = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select o.order_id,o.remark,od.qty, m.*, l.*,p.name,p.surname from orders as o inner join order_detail as od on od.order_id = o.order_id  inner join medicine as m on m.medicine_id = od.medicine_id inner join lot_order as l on l.medicine_id= m.medicine_id and l.order_id = o.order_id inner join patients as p on p.patient_HN = o.patient_HN_order where o.return_id = ? and od.received='false' or od.received='0';`,
+      [item.return_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.post("/getreturnstatus", async (req, res) => {
+  try {
+    const item = await getReturnStatus(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getReturnStatus = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select r.return_id,r.status,u.name,u.surname,count(order_id) as num_order ,DATE_FORMAT(r.send_date,'%Y %m %d') AS send_date,DATE_FORMAT(r.receive_date,'%Y %m %d') AS receive_date FROM orders as o inner join ${returnorder} as r on r.return_id = o.return_id left join users as u on u.staff_id = r.pharmacist_id_return WHERE pharmacy_id_return = ? group by r.return_id order by r.status DESC`,
+      [item.pharmacy_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
 router.post("/del_detail_transid", async (req, res) => {
   try {
     const item = await DeleteTransportDetail(req.body);
