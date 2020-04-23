@@ -72,28 +72,63 @@
               <span class="font" style="font-size:12px">กลับไปยังหน้ายาที่ได้รับทั้งหมด</span>
             </v-tooltip>
             <v-spacer></v-spacer>
-            <v-btn color="#f5ce88" large @click="changestatus">บันทึก</v-btn>
+            <v-btn color="#f5ce88" large @click="confirmMissing">บันทึก</v-btn>
           </v-toolbar>
           <v-card-text>
-            <v-row style="margin:10px">
-              <v-col cols="12">
-                <div style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4">
-                  <p style="font-size:18px;margin:auto">ข้อมูลยาที่ขาด</p>
-                </div>
-              </v-col>
-              <v-col style="margin-left:10px">
-                <v-list style="background-color:#f5f7f5">
-                  <p style="font-size:16px;margin:0">จำนวนยาที่ได้รับ</p>
-                  <p style="font-size:11px;margin:0;color:red">*เลือกรหัสสินค้าและจำนวนยาที่ได้รับ</p>
-                  <v-list-item v-for="(element,i) in missing_medinfo" :key="element.medicine_id">
-                    <v-col cols="3">
-                      <v-row color="orange">
-                        <v-checkbox disabled v-model="cb_missing[i]"></v-checkbox>
-                        <p
-                          style="padding-top:17px"
-                        >{{element.medicine_generic}} {{element.strength}} {{element.qty}} {{element.unit}}</p>
-                      </v-row>
-                      <!-- <v-row v-for="(lot,j) in 2" :key="lot">
+            <v-form ref="form2">
+              <v-row style="margin:10px">
+                <v-col cols="12">
+                  <div
+                    style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4"
+                  >
+                    <p style="font-size:18px;margin:auto">ข้อมูลยาที่ขาด</p>
+                  </div>
+                </v-col>
+                <v-col style="margin-left:10px">
+                  <v-list style="background-color:#f5f7f5">
+                    <p style="font-size:16px;margin:0">จำนวนยาที่ได้รับ</p>
+                    <p style="font-size:11px;margin:0;color:red">*เลือกรหัสสินค้าและจำนวนยาที่ได้รับ</p>
+                    <v-list-item v-for="(element,i) in missing_medinfo" :key="element.medicine_id">
+                      <v-list-item-content>
+                        <!-- <v-col cols="3"> -->
+                        <v-row color="orange" style="margin-left:5px">
+                          <v-checkbox disabled v-model="cb_missing[i]"></v-checkbox>
+                          <p
+                            style="padding-top:17px"
+                          >{{element.medicine_generic}} {{element.strength}} {{element.qty}} {{element.unit}}</p>
+                        </v-row>
+                        <!-- </v-col> -->
+                        <v-row v-for="(item,k) in lot_notxt[i]" :key="element.medicine_id*k">
+                          <v-col cols="12" sm="5" md="2">
+                            <v-select
+                              :items="lot_no[i]"
+                              item-text="lot_no"
+                              label="เลขรหัสสินค้า"
+                              v-model="lot_notxt[i][k]"
+                              @change="checksameLot(i,k)"
+                              :rules="[v=>!!v||'กรุณากรอกข้อมูล']"
+                              required
+                              return-object
+                            ></v-select>
+                          </v-col>
+                          <v-col cols="8" sm="4" md="2">
+                            <v-text-field
+                              solo
+                              label="จำนวนยา"
+                              v-model="lot_qtytxt[i][k]"
+                              @input="checkLotQty(i,k)"
+                              :rules="[v=>!!v||'กรุณากรอกข้อมูล',
+                              v=>!isNaN(v)||'กรอกเป็นตัวเลข']"
+                              required
+                            ></v-text-field>
+                          </v-col>
+                          <v-col cols="4" sm="3" md="2">
+                            <v-icon @click="remove(i,k)">mdi-minus-circle</v-icon>
+                            <v-icon @click="add(i,k)">mdi-plus-circle</v-icon>
+                          </v-col>
+                        </v-row>
+
+                        <!-- <v-row v-for="(lot,j) in 2" :key="lot">
                         <v-col cols="4" md>
                           <v-autocomplete :items="missing_lot_no"></v-autocomplete>
                         </v-col>
@@ -110,12 +145,13 @@
                             v-show="k == textbox[index].length-1"
                           >mdi-plus-circle</v-icon>
                         </v-col>
-                      </v-row>-->
-                    </v-col>
-                  </v-list-item>
-                </v-list>
-              </v-col>
-            </v-row>
+                        </v-row>-->
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </v-col>
+              </v-row>
+            </v-form>
             <v-row style="margin:10px">
               <v-col cols="12">
                 <div style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4">
@@ -270,7 +306,9 @@ export default {
       each_transfer: [],
       each_order: [{ status: "" }],
       pharmacy_id: null,
-
+      lot_no: [],
+      lot_notxt: [],
+      lot_qtytxt: [],
       checkbox: []
     };
   },
@@ -298,6 +336,54 @@ export default {
   },
 
   methods: {
+    add(index) {
+      console.log("index=" + index);
+      if (this.lot_notxt[index].length < this.lot_no[index].length) {
+        // this.textbox[index].push("");
+        this.lot_notxt[index].push(null);
+        this.lot_qtytxt[index].push(null);
+      }
+    },
+    remove(index, subindex) {
+      this.lot_notxt[index].splice(subindex, 1);
+      this.lot_qtytxt[index].splice(subindex, 1);
+    },
+    checkLotQty(index, k) {
+      if (this.lot_notxt[index][k] != null) {
+        var qty = 0;
+        console.log(this.lot_notxt[index][k].qty);
+        console.log(this.lot_qtytxt[index][k]);
+        this.lot_qtytxt[index].forEach((item, i) => {
+          qty += parseInt(this.lot_qtytxt[index][i]);
+        });
+        if (qty > this.missing_medinfo[index].qty) {
+          alert("กรอกยาเกินจำนวนที่ได้รับ");
+          this.lot_qtytxt[index][k] = "";
+        } else if (qty == this.missing_medinfo[index].qty) {
+          this.cb_missing[index] = true;
+        } else if (qty < this.missing_medinfo[index].qty) {
+          this.cb_missing[index] = false;
+        }
+        if (this.lot_notxt[index][k].qty < this.lot_qtytxt[index][k]) {
+          alert("กรอกจำนวนยาเกินในล็อตนี้");
+          this.lot_qtytxt[index][k] = "";
+        }
+      } else {
+        alert("กรุณาเลือกรหัสสินค้าก่อน");
+        this.lot_qtytxt[index][k] = "";
+      }
+    },
+    checksameLot(index, k) {
+      for (var i = 0; i < this.lot_notxt[index].length; i++) {
+        if (i != k) {
+          if (this.lot_notxt[index][k] == this.lot_notxt[index][i]) {
+            alert("ใช้รหัสสินค้าซ้ำ");
+            this.lot_notxt[index].splice(k, 1);
+            this.lot_qtytxt[index].splice(k, 1);
+          }
+        }
+      }
+    },
     resetDialog() {
       this.dialog_all = false;
       setTimeout(() => {
@@ -353,8 +439,162 @@ export default {
         }
       }
     },
+    confirmMissing() {
+      var check = this.cb_missing.every(element => element == true);
+      console.log(check);
+      if (this.$refs.form2.validate() && check) {
+        this.each_transfer.forEach((element, index) => {
+          // axios
+          //   .post("http://localhost:3000/api/log/newlog", {
+          //     status: "confirm",
+          //     start_date: dateFormat(new Date(), "yyyy/mm/dd"),
+          //     staff_id_log: localStorage.getItem("staff_id"),
+          //     order_id_log: this.each_transfer[index].order_id
+          //   })
+          //   .catch(e => {
+          //     console.log(e);
+          //   });
+          //change status order => prepare
+          var checkmissingorder = this.missing_order.indexOf(
+            this.each_transfer[index]
+          );
+          if (
+            checkmissingorder == -1 ||
+            this.cb_missing_card[checkmissingorder] == true
+          ) {
+            //prepare
+            console.log({
+              status: "prepare",
+              transport_id: this.transport_id,
+              order_id: this.each_transfer[index].order_id
+            });
+            axios
+              .post("http://localhost:3000/api/order/edit_orderstatus", {
+                status: "prepare",
+                transport_id: this.transport_id,
+                order_id: this.each_transfer[index].order_id
+              })
+              .then(res => {})
+              .catch(e => {
+                console.log(e);
+              });
+            // }
+          } else {
+            console.log({
+              status: "missing",
+              transport_id: this.transport_id,
+              order_id: this.each_transfer[index].order_id
+            });
+            this.missing_order[checkmissingorder].medicineItem.forEach(
+              (qtymissing, i) => {
+                if (this.missing_medid.indexOf(qtymissing.medicine_id) > -1) {
+                  axios.post(
+                    "http://localhost:3000/api/order/edit_qtymissing",
+                    {
+                      qty_missing:
+                        qtymissing.qty -
+                        (parseInt(this.missing_medtxt[checkmissingorder][i]) ||
+                          0),
+                      order_id: this.each_transfer[index].order_id,
+                      medicine_id: qtymissing.medicine_id
+                    }
+                  );
+                }
+              }
+            );
+            axios
+              .post("http://localhost:3000/api/order/edit_orderstatus", {
+                status: "missing",
+                transport_id: this.transport_id,
+                order_id: this.each_transfer[index].order_id
+              })
+              .then(res => {})
+              .catch(e => {
+                console.log(e);
+              });
+            // }
+          }
+        });
+        //loop by no of medicineAll
+        this.medicineAll.forEach((e, i) => {
+          axios
+            .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
+              transport_id: this.transport_id,
+              medicine_id: e.medicine_id
+            })
+            .then(res => {
+              var lot = res.data;
+              var index_missing = this.missing_medid.indexOf(e.medicine_id);
+              if (index_missing == -1) {
+                lot.forEach((item, j) => {
+                  console.log("completeoreder");
+                  console.log({
+                    lot_no_id: lot[j].lot_no_id,
+                    qty_less: lot[j].qty
+                  });
+                  axios.post("http://localhost:3000/api/lot_transfer/editlot", {
+                    lot_no_id: lot[j].lot_no_id,
+                    qty_less: lot[j].qty
+                  });
+                });
+              } else {
+                // var usedlot = lot.filter((lot,index)=>{
+                //   lot.indexOf(this.lot_notxt[index_missing][index]==
+                // })
+                lot.forEach((item, j) => {
+                  var check = 1;
+
+                  this.lot_notxt[index_missing].forEach((item2, j2) => {
+                    if (item.lot_no_id == item2.lot_no_id) {
+                      check = 0;
+                      console.log("missing");
+                      console.log({
+                        lot_no_id: lot[j].lot_no_id,
+                        qty_less: this.lot_qtytxt[index_missing][j2]
+                      });
+                      axios
+                        .post(
+                          "http://localhost:3000/api/lot_transfer/editlot",
+                          {
+                            lot_no_id: lot[j].lot_no_id,
+                            qty_less: this.lot_qtytxt[index_missing][j2]
+                          }
+                        )
+                        .then(res => {
+                          check = 0;
+                        });
+                    }
+                  });
+                  if (check) {
+                    console.log({
+                      lot_no_id: lot[j].lot_no_id,
+                      qty_less: 0
+                    });
+                    axios
+                      .post("http://localhost:3000/api/lot_transfer/editlot", {
+                        lot_no_id: lot[j].lot_no_id,
+                        qty_less: 0
+                      })
+                      .then(res => {
+                        check = 0;
+                      });
+                  }
+                });
+              }
+
+              console.log("lot");
+              console.log(lot);
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        });
+        this.dialog_missing = true;
+      }
+    },
     getMissingLotno() {
-      this.missing_medid.forEach(element => {
+      this.lot_no = [];
+      this.missing_medid.forEach((element, i) => {
         console.log(element);
         axios
           .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
@@ -362,8 +602,10 @@ export default {
             medicine_id: element
           })
           .then(res => {
-            console.log("object");
-            console.log(res.data);
+            // this.lot_no.push(null);
+            this.lot_no.push(res.data);
+            this.lot_notxt.push([null]);
+            this.lot_qtytxt.push([null]);
           });
       });
     },
@@ -385,9 +627,43 @@ export default {
     checkOrderMissing(i, j, med) {
       if (this.missing_medtxt[i][j] > med.qty) {
         alert("กรอกจำนวนยาเกิน กรุณากรอกใหม่");
+        this.missing_medtxt[i][j] = "";
       }
+      var qty = [];
+      var check = 1;
+      // var qty_order = 0
       this.missing_order.forEach((element, index) => {
         // ele;
+        element.medicineItem.forEach((element2, index2) => {
+          if (index == i) {
+            if (this.missing_medid.indexOf(element2.medicine_id) > -1) {
+              if (this.missing_medtxt[index][index2] == med.qty) {
+              } else {
+                check = 0;
+              }
+            }
+          }
+
+          // var checkqty = this.missing_medid.indexOf(element2.medicine_id);
+          // if (checkqty > -1) {
+          //   //ยาเป็นยาที่ขาด
+          //   if (
+          //     this.missing_medtxt[index][index2] != null ||
+          //     this.missing_medtxt[index][index2] != ""
+          //   ) {
+          //     if (qty[checkqty] == null) {
+          //       qty[checkqty] = 0;
+          //       qty[checkqty] += parseInt(this.missing_medtxt[index][index2]);
+          //     }
+          //     qty[checkqty] += parseInt(this.missing_medtxt[index][index2]);
+          //   }
+          // }
+        });
+        if (check) {
+          this.cb_missing_card[i] = true;
+        } else {
+          this.cb_missing_card[i] = false;
+        }
       });
     },
     setDate: function(d) {
@@ -436,62 +712,60 @@ export default {
       } else return "";
     },
     changestatus() {
-      // if (this.transfer_order[this.index].status == "transport") {
-      //   this.transfer_order[this.index].status = "received";
+      // // if (this.transfer_order[this.index].status == "transport") {
+      // //   this.transfer_order[this.index].status = "received";
+      // // }
+      // if (this.$refs.form.validate()) {
+      //   // add orderlog
+      //   this.each_order.forEach((element, index) => {
+      //     axios
+      //       .post("http://localhost:3000/api/log/newlog", {
+      //         status: "confirm",
+      //         start_date: dateFormat(new Date(), "yyyy/mm/dd"),
+      //         staff_id_log: localStorage.getItem("staff_id"),
+      //         order_id_log: this.each_order[index].order_id
+      //       })
+      //       .catch(e => {
+      //         console.log(e);
+      //       });
+      //     //change status order => prepare
+      //     axios
+      //       .post("http://localhost:3000/api/order/edit_orderstatus", {
+      //         status: "prepare",
+      //         transport_id: this.each_order[index].transport_id,
+      //         order_id: this.each_order[index].order_id
+      //       })
+      //       .then(res => {
+      //         this.transfer_order.splice(this.index, 1);
+      //       })
+      //       .catch(e => {
+      //         console.log(e);
+      //       });
+      //   });
+      //   //loop by no of medicineAll
+      //   this.medicineAll.id.forEach((e, i) => {
+      //     axios
+      //       .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
+      //         transport_id: this.each_order[0].transport_id,
+      //         medicine_id: this.medicineAll.id[i]
+      //       })
+      //       .then(res => {
+      //         var lot = res.data;
+      //         console.log("lot");
+      //         console.log(lot);
+      //         lot.forEach((item, j) => {
+      //           axios.post("http://localhost:3000/api/lot_transfer/editlot", {
+      //             lot_no_id: lot[j].lot_no_id,
+      //             qty_less: lot[j].qty
+      //           });
+      //         });
+      //       })
+      //       .catch(e => {
+      //         console.log(e);
+      //       });
+      //   });
+      //   this.dialog_row = false;
       // }
-      if (this.$refs.form.validate()) {
-        // add orderlog
-        this.each_order.forEach((element, index) => {
-          axios
-            .post("http://localhost:3000/api/log/newlog", {
-              status: "confirm",
-              start_date: dateFormat(new Date(), "yyyy/mm/dd"),
-              staff_id_log: localStorage.getItem("staff_id"),
-              order_id_log: this.each_order[index].order_id
-            })
-            .catch(e => {
-              console.log(e);
-            });
-
-          //change status order => prepare
-          axios
-            .post("http://localhost:3000/api/order/edit_orderstatus", {
-              status: "prepare",
-              transport_id: this.each_order[index].transport_id,
-              order_id: this.each_order[index].order_id
-            })
-            .then(res => {
-              this.transfer_order.splice(this.index, 1);
-            })
-            .catch(e => {
-              console.log(e);
-            });
-        });
-        //loop by no of medicineAll
-        this.medicineAll.id.forEach((e, i) => {
-          axios
-            .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
-              transport_id: this.each_order[0].transport_id,
-              medicine_id: this.medicineAll.id[i]
-            })
-            .then(res => {
-              var lot = res.data;
-              console.log("lot");
-              console.log(lot);
-              lot.forEach((item, j) => {
-                axios.post("http://localhost:3000/api/lot_transfer/editlot", {
-                  lot_no_id: lot[j].lot_no_id,
-                  qty_less: lot[j].qty
-                });
-              });
-            })
-            .catch(e => {
-              console.log(e);
-            });
-        });
-
-        this.dialog_row = false;
-      }
     },
     selectItem(item) {
       this.transport_id = item.transport_id;
@@ -525,7 +799,9 @@ export default {
               console.log(format);
             } else {
               if (pre_orderid === element.order_id) {
-                format[format.length - 1].medicineItem.push(medicine);
+                format[format.length - 1].medicineItem[
+                  format[format.length - 1].medicineItem.length
+                ] = { ...medicine };
               } else {
                 element["medicineItem"] = [];
                 element["medicineItem"][0] = { ...medicine };

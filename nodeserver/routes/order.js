@@ -210,6 +210,28 @@ var EditNumMedicine = function (item) {
   });
 };
 
+router.post("/edit_qtymissing", async (req, res) => {
+  try {
+    const item = await EditqtyMissing(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var EditqtyMissing = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE ${detail} SET qty_missing = ? WHERE order_id = ? AND medicine_id = ?`,
+      [item.qty_missing, item.order_id, item.medicine_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+
 router.post("/getorder_phid", async (req, res) => {
   try {
     const item = await GetOrderByPhId(req.body);

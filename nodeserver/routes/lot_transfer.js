@@ -13,7 +13,7 @@ router.post("/newlot", async (req, res) => {
   }
 });
 
-var NewLot = function(item) {
+var NewLot = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${lot} SET ?`, item, (error, result) => {
       if (error) return reject(error);
@@ -31,7 +31,7 @@ router.post("/deletelot", async (req, res) => {
   }
 });
 
-var DeleteLot = function(item) {
+var DeleteLot = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `DELETE FROM ${lot} WHERE transport_id = ?`,
@@ -50,12 +50,12 @@ router.post("/getlot", async (req, res) => {
     res.json(patients);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-var getLotByTransport = function(item) {
+var getLotByTransport = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT lot_no ,lot_no_id,qty,medicine_id,transport_id, DATE_FORMAT(lot_transfer.exp_date,'%Y-%m-%d') as exp_date FROM ${lot} WHERE transport_id = ?`,
@@ -74,15 +74,15 @@ router.post("/getlotonemed", async (req, res) => {
     res.json(patients);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
-var getLotOneMed = function(item) {
+var getLotOneMed = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT lot_no_id,qty,medicine_id,transport_id,qty_less, DATE_FORMAT(lot_transfer.exp_date,'%Y-%m-%d') as exp_date FROM ${lot} WHERE transport_id = ? and medicine_id = ? `,
+      `SELECT lot_no_id,lot_no,qty,medicine_id,transport_id,qty_less, DATE_FORMAT(lot_transfer.exp_date,'%Y-%m-%d') as exp_date FROM ${lot} WHERE transport_id = ? and medicine_id = ? `,
       [item.transport_id, item.medicine_id],
       (error, result) => {
         if (error) return reject(error);
@@ -101,7 +101,7 @@ router.post("/editlot", async (req, res) => {
   }
 });
 
-var EditOrderStatus = function(item) {
+var EditOrderStatus = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `UPDATE ${lot} SET qty_less = ? WHERE lot_no_id =? `,

@@ -211,11 +211,31 @@ router.get("/transportstatus", async (req, res) => {
 var TransportStatus = function () {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' ,tr.transport_date,tr.receive_date from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE tr.status IN ('received','transport') order by o.order_id ASC;`,
+      `select t.* ,count(order_id) as num_order , p.pharmacy_name from orders as o inner join orders_transport as t on o.transport_id = t.transport_id inner join pharmacy as p on t.pharmacy_id_transport = p.pharmacy_id WHERE t.status IN ('received','transport') group by t.transport_id `,
       (error, result) => {
         if (error) return reject(error);
-        var sorttransport = sortDataFormat(result);
-        return resolve(sorttransport);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.get("/waitingmedicine", async (req, res) => {
+  try {
+    const item = await WaitingMedicineStatus();
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var WaitingMedicineStatus = function () {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select t.* ,count(order_id) as num_order , p.* from orders as o inner join orders_transport as t on o.transport_id = t.transport_id inner join pharmacy as p on t.pharmacy_id_transport = p.pharmacy_id WHERE t.status IN ('waiting-medicine','medicine-complete') group by t.transport_id order by t.transport_id `,
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
       }
     );
   });
@@ -254,7 +274,29 @@ router.post("/transport_order", async (req, res) => {
 var getTransportOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT o.order_id,o.due_date,o.create_date,o.status,od.*,m.*,p.name,p.surname FROM orders as o inner join order_detail as od on o.order_id = od.order_id inner join medicine as m on m.medicine_id = od.medicine_id inner join patients as p on p.patient_HN=o.patient_HN_order where o.transport_id = ? order by od.order_id;`,
+      `SELECT o.order_id,o.due_date,o.create_date,o.status,od.*,m.*,p.name,p.surname,p.patient_HN FROM orders as o inner join order_detail as od on o.order_id = od.order_id inner join medicine as m on m.medicine_id = od.medicine_id inner join patients as p on p.patient_HN=o.patient_HN_order where o.transport_id = ? order by od.order_id;`,
+      [item.transport_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.post("/transport_confirm", async (req, res) => {
+  try {
+    const item = await getTransportConfirm(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getTransportConfirm = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT o.order_id,o.due_date,o.create_date,o.status,od.*,m.*,p.name,p.surname,p.patient_HN FROM orders as o inner join order_detail as od on o.order_id = od.order_id inner join medicine as m on m.medicine_id = od.medicine_id inner join patients as p on p.patient_HN=o.patient_HN_order where o.transport_id = ? order by od.order_id;`,
       [item.transport_id],
       (error, result) => {
         if (error) return reject(error);

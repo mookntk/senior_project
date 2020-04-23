@@ -484,7 +484,10 @@ export default {
           console.log(Difference_In_Days);
           console.log("ddd");
           var med = 24 / parseInt(this.everyMed[i]);
-          this.qty_selected[i] += parseInt(Difference_In_Days) * parseInt(med);
+          this.qty_selected[i] +=
+            parseInt(Difference_In_Days) *
+            parseInt(med) *
+            parseInt(this.numMed[i]);
         }
       });
     },

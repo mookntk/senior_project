@@ -11,12 +11,10 @@
         transition="dialog-bottom-transition"
       >
         <v-card class="font">
-          <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog_detail = false">
-              <v-icon>mdi-close</v-icon>
+          <v-toolbar color="#77B3D5">
+            <v-btn color="#C85D5C" fab small depressed @click="dialog_detail = false">
+              <v-icon>mdi-close-thick</v-icon>
             </v-btn>
-            <v-toolbar-title></v-toolbar-title>
-            <v-spacer></v-spacer>
           </v-toolbar>
           <v-row></v-row>
           <v-row style="margin:20px">
@@ -42,7 +40,7 @@
                   >{{ setMed(item.medicineItem)}}</td>
                 </template>
                 <template v-slot:item.status="{ item }">
-                  <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
+                  <v-chip :color="getColor(item.status)">{{ setStatus(item.status) }}</v-chip>
                 </template>
               </v-data-table>
             </v-col>
@@ -104,7 +102,7 @@
           <p style="text-align:center;margin:auto">{{ setDate(item.receive_date) }}</p>
         </template>
         <template v-slot:item.status="{ item }">
-          <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
+          <v-chip :color="getColor(item.status)">{{ setStatus(item.status) }}</v-chip>
         </template>
         <template v-slot:no-data>ไม่มีออร์เดอร์ที่ถูกจัดส่ง</template>
       </v-data-table>
@@ -206,15 +204,15 @@ export default {
   },
   methods: {
     getColor(status) {
-      if (status == "cancel") return "red";
-      else if (status == "ready") return "orange";
-      else if (status == "prepare") return "grey";
-      else if (status == "success") return "green";
-      else if (status == "waiting-medicine") return "grey";
-      else if (status == "medicine-complete") return "grey";
-      else if (status == "waiting-transport") return "grey";
-      else if (status == "transport") return "orange";
-      else return "green";
+      if (status == "cancel") return "#C85D5C";
+      else if (status == "ready") return "#E1995E";
+      else if (status == "prepare") return "#bdc3c7";
+      else if (status == "success") return "#76C3AF";
+      else if (status == "waiting-medicine") return "#bdc3c7";
+      else if (status == "medicine-complete") return "#bdc3c7";
+      else if (status == "waiting-transport") return "#bdc3c7";
+      else if (status == "transport") return "#E1995E";
+      else return "#76C3AF";
     },
     getTransportHistory() {
       axios
