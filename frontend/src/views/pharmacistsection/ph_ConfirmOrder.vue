@@ -127,25 +127,6 @@
                             <v-icon @click="add(i,k)">mdi-plus-circle</v-icon>
                           </v-col>
                         </v-row>
-
-                        <!-- <v-row v-for="(lot,j) in 2" :key="lot">
-                        <v-col cols="4" md>
-                          <v-autocomplete :items="missing_lot_no"></v-autocomplete>
-                        </v-col>
-                        <v-col cols="4" md>
-                          <v-text-field solo label="จำนวนยา"></v-text-field>
-                        </v-col>
-                        <v-col cols="2">
-                          <v-icon
-                            @click="remove(index,k)"
-                            v-show="k>0 || ( !k && textbox[index].length > 1)"
-                          >mdi-minus-circle</v-icon>
-                          <v-icon
-                            @click="add(index)"
-                            v-show="k == textbox[index].length-1"
-                          >mdi-plus-circle</v-icon>
-                        </v-col>
-                        </v-row>-->
                       </v-list-item-content>
                     </v-list-item>
                   </v-list>

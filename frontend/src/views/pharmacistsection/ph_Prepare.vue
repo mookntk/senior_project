@@ -13,9 +13,6 @@
             <v-toolbar-title style="margin-left:20px">ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title>
           </v-toolbar>
 
-          <v-card-title>
-            <span class="font headline"></span>
-          </v-card-title>
           <v-card-text>
             <v-container>
               <v-row>

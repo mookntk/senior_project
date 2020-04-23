@@ -23,7 +23,7 @@ router.post(
 var ready_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT o.order_id,o.patient_HN_order,p.name,p.surname,o.status,DATE_FORMAT(o.due_date,'%Y %m %d') AS due_date " +
+      "SELECT o.order_id,o.patient_HN_order,p.name,p.surname,p.telno,p.email,o.status,DATE_FORMAT(o.due_date,'%Y %m %d') AS due_date " +
         "from orders as o " +
         "left join patients as p ON o.patient_HN_order = p.patient_HN " +
         "WHERE o.status ='ready' " +
@@ -63,7 +63,7 @@ router.post(
 var one_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT o.order_id,p.name,p.surname,p.gender,p.DOB,o.status,o.patient_HN_order,m.medicine_generic,m.strength,od.qty,m.unit,m.medicine_id " +
+      "SELECT o.order_id,p.name,p.surname,p.gender,p.telno,p.email,p.DOB,o.status,o.patient_HN_order,m.medicine_generic,m.strength,od.qty,m.unit,m.medicine_id " +
         // "group_concat(m.medicine_generic) as medicine_generic, " +
         // "group_concat(m.strenght) as strenght, " +
         // "group_concat(od.qty) as qty, " +
@@ -155,8 +155,8 @@ router.post(
 var successOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE orders SET status='success' , receive_date = NOW() WHERE order_id=? `,
-      [item.order_id],
+      `UPDATE orders SET status='success' ,remark=?, receive_date = NOW() WHERE order_id=? `,
+      [item.remark, item.order_id],
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
@@ -164,4 +164,29 @@ var successOrder = function (item) {
     );
   });
 };
+
+router.post("/editreceived", async (req, res) => {
+  try {
+    const patients = await editReceived(req.body);
+    res.json(patients);
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+});
+
+var editReceived = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE order_detail SET received=? WHERE order_id=? AND medicine_id=?`,
+      [item.received, item.order_id, item.medicine_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = router;
