@@ -13,16 +13,13 @@
         transition="dialog-bottom-transition"
       >
         <v-card class="font">
-          <v-toolbar dark color="primary">
-            <v-btn icon dark @click="dialog_sendback = false">
+          <v-toolbar color="#77B3D5">
+            <v-btn color="#C85D5C" fab small depressed @click="dialog_sendback = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title>
+            <v-toolbar-title style="margin-left:20px">ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title>
           </v-toolbar>
 
-          <v-card-title>
-            <span class="font"></span>
-          </v-card-title>
           <v-form ref="form">
             <v-card-text>
               <v-container>
@@ -49,7 +46,7 @@
                       readonly
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="8">
+                  <v-col cols="12" sm="6" md="4">
                     <v-select
                       :items="note"
                       label="หมายเหตุ"
@@ -59,6 +56,13 @@
                       outlined
                     ></v-select>
                   </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field
+                      v-model="other"
+                      :disabled="remark!='อื่นๆ'"
+                      v-if="remark=='อื่นๆ'"
+                    ></v-text-field>
+                  </v-col>
                 </v-row>
 
                 <v-list class="font">
@@ -67,21 +71,20 @@
                       <v-list-item-content>
                         <v-checkbox
                           v-model="selected[index]"
-                          color="success"
+                          color="#76C3AF"
                           :label="i.medicine_generic+' '+i.strength+' '+i.qty+' '+i.unit"
                           disabled
                         ></v-checkbox>
-
                         <v-row>
-                          <template v-for="(item,k) in textbox[index]">
-                            <v-col cols="12" sm="2" md="2" :key="k">
-                              <v-autocomplete
+                          <template v-for="(item,k) in lot_med[index]">
+                            <v-col cols="12" sm="5" md="2" :key="k">
+                              <v-select
                                 :items="lot_no[index]"
                                 item-text="lot_no"
                                 label="เลขรหัสสินค้า"
-                                item-value="lot_no_id"
                                 v-model="lot_med[index][k]"
-                                :rules="[v => !!v || 'กรุณากรอกข้อมูล']"
+                                @change="checkSameLot(index,k)"
+                                :rules="[v=>!!v||'กรุณากรอกข้อมูล']"
                                 required
                                 return-object
                               >
@@ -97,27 +100,22 @@
                                     </v-list-item-content>
                                   </template>
                                 </template>
-                              </v-autocomplete>
+                              </v-select>
                             </v-col>
-                            <v-col cols="12" sm="2" md="2">
+                            <v-col cols="12" sm="4" md="2" :key="k">
                               <v-text-field
                                 solo
-                                clearable
                                 label="จำนวนยา"
                                 v-model="qty_med[index][k]"
-                                :rules="numberrules"
+                                @input="checkLotQty(index,k)"
+                                :rules="[v=>!!v||'กรุณากรอกข้อมูล',
+                                v=>!isNaN(v)||'กรอกเป็นตัวเลข']"
                                 required
                               ></v-text-field>
                             </v-col>
-                            <v-col cols="12" sm="2" md="2">
-                              <v-icon
-                                @click="remove(index,k)"
-                                v-show="k>0 || ( !k && textbox[index].length > 1)"
-                              >mdi-minus-circle</v-icon>
-                              <v-icon
-                                @click="add(index)"
-                                v-show="k == textbox[index].length-1"
-                              >mdi-plus-circle</v-icon>
+                            <v-col cols="12" sm="3" md="2" :key="k">
+                              <v-icon @click="remove(index,k)">mdi-minus-circle</v-icon>
+                              <v-icon @click="add(index)">mdi-plus-circle</v-icon>
                             </v-col>
                           </template>
                         </v-row>
@@ -130,15 +128,9 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn
-                rounded
-                large
-                color="success"
-                dark
-                @click="sendback_confirm()"
-              >ส่งยาคืนโรงพยาบาล</v-btn>
+              <v-btn large color="#76C3AF" @click="sendback_confirm()">ส่งยาคืนโรงพยาบาล</v-btn>
 
-              <v-btn rounded large color="warning" dark @click="dialog_sendback = false">ยกเลิก</v-btn>
+              <v-btn large color="#C85D5C" @click="closeDialog">ยกเลิก</v-btn>
             </v-card-actions>
           </v-form>
           <!-- table in pop-up page for see each of order detial -->
@@ -147,39 +139,34 @@
 
       <!--  select button -->
       <v-layout>
-        <v-flex d-flex xs12 sm6 md4>
+        <v-flex d-flex xs12 sm2 md2>
           <v-layout column align-end justify-start>
+            <v-btn width="200px" color="#bdc3c7" value="all" @click="filterorder('all')">ทั้งหมด</v-btn>
             <v-btn
               width="200px"
-              class="blue-grey lighten-3"
-              value="all"
-              @click="sortdata"
-            >ออร์เดอร์ทั้งหมด</v-btn>
-            <v-btn
-              width="200px"
-              class="green lighten-1"
+              color="#76C3AF"
               value="success"
-              @click="sortdata"
-            >ออร์เดอร์ที่สำเร็จแล้ว</v-btn>
+              @click="filterorder('success')"
+            >สำเร็จแล้ว</v-btn>
             <v-btn
               width="200px"
-              class="gray lighten-1"
-              value="not_ready"
-              @click="sortdata"
-            >ออร์เดอร์ที่ไม่พร้อมจ่ายยา</v-btn>
+              class="#DFE4DE"
+              value="missing"
+              @click="filterorder('missing')"
+            >ไม่พร้อมจ่ายยา</v-btn>
             <v-btn
               width="200px"
-              class="orange lighten-1"
-              value="received_some"
-              @click="sortdata"
-            >ออร์เดอร์ที่คืนบางส่วน</v-btn>
+              color="#E1995E"
+              value="partial"
+              @click="filterorder('partial')"
+            >รับยาบางส่วน</v-btn>
 
             <v-btn
               width="200px"
-              class="red lighten-1"
+              color="#C85D5C"
               value="cancel"
-              @click="sortdata"
-            >ออร์เดอร์ที่ต้องยกเลิก</v-btn>
+              @click="filterorder('cancel')"
+            >ยกเลิก</v-btn>
           </v-layout>
         </v-flex>
 
@@ -188,54 +175,40 @@
           <v-card class="red" height="100%" width="1080px">
             <v-data-table
               :headers="headers"
-              :items="order_filter"
+              :items="filterOrders"
               :search="search"
-              sort-by="status"
               class="elevation-1"
             >
-              <template v-slot:item.status="{ item }">
-                <v-chip :color="getColor(item.status)" dark>
-                  {{
-                  setStatus(item.status)
-                  }}
-                </v-chip>
-              </template>
               <template v-slot:top>
                 <v-toolbar flat>
                   <v-spacer></v-spacer>
                   <v-text-field
                     v-model="search"
                     append-icon="mdi-magnify"
-                    label="Search"
+                    label="ค้นหา"
                     single-line
                     hide-details
                     clearable
                   ></v-text-field>
                 </v-toolbar>
               </template>
-              <template v-slot:body="{ items }">
-                <tbody>
-                  <tr v-for="item in items" :key="item.name">
-                    <td style="text-align:center">{{ item.patient_HN_order }}</td>
-                    <td style="text-align:left">{{ item.name }}</td>
-                    <td style="text-align:left">{{ item.surname }}</td>
-                    <td style="text-align:left">{{ setDate(item.due_date) }}</td>
-                    <td style="text-align:left">
-                      <v-chip :color="getColor(item.status)" dark>{{ setStatus(item.status) }}</v-chip>
-                    </td>
-                    <td style="text-align:left">
-                      <v-btn
-                        color="primary"
-                        @click="getindex_cancel(item)"
-                        v-if="
-                          item.status == 'cancel' ||
-                            item.status == 'received_some'
+              <template v-slot:no-data>ไม่มีข้อมูลออร์เดอร์</template>
+              <template v-slot:item.status="{item}">
+                <v-chip
+                  :color="getColor(item.status,item.remark)"
+                >{{ setStatus(item.status,item.remark) }}</v-chip>
+              </template>
+              <template v-slot:item.due_date="{item}">{{setDate(item.due_date) }}</template>
+              <template v-slot:item.return_id="{item}">
+                <v-btn
+                  color="#76C3AF"
+                  @click="getindex_cancel(item)"
+                  v-if="
+                          item.status == 'cancel' ||(
+                            item.status == 'success'&&item.remark=='รับยาบางส่วน')
                         "
-                        :disabled="item.return_id!=null"
-                      >ส่งยากลับ</v-btn>
-                    </td>
-                  </tr>
-                </tbody>
+                  :disabled="item.return_id!=null"
+                >ส่งยากลับ</v-btn>
               </template>
             </v-data-table>
           </v-card>
@@ -250,43 +223,8 @@ import Menubar from "../../components/ph_menubar";
 import axios from "axios";
 import dateFormat from "dateformat";
 export default {
-  components: {
-    Menubar
-  },
-  mounted() {
-    var today = new Date();
-    this.date_now = today;
-
-    axios
-      .post("http://localhost:3000/api/user/getuserbyid", {
-        staff_id: localStorage.getItem("staff_id")
-      })
-      .then(res => {
-        this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
-        axios
-          .post("http://localhost:3000/api/order_status/order_with_status", {
-            pharmacy_id: this.pharmacy_id
-          })
-          .then(res => {
-            this.s_order = res.data;
-            this.initialize();
-          });
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  },
   data: () => ({
-    s_order: [
-      {
-        order_id: "",
-        patient_HN_order: "",
-        name: "",
-        surname: "",
-        status: "",
-        due_date: ""
-      }
-    ],
+    s_order: [],
     inputs: [0],
     lot_no: ["lt23413", "da451274"],
     date_now: "",
@@ -296,13 +234,20 @@ export default {
     headers: [
       {
         text: "HN",
-        align: "left"
+        align: "left",
+        value: "patient_HN_order",
+        divider: true
       },
-      { text: "ชื่อ" },
-      { text: "นามสกุล" },
-      { text: "วันที่ต้องมารับยา" },
-      { text: "สถานะ" },
-      { text: " " }
+      { text: "ชื่อ", align: "center", value: "name", divider: true },
+      { text: "นามสกุล", align: "center", value: "surname", divider: true },
+      {
+        text: "วันที่ต้องมารับยา",
+        align: "center",
+        value: "due_date",
+        divider: true
+      },
+      { text: "สถานะ", align: "center", value: "status", divider: true },
+      { text: " ", align: "center", value: "return_id", divider: true }
       // ,
       // { text: "Actions", value: "action", sortable: false }
     ],
@@ -322,7 +267,7 @@ export default {
       }
     ],
     order_filter: [],
-    note: ["ผู้ป่วยไม่มารับ", "ยามีปัญหา"],
+    note: ["ผู้ป่วยไม่มารับ", "ยามีปัญหา", "รับยาบางส่วน", "อื่นๆ"],
     remark: null,
     editedIndex: -1,
     editedItem: {
@@ -351,109 +296,76 @@ export default {
     numberrules: [
       v => !!v || "กรุณากรอกข้อมูล",
       v => !isNaN(v) || "กรุณากรอกข้อมูลตัวเลข"
-    ]
-  }),
-  computed: {
-    formTitle() {
-      return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    }
-  },
-  watch: {
-    lot_med() {
-      console.log(this.lot_med);
-      this.lot_med.forEach((item, i) => {
-        var object = {};
-        for (let item2 of this.lot_med[i]) {
-          if (item2 != "" && item2 != null) {
-            if (!object[item2.lot_no_id]) object[item2.lot_no_id] = 0;
-            object[item2.lot_no_id] += 1;
-            if (object[item2.lot_no_id] > 1) {
-              alert("the same lot_no");
-              var index = this.lot_med[i].lastIndexOf(item2);
-              console.log("index");
-              this.lot_med[i][index] = {};
-              console.log(this.lot_med);
-            }
-          }
-        }
-        // }
-        //         this.lot_med[i].forEach(item2 => {
-        //           if (item2 != "") {
-        //             if (!object[item2]) object[item2] = 0;
-        //             object[item2] += 1;
-        //             if (object[item2] > 1) {
-        //               alert("the same lot_no");
-        //               var index = this.lot_med[i].lastIndexOf(item2);
-        //               console.log("index");
-
-        //               this.lot_med[i][index] = null;
-        //               console.log(this.lot_med);
-        //               // break;
-        //             }
-        //           }
-        //         });
-        // if (this.lot_med[i] != "") {
-        //   if (check.indexOf(item)) {
-        //     duplicate++;
-        //   }
-        //   check.push(item);
-        //   if (duplicate > 0) {
-        //     alert("the same lot_no");
-        //   }
-        // }
-        // check = this.lot_med[i].filter((item,i)=>{
-        //   return
-        // })
-      });
+    ],
+    filters: {
+      status: [],
+      remark: []
     },
-    qty_med() {
-      this.qty_med.forEach((item, i) => {
-        var check_amount = 0;
-        this.qty_med[i].forEach((qty, j) => {
-          check_amount += parseInt(qty);
-          console.log("check_amount");
-          console.log(check_amount);
-          //check qty_less
-          if (this.qty_med[i][j] > this.lot_med[i][j].qty_less) {
-            alert("จำนวนยาของรหัสสินค้าไม่พอ");
-            this.qty_med[i][j] = this.lot_med[i][j].qty_less;
-          }
-          if (check_amount > this.oneorder[i].qty) {
-            alert("จำนวนยาเกิน");
-            console.log(
-              this.oneorder[i].qty +
-                " " +
-                check_amount +
-                " " +
-                this.qty_med[i][j]
-            );
-            this.qty_med[i][j] =
-              parseInt(this.oneorder[i].qty) -
-              (check_amount - parseInt(this.qty_med[i][j]));
-            check_amount = this.oneorder[i].qty;
-          }
-          if (check_amount == this.oneorder[i].qty) {
-            this.selected[i] = true;
-          } else {
-            this.selected[i] = false;
-          }
-        });
-      });
-    }
+    other: null
+  }),
+  components: {
+    Menubar
   },
-  // created() {
-  //   this.initialize();
-  // },
+  mounted() {
+    var today = new Date();
+    this.date_now = today;
+
+    axios
+      .post("http://localhost:3000/api/user/getuserbyid", {
+        staff_id: localStorage.getItem("staff_id")
+      })
+      .then(res => {
+        this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
+        axios
+          .post("http://localhost:3000/api/order_status/order_with_status", {
+            pharmacy_id: this.pharmacy_id
+          })
+          .then(res => {
+            this.s_order = res.data;
+          });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  },
   methods: {
-    setStatus: function(s) {
-      if (s === "not_ready") {
+    closeDialog() {
+      // this.$refs.form.reset();
+      this.dialog_sendback = false;
+    },
+    filterorder(item) {
+      this.filters = {
+        status: [],
+        remark: []
+      };
+      if (item != "all") {
+        this.filters = {
+          status: [item],
+          remark: []
+        };
+        if (item == "partial") {
+          this.filters = {
+            status: ["success"],
+            remark: ["รับยาบางส่วน"]
+          };
+        }
+        if (item == "success") {
+          this.filters = {
+            status: [item],
+            remark: ["รับยาครบ"]
+          };
+        }
+      }
+    },
+    setStatus: function(s, r) {
+      if (s === "missing") {
         s = "ไม่พร้อมจ่ายยา";
-      } else if (s === "received_some") {
-        s = "คืนยาบางส่วน";
+      } else if (s === "success" && r == "รับยาบางส่วน") {
+        s = "รับยาบางส่วน";
       } else if (s === "cancel") {
         s = "ยกเลิก";
       } else if (s === "success") {
-        s = "สำเร็จแล้ว";
+        s = "สำเร็จ";
       }
       return s;
     },
@@ -573,120 +485,33 @@ export default {
       } else return "";
     },
     add(index) {
-      console.log("add");
+      console.log("object");
+      console.log(this.lot_med);
+      console.log("object1");
       console.log(this.lot_no);
-      if (this.textbox[index].length < this.lot_no[index].length) {
-        this.textbox[index].push("");
+      if (this.lot_med[index].length < this.lot_no[index].length) {
         this.lot_med[index].push("");
         this.qty_med[index].push("");
       }
-
-      // this.inputs.push("");
     },
     remove(index, subindex) {
-      this.textbox[index].splice(subindex, 1);
       this.lot_med[index].splice(subindex, 1);
       this.qty_med[index].splice(subindex, 1);
     },
-    dialog: function(e) {
-      alert(e.currentTarget);
-    },
-    dialogdetail: function(e) {
-      alert(e.currentTarget);
-    },
-    logout: function() {
-      localStorage.setItem("login", "false");
-      console.log(localStorage.getItem("login"));
-      this.$router.push("/");
-    },
-    sortdata: function(e) {
-      console.log(e.currentTarget.value);
-
-      if (e.currentTarget.value == "all") {
-        this.order_filter = [...this.s_order];
-      } else {
-        this.order_filter = this.s_order.filter(item => {
-          for (var i in item) {
-            if (item.status == e.currentTarget.value) return true;
-          }
-        });
-      }
-    },
-    getColor(status) {
-      if (status == "cancel") return "red";
-      else if (status == "received_some") return "orange";
-      else if (status == "not_ready") return "light gray";
-      else if (status == "success") return "green";
-    },
-    initialize() {
-      this.order_filter = [...this.s_order];
-    },
-    //     selectItem(item) {
-    //       // var index = this.s_order.indexOf(item);
-
-    //       // if (this.s_order[index].status == "ready") {
-    //       //   this.index = this.s_order;
-    //       //   console.log(this.s_order[index]);
-    //       //   this.s_order = item;
-    //       //   this.dialog_row = true;
-    //       this.lot_no = [];
-    //       // this.oneorder = item;
-    //       axios
-    //         .post("http://localhost:3000/api/ready_sell/one_order", {
-    //           patient_HN_order: this.s_order[this.index].patient_HN_order
-    //         })
-    //         .then(res => {
-    //           this.oneorder = res.data;
-    //           this.selected = new Array(this.oneorder.length);
-    //           this.selected.fill(false, 0);
-    //           this.oneorder.forEach((item, index) => {
-    //             this.textbox.push([""]);
-    //             this.lot_med.push([""]);
-    //             this.qty_med.push([""]);
-    //           });
-    //           this.oneorder.forEach((e, i) => {
-    //             axios
-    //               .post("http://localhost:3000/api/ready_sell/getlot", {
-    //                 pharmacy_id: this.pharmacy_id,
-    //                 medicine_id: this.oneorder[i].medicine_id
-    //               })
-    //               .then(res => {
-    //                 this.lot_no.push(res.data);
-    //               });
-    //           });
-    //           // console.log(this.lot_no);
-    //         });
-    //  this.dialog_row = true;
-
-    //       }
-
-    successItem(item) {
-      console.log("success order");
-      console.log(this.s_order);
-      if (this.s_order.status == "ready") {
-        this.s_order.status = "success";
-      }
-      this.dialog_row = false;
-    },
-    close() {
-      this.dialog = false;
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      }, 300);
-    },
-    save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.s_order[this.editedIndex], this.editedItem);
-      } else {
-        this.order.push(this.editedItem);
-      }
-      this.close();
+    getColor(status, remark) {
+      if (status == "cancel") return "#C85D5C";
+      else if (status == "success" && remark == "รับยาบางส่วน")
+        return "#E1995E";
+      else if (status == "missing") return "#DFE4DE";
+      else if (status == "success") return "#76C3AF";
     },
     getindex_cancel(item) {
       this.index = this.s_order.indexOf(item);
       console.log("selected" + "this.index = " + this.index);
       this.lot_no = [];
+      this.remark = null;
+      this.lot_med = [];
+      this.qty_med = [];
       // this.oneorder = item;
       axios
         .post("http://localhost:3000/api/order_status/one_order", {
@@ -698,7 +523,6 @@ export default {
           this.selected = new Array(this.oneorder.length);
           this.selected.fill(false, 0);
           this.oneorder.forEach((item, index) => {
-            this.textbox.push([""]);
             this.lot_med.push([""]);
             this.qty_med.push([""]);
           });
@@ -712,14 +536,58 @@ export default {
                 this.lot_no.push(res.data);
               });
           });
-          // console.log(this.lot_no);
         });
       this.dialog_sendback = true;
+    },
+    checkSameLot(index, k) {
+      for (var i = 0; i < this.lot_med[index].length; i++) {
+        if (i != k) {
+          if (this.lot_med[index][k] == this.lot_med[index][i]) {
+            alert("ใช้รหัสสินค้าซ้ำ");
+            this.lot_med[index].splice(k, 1);
+            this.qty_med[index].splice(k, 1);
+          }
+        }
+      }
+    },
+    checkLotQty(index, k) {
+      if (isNaN(this.qty_med[index][k])) {
+        alert("กรอกเฉพาะตัวเลข");
+        this.qty_med[index][k] = "";
+      }
+      if (this.lot_med[index][k] != null) {
+        var qty = 0;
+        if (this.qty_med[index][k] > this.lot_med[index][k].qty_less) {
+          alert("รหัสสินค้านี้ยาไม่พอ");
+          this.qty_med[index][k] = "";
+        }
+        this.qty_med[index].forEach((item, i) => {
+          qty += parseInt(this.qty_med[index][i]);
+        });
+        if (qty > this.oneorder[index].qty) {
+          alert("กรอกยาเกินจำนวนที่ได้รับ");
+          this.qty_med[index][k] = "";
+        } else if (qty == this.oneorder[index].qty) {
+          this.selected[index] = true;
+        } else if (qty < this.oneorder[index].qty) {
+          this.selected[index] = false;
+        }
+        if (this.lot_med[index][k].qty < this.qty_med[index][k]) {
+          alert("กรอกจำนวนยาเกินในล็อตนี้");
+          this.qty_med[index][k] = "";
+        }
+      } else {
+        alert("กรุณาเลือกรหัสสินค้าก่อน");
+        this.qty_med[index][k] = "";
+      }
     },
     sendback_confirm() {
       //validate form && amount of med is complete
       if (this.$refs.form.validate()) {
         if (this.selected.every(item => item == true)) {
+          if (this.remark == "อื่นๆ") {
+            this.remark = this.other;
+          }
           // confirm("คุณต้องการส่งยาออร์เดอร์นี้กลับใช่หรือไม่?") &&
           axios
             .post("http://localhost:3000/api/user/getuserbyid", {
@@ -734,6 +602,7 @@ export default {
                 .then(res => {
                   if (res.data.length == 0) {
                     //!create new orders_return(not exist)
+                    console.log("new return_id");
                     axios
                       .post("http://localhost:3000/api/return/newreturn", {
                         status: "waiting-return",
@@ -743,6 +612,7 @@ export default {
                       .then(res => {
                         var return_id = res.data.insertId;
                         //!edit order's remark , return_id
+
                         axios
                           .post(
                             "http://localhost:3000/api/return/editorderreturnid",
@@ -765,6 +635,11 @@ export default {
                   } else {
                     //!return_id has exist
                     //!edit order's remark , return_id
+                    console.log({
+                      remark: this.remark,
+                      order_id: this.oneorder[0].order_id,
+                      return_id: res.data[0].return_id
+                    });
                     axios
                       .post(
                         "http://localhost:3000/api/return/editorderreturnid",
@@ -784,26 +659,59 @@ export default {
                 });
 
               //edit lot qty_less
-              this.lot_med.forEach((e, i) => {
-                this.lot_med[i].forEach((item, j) => {
-                  var filter = this.lot_no[i].filter((filter, k) => {
-                    return (
-                      this.lot_no[i][k].lot_no_id ==
-                      this.lot_med[i][j].lot_no_id
-                    );
-                  });
+              // this.lot_med.forEach((e, i) => {
+              //   this.lot_med[i].forEach((item, j) => {
+              //     var filter = this.lot_no[i].filter((filter, k) => {
+              //       return (
+              //         this.lot_no[i][k].lot_no_id ==
+              //         this.lot_med[i][j].lot_no_id
+              //       );
+              //     });
 
-                  if (filter.length > 0) {
-                    axios
-                      .post("http://localhost:3000/api/lot_transfer/editlot", {
-                        lot_no_id: filter[0].lot_no_id,
-                        qty_less:
-                          filter[0].qty_less - parseInt(this.qty_med[i][j])
-                      })
-                      .catch(e => {
-                        console.log(e);
-                      });
-                  }
+              //     if (filter.length > 0) {
+              //       axios
+              //         .post("http://localhost:3000/api/lot_transfer/editlot", {
+              //           lot_no_id: filter[0].lot_no_id,
+              //           qty_less:
+              //             filter[0].qty_less - parseInt(this.qty_med[i][j])
+              //         })
+              //         .catch(e => {
+              //           console.log(e);
+              //         });
+              //     }
+              //   });
+              // });
+              this.lot_med.forEach((element, i) => {
+                this.lot_med[i].forEach((element2, j) => {
+                  console.log({
+                    lot_no_id: element2.lot_no_id,
+                    qty_less: element2.qty_less - parseInt(this.qty_med[i][j])
+                  });
+                  axios
+                    .post("http://localhost:3000/api/lot_transfer/editlot", {
+                      lot_no_id: element2.lot_no_id,
+                      qty_less:
+                        element2.qty_less - (parseInt(this.qty_med[i][j]) || 0)
+                    })
+                    .catch(e => {
+                      console.log(e);
+                    });
+                  // });
+                  console.log("lot_order");
+                  console.log({
+                    lot_no: element2.lot_no,
+                    lot_qty: this.qty_med[i][j],
+                    order_id: this.oneorder[0].order_id,
+                    medicine_id: element2.medicine_id,
+                    lot_transfer_id: element2.lot_no_id
+                  });
+                  axios.post("http://localhost:3000/api/lot_order/newlot", {
+                    lot_no: element2.lot_no,
+                    lot_qty: this.qty_med[i][j],
+                    order_id: this.oneorder[0].order_id,
+                    medicine_id: element2.medicine_id,
+                    lot_transfer_id: element2.lot_no_id
+                  });
                 });
               });
             })
@@ -812,7 +720,7 @@ export default {
             });
 
           // this.s_order.splice(this.index, 1);
-          this.order_filter = [...this.s_order];
+
           this.dialog_sendback = false;
         } else {
           alert("จำนวนยาไม่ครบ");
@@ -820,6 +728,15 @@ export default {
       } else {
         // alert("กรุณากรอกข้อมูลให้ครบถ้วน")
       }
+    }
+  },
+  computed: {
+    filterOrders() {
+      return this.s_order.filter(d => {
+        return Object.keys(this.filters).every(f => {
+          return this.filters[f].length < 1 || this.filters[f].includes(d[f]);
+        });
+      });
     }
   }
 };

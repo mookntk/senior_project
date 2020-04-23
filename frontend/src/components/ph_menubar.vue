@@ -26,26 +26,14 @@
       </v-menu>
       <!-- ยืนยันออร์เดอร์ -->
 
-      <v-btn depressed class="teal lighten-3" to="/prepare" >จัดยาตามออร์เดอร์</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/prepare">จัดยาตามออร์เดอร์</v-btn>
 
       <!-- <v-btn depressed @click="click" value="returnmedicine" :color="btncolor">การคืนยา</v-btn> -->
-      <v-menu offset-y open-on-hover>
-        <template v-slot:activator="{ on }">
-          <v-btn v-on="on" text>
-            <span style="margin-right:7px">ออร์เดอร์ที่ส่งคืนโรงพยาบาล</span>
-            <v-icon left>mdi-chevron-down</v-icon>
-          </v-btn>
-        </template>
 
-        <v-list>
-          <v-list-item v-for="item in links" :key="item.value" router :to="item.route">
-            <v-list-item-title>{{ item.value }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      <v-btn depressed class="teal lighten-3" to="/sendback_order">ออร์เดอร์ที่ส่งคืนโรงพยาบาล</v-btn>
 
-      <v-btn depressed class="teal lighten-3" to="/order_status" >สถานะออร์เดอร์</v-btn>
-      <v-btn depressed class="teal lighten-3" @click="click" value="/notification" >
+      <v-btn depressed class="teal lighten-3" to="/order_status">สถานะออร์เดอร์</v-btn>
+      <v-btn depressed class="teal lighten-3" @click="click" value="/notification">
         <v-icon>mdi-bell</v-icon>
       </v-btn>
     </v-toolbar-items>
