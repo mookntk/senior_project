@@ -335,4 +335,48 @@ var GetOrderDetail = function (item) {
   });
 };
 
+router.post("/getnext_duedate", async (req, res) => {
+  try {
+    const item = await getNextDueDate(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getNextDueDate = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT p.name,p.surname,o.next_due_date,p.patient_HN from orders as o inner join patients as p on o.patient_HN_order = p.patient_HN WHERE o.next_due_date between ? and ?`,
+      [item.start, item.end],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.post("/getorderpatient", async (req, res) => {
+  try {
+    const item = await getOrderPatient(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getOrderPatient = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select o.* from orders as o where o.patient_HN_order = ? and o.due_date between ? and ?`,
+      [item.patient_HN, item.due_date_start, item.due_date_end],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = router;

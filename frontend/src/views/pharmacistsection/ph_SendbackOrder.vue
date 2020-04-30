@@ -337,7 +337,7 @@ export default {
             status: "sending",
             pharmacist_id: localStorage.getItem("staff_id"),
             return_id: this.s_order[this.index].return_id,
-            send_date: new Date(),
+            send_date: dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
             receive_date: null
           })
           .then(res => {

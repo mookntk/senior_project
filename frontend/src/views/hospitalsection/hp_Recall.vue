@@ -336,9 +336,9 @@ export default {
             return_id: this.order[this.index].return_id,
             send_date: dateFormat(
               new Date(this.order[this.index].send_date),
-              "yyyy-mm-dd hh:mm:ss"
+              "yyyy-mm-dd HH:MM:ss"
             ),
-            receive_date: dateFormat(new Date(), "yyyy-mm-dd hh:mm:ss")
+            receive_date: dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss")
           })
           .then(res => {
             axios
