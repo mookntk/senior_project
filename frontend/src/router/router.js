@@ -22,6 +22,8 @@ import Prepare from "../views/pharmacistsection/ph_Prepare";
 import SendbackOrder from "../views/pharmacistsection/ph_SendbackOrder";
 import SendbackStatus from "../views/pharmacistsection/ph_SendbackStatus";
 import OrderStatus from "../views/pharmacistsection/ph_OrderStatus";
+import LotOrder from "../views/hospitalsection/hp_LotOrder";
+import PhLotOrder from "../views/pharmacistsection/ph_LotOrder";
 
 Vue.use(VueRouter);
 
@@ -31,8 +33,8 @@ const routes = [
     name: "login",
     component: Login,
     meta: {
-      requiresAuth: false
-    }
+      requiresAuth: false,
+    },
   },
 
   {
@@ -41,8 +43,8 @@ const routes = [
     component: hosstaff,
     meta: {
       requiresAuth: true,
-      permission: "admin"
-    }
+      permission: "admin",
+    },
   },
   {
     path: "/pharmacy",
@@ -50,8 +52,8 @@ const routes = [
     component: pharmacy,
     meta: {
       requiresAuth: true,
-      permission: "admin"
-    }
+      permission: "admin",
+    },
   },
   {
     path: "/pharmacist",
@@ -59,14 +61,14 @@ const routes = [
     component: pharmacist,
     meta: {
       requiresAuth: true,
-      permission: "admin"
-    }
+      permission: "admin",
+    },
   },
   {
     path: "/medicine",
     name: "medicine",
     component: medicine,
-    permission: "admin"
+    permission: "admin",
   },
 
   {
@@ -75,18 +77,26 @@ const routes = [
     component: Patient,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
-
+  {
+    path: "/lot_order",
+    name: "lot_order",
+    component: LotOrder,
+    meta: {
+      requiresAuth: true,
+      permission: "hos_staff",
+    },
+  },
   {
     path: "/create_order",
     name: "create_order",
     component: CreateOrder,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
 
   {
@@ -95,8 +105,8 @@ const routes = [
     component: HpOrder,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
 
   {
@@ -105,8 +115,8 @@ const routes = [
     component: WaitingMedicine,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
   {
     path: "/waiting_transport",
@@ -114,8 +124,8 @@ const routes = [
     component: WaitingTransport,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
   {
     path: "/transport_status",
@@ -123,8 +133,8 @@ const routes = [
     component: TransportStatus,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
   {
     path: "/recall",
@@ -132,8 +142,8 @@ const routes = [
     component: Recall,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
   {
     path: "/order_history",
@@ -141,8 +151,8 @@ const routes = [
     component: OrderHistory,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
   {
     path: "/transport_history",
@@ -150,8 +160,8 @@ const routes = [
     component: TransportHistory,
     meta: {
       requiresAuth: true,
-      permission: "hos_staff"
-    }
+      permission: "hos_staff",
+    },
   },
   {
     path: "/ready_sell",
@@ -159,8 +169,8 @@ const routes = [
     component: ReadySell,
     meta: {
       requiresAuth: true,
-      permission: "pharmacist"
-    }
+      permission: "pharmacist",
+    },
   },
   {
     path: "/receive_order",
@@ -168,8 +178,8 @@ const routes = [
     component: ReceiveOrder,
     meta: {
       requiresAuth: true,
-      permission: "pharmacist"
-    }
+      permission: "pharmacist",
+    },
   },
   {
     path: "/confirm_order",
@@ -177,8 +187,8 @@ const routes = [
     component: ConfirmOrder,
     meta: {
       requiresAuth: true,
-      permission: "pharmacist"
-    }
+      permission: "pharmacist",
+    },
   },
   {
     path: "/prepare",
@@ -186,8 +196,8 @@ const routes = [
     component: Prepare,
     meta: {
       requiresAuth: true,
-      permission: "pharmacist"
-    }
+      permission: "pharmacist",
+    },
   },
   {
     path: "/sendback_order",
@@ -195,8 +205,8 @@ const routes = [
     component: SendbackOrder,
     meta: {
       requiresAuth: true,
-      permission: "pharmacist"
-    }
+      permission: "pharmacist",
+    },
   },
   {
     path: "/sendback_status",
@@ -204,8 +214,8 @@ const routes = [
     component: SendbackStatus,
     meta: {
       requiresAuth: true,
-      permission: "pharmacist"
-    }
+      permission: "pharmacist",
+    },
   },
   {
     path: "/order_status",
@@ -213,15 +223,24 @@ const routes = [
     component: OrderStatus,
     meta: {
       requiresAuth: true,
-      permission: "pharmacist"
-    }
-  }
+      permission: "pharmacist",
+    },
+  },
+  {
+    path: "/ph_lot_order",
+    name: "PhLotOrder",
+    component: PhLotOrder,
+    meta: {
+      requiresAuth: true,
+      permission: "pharmacist",
+    },
+  },
 ];
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes
+  routes,
 });
 
 router.beforeEach((to, from, next) => {

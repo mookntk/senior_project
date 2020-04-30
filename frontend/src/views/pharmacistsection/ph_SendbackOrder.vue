@@ -336,7 +336,9 @@ export default {
           .post("http://localhost:3000/api/return/editstatus", {
             status: "sending",
             pharmacist_id: localStorage.getItem("staff_id"),
-            return_id: this.s_order[this.index].return_id
+            return_id: this.s_order[this.index].return_id,
+            send_date: new Date(),
+            receive_date: null
           })
           .then(res => {
             axios
