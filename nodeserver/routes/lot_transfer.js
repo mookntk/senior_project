@@ -159,4 +159,49 @@ var getoneLot = function (item) {
   });
 };
 
+router.get("/getallot", async (req, res) => {
+  try {
+    const patients = await getAllLot();
+    res.json(patients);
+  } catch (error) {
+    if (error) return reject(error);
+    return resolve(result);
+  }
+});
+
+var getAllLot = function () {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT l.*,ph.pharmacy_name ,m.*,d.disease_name FROM lot_transfer as l inner join orders_transport as t on t.transport_id = l.transport_id inner join pharmacy as ph on t.pharmacy_id_transport = ph.pharmacy_id inner join medicine as m on m.medicine_id = l.medicine_id inner join diseases as d on d.disease_id = m.disease_id_medicine where t.status = 'received' order by lot_no_id ASC`,
+
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
+
+router.post("/getallot_ph", async (req, res) => {
+  try {
+    const patients = await getAllLotPharmacy(req.body);
+    res.json(patients);
+  } catch (error) {
+    if (error) return reject(error);
+    return resolve(result);
+  }
+});
+
+var getAllLotPharmacy = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `SELECT l.*,ph.pharmacy_name ,m.*,d.disease_name FROM lot_transfer as l inner join orders_transport as t on t.transport_id = l.transport_id inner join pharmacy as ph on t.pharmacy_id_transport = ph.pharmacy_id inner join medicine as m on m.medicine_id = l.medicine_id inner join diseases as d on d.disease_id = m.disease_id_medicine where t.status = 'received' and t.pharmacy_id_transport = ? order by lot_no_id ASC`,
+      [item.pharmacy_id],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
 module.exports = router;

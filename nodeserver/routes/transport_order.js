@@ -3,7 +3,6 @@ const router = express.Router();
 const { check } = require("express-validator");
 const db = require("../configs/db");
 const transport = "orders_transport";
-const detail = "orders_transport_detail";
 
 router.get("/gettransport", async (req, res) => {
   try {
@@ -45,7 +44,7 @@ var newTransportOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${transport} SET ?`, item, (error, result) => {
       if (error) return reject(error);
-      resolve({ insertId: result.insertId });
+      return resolve({ insertId: result.insertId });
     });
   });
 };

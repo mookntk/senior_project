@@ -32,7 +32,7 @@ tbody tr:nth-of-type(odd) {
   background-color: rgb(250, 250, 250);
 }
 .v-input--selection-controls .v-input__slot .v-label {
-  font-size: 16px;
+  font-size: 18px;
   color: black;
 }
 .v-input__slot .v-label {

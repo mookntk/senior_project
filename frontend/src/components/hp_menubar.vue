@@ -19,8 +19,9 @@
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn depressed class="teal lighten-3" to="/recall" >การคืนยา</v-btn>
-      <v-btn depressed class="teal lighten-3" to="/patient" >ข้อมูลผู้ป่วย</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/recall">การคืนยา</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/patient">ข้อมูลผู้ป่วย</v-btn>
+      <v-btn depressed class="teal lighten-3" to="/lot_order">รหัสสินค้า</v-btn>
       <v-menu offset-y open-on-hover>
         <template v-slot:activator="{ on }">
           <v-btn v-on="on" text>
@@ -45,17 +46,17 @@
           <v-icon color="grey darken-1">mdi-bell</v-icon>
         </v-badge>
       </v-btn>
-    
-    <v-menu offset-y open-on-hover>
-      <template v-slot:activator="{ on }">
-        <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
-      </template>
-      <v-list>
-        <v-list-item v-for="item in items" :key="item" @click="logout">
-          <v-list-item-title>{{ item }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+
+      <v-menu offset-y open-on-hover>
+        <template v-slot:activator="{ on }">
+          <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
+        </template>
+        <v-list>
+          <v-list-item v-for="item in items" :key="item" @click="logout">
+            <v-list-item-title>{{ item }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-toolbar-items>
   </v-app-bar>
 </template>
