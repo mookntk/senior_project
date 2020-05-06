@@ -29,35 +29,6 @@
         </template>
       </v-data-table>
 
-      <!-- <v-dialog v-model="dialog_order" persistent max-width="1000px">
-        <v-card class="blue-grey lighten-5 font">
-          <v-card-title>
-            <span>ยาที่ได้รับ</span>
-          </v-card-title>
-          <v-card-text>
-            <v-expansion-panels multiple focusable>
-              <v-expansion-panel v-for="(item,i) in order[index].orders" :key="i">
-                <v-expansion-panel-header>ออร์เดอร์ที่ {{order[index].orders.indexOf(item)+1}} {{item.name}}</v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <br />
-                  <v-label>Enalapril maleate 20 mg จำนวน 20 เม็ด</v-label>
-                  <br />
-                  <v-label>Metformin 500 mg จำนวน 30 เม็ด</v-label>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="grey" @click="dialog_order = false">ปิด</v-btn>
-            <v-btn
-              color="red lighten-1"
-              @click="sendback"
-              v-if="order[index].status!='ได้รับยาแล้ว'"
-            >ส่งยากลับโรงพยาบาล</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>-->
       <v-dialog
         v-model="dialog_order"
         fullscreen
@@ -112,7 +83,11 @@
                   </v-card-text>
                   <v-card-actions style="margin-top: auto;">
                     <v-spacer></v-spacer>
-                    <v-btn color="#C85D5C" @click="cancelReturn(element)">ยกเลิกการส่งคืน</v-btn>
+                    <v-btn
+                      color="#C85D5C"
+                      @click="cancelReturn(element)"
+                      v-if="s_order[index].status=='waiting-return'"
+                    >ยกเลิกการส่งคืน</v-btn>
                   </v-card-actions>
                 </v-card>
               </v-col>
@@ -280,9 +255,9 @@ export default {
               qty_less: parseInt(lot.lot_qty)
             })
             .then(res => {
-              var index = this.each_order.indexOf(element);
-              console.log("index");
-              this.each_order.splice(index, 1);
+              if (j == med.lotItem.length - 1) {
+              }
+
               axios
                 .post("http://localhost:3000/api/user/getuserbyid", {
                   staff_id: localStorage.getItem("staff_id")
@@ -324,6 +299,11 @@ export default {
           return_id: null
         })
         .then(res => {
+          setTimeout(() => {
+            var index = this.each_order.indexOf(element);
+            console.log("index");
+            this.each_order.splice(index, 1);
+          }, 200);
           console.log("edit success");
         })
         .catch(e => {
@@ -337,7 +317,7 @@ export default {
             status: "sending",
             pharmacist_id: localStorage.getItem("staff_id"),
             return_id: this.s_order[this.index].return_id,
-            send_date: dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
+            send_date: dateformat(new Date(), "yyyy-mm-dd HH:MM:ss"),
             receive_date: null
           })
           .then(res => {

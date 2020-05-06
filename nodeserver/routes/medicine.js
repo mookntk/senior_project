@@ -1,35 +1,19 @@
 const express = require("express");
 const router = express.Router();
-const {
-  check
-} = require("express-validator");
+const { check } = require("express-validator");
 const db = require("../configs/db");
 
 //edit medicine
 router.post(
   "/editmedicine",
   [
-    check("medicine_tmt")
-    .not()
-    .isEmpty(),
-    check("medicine_generic")
-    .not()
-    .isEmpty(),
-    check("medicine_trade")
-    .not()
-    .isEmpty(),
-    check("strenght")
-    .not()
-    .isEmpty(),
-    check("price")
-    .not()
-    .isEmpty(),
-    check("unit")
-    .not()
-    .isEmpty(),
-    check("disease_name")
-    .not()
-    .isEmpty()
+    check("medicine_tmt").not().isEmpty(),
+    check("medicine_generic").not().isEmpty(),
+    check("medicine_trade").not().isEmpty(),
+    check("strength").not().isEmpty(),
+    check("price").not().isEmpty(),
+    check("unit").not().isEmpty(),
+    check("disease_name").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -37,7 +21,7 @@ router.post(
       res.json(editmedicine);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -50,27 +34,27 @@ var edit_medicine = function (item) {
       (error, result) => {
         db.query(
           "UPDATE medicine SET medicine_tmt='" +
-          item.medicine_tmt +
-          "',medicine_generic='" +
-          item.medicine_generic +
-          "',medicine_trade='" +
-          item.medicine_trade +
-          "',strenght='" +
-          item.strenght +
-          "',price='" +
-          item.price +
-          "',unit='" +
-          item.unit +
-          "',disease_id_medicine='" +
-          result[0].disease_id +
-          "' WHERE medicine_id='" +
-          item.medicine_id +
-          "'",
+            item.medicine_tmt +
+            "',medicine_generic='" +
+            item.medicine_generic +
+            "',medicine_trade='" +
+            item.medicine_trade +
+            "',strength='" +
+            item.strength +
+            "',price='" +
+            item.price +
+            "',unit='" +
+            item.unit +
+            "',disease_id_medicine='" +
+            result[0].disease_id +
+            "' WHERE medicine_id='" +
+            item.medicine_id +
+            "'",
           (error, result) => {
             if (error) return reject(error);
 
             resolve({
-              message: "success"
+              message: "success",
             });
           }
         );
@@ -86,7 +70,7 @@ router.get("/showmedicine", async (req, res) => {
     res.json(medicine);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -103,7 +87,6 @@ var show_medicine = function () {
   });
 };
 
-
 //show all disease
 router.get("/showdisease", async (req, res) => {
   try {
@@ -111,7 +94,7 @@ router.get("/showdisease", async (req, res) => {
     res.json(disease);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -129,27 +112,13 @@ var select_disease = function () {
 router.post(
   "/newmedicine",
   [
-    check("medicine_tmt")
-    .not()
-    .isEmpty(),
-    check("medicine_generic")
-    .not()
-    .isEmpty(),
-    check("medicine_trade")
-    .not()
-    .isEmpty(),
-    check("strenght")
-    .not()
-    .isEmpty(),
-    check("price")
-    .not()
-    .isEmpty(),
-    check("unit")
-    .not()
-    .isEmpty(),
-    check("disease_name")
-    .not()
-    .isEmpty()
+    check("medicine_tmt").not().isEmpty(),
+    check("medicine_generic").not().isEmpty(),
+    check("medicine_trade").not().isEmpty(),
+    check("strength").not().isEmpty(),
+    check("price").not().isEmpty(),
+    check("unit").not().isEmpty(),
+    check("disease_name").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -157,7 +126,7 @@ router.post(
       res.json(newmedicine);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -173,30 +142,30 @@ var new_medicine = function (item) {
         if (disease_id == "") {
           db.query(
             "INSERT INTO diseases (disease_name) VALUES ('" +
-            item.disease_name +
-            "')",
+              item.disease_name +
+              "')",
             (error, result) => {
               if (error) return reject(error);
               db.query(
-                "INSERT INTO medicine (medicine_tmt, medicine_generic, medicine_trade, strenght, price, unit, disease_id_medicine) VALUES ('" +
-                item.medicine_tmt +
-                "','" +
-                item.medicine_generic +
-                "','" +
-                item.medicine_trade +
-                "','" +
-                item.strenght +
-                "','" +
-                item.price +
-                "','" +
-                item.unit +
-                "','" +
-                result.insertId +
-                "')",
+                "INSERT INTO medicine (medicine_tmt, medicine_generic, medicine_trade, strength, price, unit, disease_id_medicine) VALUES ('" +
+                  item.medicine_tmt +
+                  "','" +
+                  item.medicine_generic +
+                  "','" +
+                  item.medicine_trade +
+                  "','" +
+                  item.strength +
+                  "','" +
+                  item.price +
+                  "','" +
+                  item.unit +
+                  "','" +
+                  result.insertId +
+                  "')",
                 (error, result) => {
                   if (error) return reject(error);
                   resolve({
-                    message: "success"
+                    message: "success",
                   });
                 }
               );
@@ -204,25 +173,25 @@ var new_medicine = function (item) {
           );
         } else {
           db.query(
-            "INSERT INTO medicine (medicine_tmt, medicine_generic, medicine_trade, strenght, price, unit, disease_id_medicine) VALUES ('" +
-            item.medicine_tmt +
-            "','" +
-            item.medicine_generic +
-            "','" +
-            item.medicine_trade +
-            "','" +
-            item.strenght +
-            "','" +
-            item.price +
-            "','" +
-            item.unit +
-            "','" +
-            disease_id +
-            "')",
+            "INSERT INTO medicine (medicine_tmt, medicine_generic, medicine_trade, strength, price, unit, disease_id_medicine) VALUES ('" +
+              item.medicine_tmt +
+              "','" +
+              item.medicine_generic +
+              "','" +
+              item.medicine_trade +
+              "','" +
+              item.strength +
+              "','" +
+              item.price +
+              "','" +
+              item.unit +
+              "','" +
+              disease_id +
+              "')",
             (error, result) => {
               if (error) return reject(error);
               resolve({
-                message: "success"
+                message: "success",
               });
             }
           );
@@ -231,7 +200,6 @@ var new_medicine = function (item) {
     );
   });
 };
-
 
 //check before delete medicine ; check post medicine
 // router.post("/checkbeforedeletemedicine",
@@ -267,7 +235,6 @@ var new_medicine = function (item) {
 //   });
 // };
 
-
 //check get medicine
 router.get("/checkmedicinebeforedelete", async (req, res) => {
   try {
@@ -275,21 +242,23 @@ router.get("/checkmedicinebeforedelete", async (req, res) => {
     res.json(checkmedicine);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
 
 var check_medicine = function () {
   return new Promise((resolve, reject) => {
-    db.query("SELECT ot.order_id, m.medicine_id " +
-    "FROM medicine as m "+
-    "INNER JOIN order_detail AS ot ON  m.medicine_id = ot.medicine_id " +
-    "order by ot.medicine_id ", 
-    (error, result) => {
-      if (error) return reject(error);
-      resolve(result);
-    });
+    db.query(
+      "SELECT ot.order_id, m.medicine_id " +
+        "FROM medicine as m " +
+        "INNER JOIN order_detail AS ot ON  m.medicine_id = ot.medicine_id " +
+        "order by ot.medicine_id ",
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      }
+    );
   });
 };
 
@@ -300,7 +269,7 @@ router.post("/deletemedicine", async (req, res) => {
     res.json(deletemedicine);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -312,7 +281,7 @@ var delete_medicine = function (item) {
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
@@ -322,21 +291,14 @@ var delete_medicine = function (item) {
 //newdisease
 router.post(
   "/newdisease",
-  [
-    check("dis_name")
-    .not()
-    .isEmpty(),
-    check("dis_icd")
-    .not()
-    .isEmpty()
-  ],
+  [check("dis_name").not().isEmpty(), check("dis_icd").not().isEmpty()],
   async (req, res) => {
     try {
       const newdisease = await new_disease(req.body);
       res.json(newdisease);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -345,11 +307,15 @@ router.post(
 var new_disease = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "INSERT INTO diseases (disease_name,icd10) VALUES ('" + item.dis_name + "','" + item.dis_icd + "')",
+      "INSERT INTO diseases (disease_name,icd10) VALUES ('" +
+        item.dis_name +
+        "','" +
+        item.dis_icd +
+        "')",
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
@@ -363,7 +329,7 @@ router.post("/deletedisease", async (req, res) => {
     res.json(deletedisease);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -375,7 +341,7 @@ var delete_disease = function (item) {
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
@@ -389,7 +355,7 @@ router.post("/showmedicine_disease", async (req, res) => {
     res.json(medicine);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });

@@ -100,6 +100,7 @@
                                 class="font"
                                 :min="today"
                                 scrollable
+                                @change="checkExp(i,k)"
                               ></v-date-picker>
                             </v-menu>
                           </v-col>
@@ -162,6 +163,9 @@
             >{{ header.text }}</th>
           </tr>
         </template>
+        <!-- <template v-slot:item.data-table-select="{isSelected,select,item}">
+          <v-simple-checkbox color="green" :value="isSelected" @input="select($event)"></v-simple-checkbox>
+        </template>-->
         <template v-slot:body="{ items }">
           <tbody>
             <tr
@@ -182,7 +186,7 @@
               <td style="text-align:center" @click="showdetail(item)">{{ item.length }}</td>
               <!-- <td style="text-align:center" @click="showdetail(item)">{{ item.name }}</td> -->
               <td style="text-align:center" @click="showdetail(item)">
-                <v-chip :color="getColor(status[index])" dark>{{ status[index] }}</v-chip>
+                <v-chip :color="getColor(status[index])">{{ status[index] }}</v-chip>
               </td>
             </tr>
           </tbody>
@@ -221,12 +225,12 @@ export default {
       headers: [
         {
           text: "ร้านขายยา",
-          align: "left",
+          align: "center",
           sortable: false,
-          value: "name"
+          value: "pharmacy_name"
         },
-        { text: "จังหวัด", align: "center", value: "order" },
-        { text: "จำนวนออร์เดอร์", align: "center", value: "order" },
+        { text: "จังหวัด", align: "center", value: "province" },
+        { text: "จำนวนออร์เดอร์", align: "center", value: "num_order" },
         // { text: "ร้านขายยา", align: "center", value: "order" },
         { text: "สถานะ", align: "center", value: "status" }
       ],
@@ -236,7 +240,8 @@ export default {
       status: [],
       errorMessage: [],
       mask: "##/##/####",
-      today: dateFormat(new Date(), "yyyy-mm-dd")
+      today: dateFormat(new Date(), "yyyy-mm-dd"),
+      days: null
     };
   },
   mounted() {
@@ -283,6 +288,17 @@ export default {
     Menu
   },
   methods: {
+    checkExp(i, k) {
+      var date1 = new Date(this.medicineAll.exp[i][k]);
+      var date2 = new Date();
+      var Difference_In_Time = date1.getTime() - date2.getTime();
+      var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+      console.log(Difference_In_Days);
+      if (this.days > Difference_In_Days) {
+        alert("ยาใกล้หมดอายุ");
+        this.medicineAll.exp[i][k] = null;
+      }
+    },
     getInfo() {
       this.status = [];
       axios
@@ -291,6 +307,7 @@ export default {
         })
         .then(res => {
           this.order = res.data;
+          console.log(this.order);
           // axios
           //   .post("http://localhost:3000/api/order/getorder_status", {
           //     status: "medicine-complete"
@@ -485,6 +502,19 @@ export default {
       this.index = this.order_filter.indexOf(item);
       // console.log(this.order_filter[this.index]);
 
+      //cal days
+      var leastday = 5000;
+      this.order_filter[this.index].forEach((element, i) => {
+        var date1 = new Date(element.next_due_date);
+        var date2 = new Date();
+        var Difference_In_Time = date1.getTime() - date2.getTime();
+        var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+        if (leastday > Difference_In_Days) {
+          leastday = Difference_In_Days;
+        }
+      });
+      this.days = parseInt(leastday);
+      console.log(this.days);
       this.dialog_details = true;
       //!calculate qty each medicine
       var getlot = [];
@@ -590,8 +620,8 @@ export default {
       }
     },
     getColor(status) {
-      if (status == "จัดยาเรียบร้อย") return "green";
-      else return "grey";
+      if (status == "จัดยาเรียบร้อย") return "#76C3AF";
+      else return "#bdc3c7";
     },
     parseDate(date) {
       if (date == "" || date == null) return null;
@@ -685,6 +715,6 @@ export default {
   margin-top: 120px;
 }
 th {
-  background-color: #ffd54f;
+  background-color: #f5ce88;
 }
 </style>

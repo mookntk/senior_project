@@ -203,7 +203,8 @@ export default {
           value: "due_date",
           divider: true
         },
-        { text: "ข้อมูลยา", align: "center", value: "medicine", divider: true }
+        { text: "ข้อมูลยา", align: "center", value: "medicine", divider: true },
+        { text: "หมายเหตุ", align: "center", value: "remark", divider: true }
       ],
       date: "",
       pharmacy_selected: [],

@@ -33,9 +33,9 @@
       <v-btn depressed class="teal lighten-3" to="/sendback_order">ออร์เดอร์ที่ส่งคืนโรงพยาบาล</v-btn>
       <v-btn depressed class="teal lighten-3" to="/ph_lot_order">รหัสสินค้า</v-btn>
       <v-btn depressed class="teal lighten-3" to="/order_status">สถานะออร์เดอร์</v-btn>
-      <v-btn depressed class="teal lighten-3" @click="click" value="/notification">
+      <!-- <v-btn depressed class="teal lighten-3" @click="click" value="/notification">
         <v-icon>mdi-bell</v-icon>
-      </v-btn>
+      </v-btn>-->
     </v-toolbar-items>
 
     <v-menu offset-y open-on-hover>

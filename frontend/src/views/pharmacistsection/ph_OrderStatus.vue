@@ -77,7 +77,7 @@
                         ></v-checkbox>
                         <v-row>
                           <template v-for="(item,k) in lot_med[index]">
-                            <v-col cols="12" sm="5" md="2" :key="k">
+                            <v-col cols="12" sm="5" md="3" :key="k">
                               <v-select
                                 :items="lot_no[index]"
                                 item-text="lot_no"
@@ -113,7 +113,7 @@
                                 required
                               ></v-text-field>
                             </v-col>
-                            <v-col cols="12" sm="3" md="2" :key="k">
+                            <v-col cols="12" sm="3" md="1" :key="k">
                               <v-icon @click="remove(index,k)">mdi-minus-circle</v-icon>
                               <v-icon @click="add(index)">mdi-plus-circle</v-icon>
                             </v-col>
@@ -316,6 +316,7 @@ export default {
       })
       .then(res => {
         this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
+
         axios
           .post("http://localhost:3000/api/order_status/order_with_status", {
             pharmacy_id: this.pharmacy_id
@@ -370,8 +371,6 @@ export default {
       return s;
     },
     setMed: function(m) {
-      console.log("เข้าsetMed");
-      console.log("m= " + m);
       if (m != null) {
         var med_detail = m.split(";");
         var med_name = med_detail[0];
@@ -405,7 +404,6 @@ export default {
               med_unit2[i] +
               "/";
           }
-          console.log("med_show = " + med_show);
         }
         return med_show;
       }
@@ -431,7 +429,7 @@ export default {
         due_date[0] = parseInt(due_date[0]) + 543;
         due_date =
           due_date[2] + " " + month[due_date[1] - 1] + " " + due_date[0];
-        console.log(due_date);
+
         return due_date;
       } else return "";
     },
@@ -485,10 +483,6 @@ export default {
       } else return "";
     },
     add(index) {
-      console.log("object");
-      console.log(this.lot_med);
-      console.log("object1");
-      console.log(this.lot_no);
       if (this.lot_med[index].length < this.lot_no[index].length) {
         this.lot_med[index].push("");
         this.qty_med[index].push("");
@@ -507,7 +501,6 @@ export default {
     },
     getindex_cancel(item) {
       this.index = this.s_order.indexOf(item);
-      console.log("selected" + "this.index = " + this.index);
       this.lot_no = [];
       this.remark = null;
       this.lot_med = [];
@@ -533,6 +526,7 @@ export default {
                 medicine_id: this.oneorder[i].medicine_id
               })
               .then(res => {
+                console.log(res.data);
                 this.lot_no.push(res.data);
               });
           });

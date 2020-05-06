@@ -395,7 +395,20 @@ export default {
       if (this.$refs.form.validate()) {
         if (this.cb_all.every(element => element)) {
           //complete
-          this.resetDialog();
+          this.each_transfer.forEach((element, index) => {
+            axios
+              .post("http://localhost:3000/api/order/edit_orderstatus", {
+                status: "prepare",
+                transport_id: this.transport_id,
+                order_id: this.each_transfer[index].order_id
+              })
+              .then(res => {
+                this.resetDialog();
+              })
+              .catch(e => {
+                console.log(e);
+              });
+          });
         } else {
           //missing
           this.missing_medid = [];
@@ -691,62 +704,6 @@ export default {
         month = month_th[parseInt(month) - 1];
         return `${day} ${month} ${year}`;
       } else return "";
-    },
-    changestatus() {
-      // // if (this.transfer_order[this.index].status == "transport") {
-      // //   this.transfer_order[this.index].status = "received";
-      // // }
-      // if (this.$refs.form.validate()) {
-      //   // add orderlog
-      //   this.each_order.forEach((element, index) => {
-      //     axios
-      //       .post("http://localhost:3000/api/log/newlog", {
-      //         status: "confirm",
-      //         start_date: dateFormat(new Date(), "yyyy/mm/dd"),
-      //         staff_id_log: localStorage.getItem("staff_id"),
-      //         order_id_log: this.each_order[index].order_id
-      //       })
-      //       .catch(e => {
-      //         console.log(e);
-      //       });
-      //     //change status order => prepare
-      //     axios
-      //       .post("http://localhost:3000/api/order/edit_orderstatus", {
-      //         status: "prepare",
-      //         transport_id: this.each_order[index].transport_id,
-      //         order_id: this.each_order[index].order_id
-      //       })
-      //       .then(res => {
-      //         this.transfer_order.splice(this.index, 1);
-      //       })
-      //       .catch(e => {
-      //         console.log(e);
-      //       });
-      //   });
-      //   //loop by no of medicineAll
-      //   this.medicineAll.id.forEach((e, i) => {
-      //     axios
-      //       .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
-      //         transport_id: this.each_order[0].transport_id,
-      //         medicine_id: this.medicineAll.id[i]
-      //       })
-      //       .then(res => {
-      //         var lot = res.data;
-      //         console.log("lot");
-      //         console.log(lot);
-      //         lot.forEach((item, j) => {
-      //           axios.post("http://localhost:3000/api/lot_transfer/editlot", {
-      //             lot_no_id: lot[j].lot_no_id,
-      //             qty_less: lot[j].qty
-      //           });
-      //         });
-      //       })
-      //       .catch(e => {
-      //         console.log(e);
-      //       });
-      //   });
-      //   this.dialog_row = false;
-      // }
     },
     selectItem(item) {
       this.transport_id = item.transport_id;

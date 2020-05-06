@@ -35,7 +35,7 @@
                 <template v-slot:item.medicine="{item}">
                   <p
                     style="vertical-align:middle; text-align:center; white-space:pre-wrap; word-wrap:break-word; margin:auto"
-                  >{{setMed(item.medicine_generic + ";" +item.strength+";" +item.qty +";" +item.unit)}}</p>
+                  >{{setMed(item.medicine_generic + ";" +item.strength+";" +item.qty +";" +item.unit+";" +item.qty_missing ,item.remark)}}</p>
                 </template>
               </v-data-table>
             </v-col>
@@ -136,7 +136,8 @@ export default {
           value: "due_date",
           divider: true
         },
-        { text: "ข้อมูลยา", align: "center", value: "medicine", divider: true }
+        { text: "ข้อมูลยา", align: "center", value: "medicine", divider: true },
+        { text: "หมายเหตุ", align: "center", value: "remark", divider: true }
       ],
       date: "",
       pharmacy_id: null
@@ -179,7 +180,7 @@ export default {
       }
       return s;
     },
-    setMed: function(m) {
+    setMed: function(m, remark) {
       if (m != null) {
         var med_detail = m.split(";");
         var med_name = med_detail[0];
@@ -190,28 +191,39 @@ export default {
         var med_qty2 = med_qty.split(",");
         var med_unit = med_detail[3];
         var med_unit2 = med_unit.split(",");
+        var med_qty_missing = med_detail[4];
+        var med_qty_missing2 = med_qty_missing.split(",");
 
         var med_show = "";
         for (var i = 0; i < med_name2.length; i++) {
-          if (i === med_name2.length - 1) {
-            med_show +=
-              med_name2[i] +
-              " " +
-              med_strength2[i] +
-              " " +
-              med_qty2[i] +
-              " " +
-              med_unit2[i];
-          } else {
-            med_show +=
-              med_name2[i] +
-              " " +
-              med_strength2[i] +
-              " " +
-              med_qty2[i] +
-              " " +
-              med_unit2[i] +
-              "\n";
+          var qty = 0;
+          if (med_qty_missing2[i] != "NULL") {
+            qty = med_qty_missing2[i];
+          } else qty = med_qty2[i];
+          if (
+            (remark == "ยาขาด" && med_qty_missing2[i] > 0) ||
+            remark != "ยาขาด"
+          ) {
+            if (i === med_name2.length - 1) {
+              med_show +=
+                med_name2[i] +
+                " " +
+                med_strength2[i] +
+                " " +
+                qty +
+                " " +
+                med_unit2[i];
+            } else {
+              med_show +=
+                med_name2[i] +
+                " " +
+                med_strength2[i] +
+                " " +
+                qty +
+                " " +
+                med_unit2[i] +
+                "\n";
+            }
           }
         }
         return med_show;

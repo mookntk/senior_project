@@ -55,7 +55,11 @@
               <v-list v-for="item in medicine_order" :key="item">
                 <v-list-item>
                   <v-list-item-action>
-                    <v-checkbox disabled v-model="item.received"></v-checkbox>
+                    <v-checkbox
+                      disabled
+                      :value="item.received=='true'||item.received=='1'?false:true"
+                      v-model="item.received"
+                    ></v-checkbox>
                   </v-list-item-action>
                   <v-list-item-content>
                     <v-list-item-title>{{item.medicine_generic}} {{item.strength}} {{item.qty}} {{item.unit}}</v-list-item-title>
@@ -225,6 +229,13 @@ export default {
       axios.get("http://localhost:3000/api/pharmacy/showpharmacy").then(res => {
         this.pharmacy = res.data;
       });
+    },
+    setReceived(item) {
+      if (item == "true" || item == "1") {
+        console.log("dfdfdfgd");
+
+        return true;
+      } else return false;
     },
     setDate(date) {
       if (date == null) return null;

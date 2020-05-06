@@ -79,10 +79,11 @@ router.post(
 var show_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT o.order_id,p.name,p.surname, DATE_FORMAT(o.create_date,'%d %m %Y') AS create_date," +
+      "SELECT o.order_id,o.remark,p.name,p.surname, DATE_FORMAT(o.create_date,'%d %m %Y') AS create_date," +
         "DATE_FORMAT(o.due_date,'%d %m %Y') AS due_date," +
         "group_concat(m.medicine_generic) as medicine_generic, " +
         "group_concat(m.strength) as strength, " +
+        "group_concat(COALESCE(od.qty_missing, 'NULL')) as qty_missing, " +
         "group_concat(od.qty) as qty, " +
         "group_concat(m.unit) as unit " +
         "from orders as o " +

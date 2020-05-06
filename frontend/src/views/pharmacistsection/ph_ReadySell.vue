@@ -51,8 +51,16 @@
                 <v-col cols="12" md="5" sm="7" xs="6">
                   <v-text-field :value="oneorder[0].email" label="อีเมล" filled readonly></v-text-field>
                 </v-col>
-                <v-col cols="6" md="4" sm="4" xs="6">
+                <v-col cols="6" md="3" sm="3" xs="6">
                   <v-text-field :value="oneorder[0].telno" label="เบอร์โทรศัพท์" filled readonly></v-text-field>
+                </v-col>
+                <v-col cols="6" md="4" sm="4" xs="6">
+                  <v-text-field
+                    :value="setDate(oneorder[0].next_due_date)"
+                    label="วันนัดครั้งถัดไป"
+                    filled
+                    readonly
+                  ></v-text-field>
                 </v-col>
               </v-row>
               <v-form ref="form">

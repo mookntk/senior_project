@@ -83,8 +83,8 @@ router.post("/sorttransportid", async (req, res) => {
 var sortTransportId = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status= ? order by o.order_id ASC;`,
-      [item.status],
+      `SELECT CASE WHEN od.qty_missing > 0 THEN od.qty_missing ELSE od.qty END AS qty, o.* , ol.name , ol.surname , m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE (o.status = 'waiting-transport' and o.remark='ยาขาด' and od.qty_missing>0) or (o.status = 'waiting-transport' and o.remark is null )  order by o.order_id ASC;`,
+      [item.status, item.status],
       (error, result) => {
         if (error) return reject(error);
         var order = [];
@@ -175,29 +175,6 @@ var EditTransportDate = function (item) {
   });
 };
 
-router.post("/sorttransportid", async (req, res) => {
-  try {
-    const item = await sortTransportId(req.body);
-    res.json(item);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-var sortTransportId = function (item) {
-  return new Promise((resolve, reject) => {
-    db.query(
-      `SELECT o.* , ol.name , ol.surname ,od.*, m.*,ph.pharmacy_name, ph.province,tr.status as 'transport_status' from orders as o left join patients as ol ON o.patient_HN_order = ol.patient_HN inner join order_detail as od ON o.order_id = od.order_id inner join medicine as m ON m.medicine_id = od.medicine_id inner join pharmacy as ph on ph.pharmacy_id = o.pharmacy_id left join orders_transport as tr on tr.transport_id = o.transport_id WHERE o.status= ? order by o.order_id ASC;`,
-      [item.status],
-      (error, result) => {
-        if (error) return reject(error);
-        var sorttransport = sortDataFormat(result);
-        return resolve(sorttransport);
-      }
-    );
-  });
-};
-
 router.get("/transportstatus", async (req, res) => {
   try {
     const item = await TransportStatus();
@@ -210,7 +187,7 @@ router.get("/transportstatus", async (req, res) => {
 var TransportStatus = function () {
   return new Promise((resolve, reject) => {
     db.query(
-      `select t.* ,count(order_id) as num_order , p.pharmacy_name from orders as o inner join orders_transport as t on o.transport_id = t.transport_id inner join pharmacy as p on t.pharmacy_id_transport = p.pharmacy_id WHERE t.status IN ('received','transport') group by t.transport_id `,
+      `select t.* ,count(order_id) as num_order , p.pharmacy_name from orders as o inner join orders_transport as t on o.transport_id = t.transport_id inner join pharmacy as p on t.pharmacy_id_transport = p.pharmacy_id WHERE t.status IN ('received','transport') group by t.transport_id order by t.status DESC; `,
       (error, result) => {
         if (error) return reject(error);
         return resolve(result);
@@ -273,8 +250,8 @@ router.post("/transport_order", async (req, res) => {
 var getTransportOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT o.order_id,o.due_date,o.create_date,o.status,od.*,m.*,p.name,p.surname,p.patient_HN FROM orders as o inner join order_detail as od on o.order_id = od.order_id inner join medicine as m on m.medicine_id = od.medicine_id inner join patients as p on p.patient_HN=o.patient_HN_order where o.transport_id = ? order by od.order_id;`,
-      [item.transport_id],
+      `SELECT CASE WHEN od.qty_missing > 0 THEN od.qty_missing ELSE od.qty END AS qty,o.order_id,o.due_date,o.create_date,o.status,o.remark,m.*,p.name,p.surname,p.patient_HN FROM orders as o inner join order_detail as od on o.order_id = od.order_id inner join medicine as m on m.medicine_id = od.medicine_id inner join patients as p on p.patient_HN=o.patient_HN_order where (o.transport_id = ? and o.remark='ยาขาด' and od.qty_missing>0) or (o.transport_id = ? and o.remark is null ) order by od.order_id;`,
+      [item.transport_id, item.transport_id],
       (error, result) => {
         if (error) return reject(error);
         return resolve(result);

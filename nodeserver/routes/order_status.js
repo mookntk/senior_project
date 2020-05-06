@@ -29,7 +29,7 @@ var orderstatus = function (item) {
         "WHERE o.pharmacy_id ='" +
         item.pharmacy_id +
         "'" +
-        "AND o.status = 'success'OR o.status = 'cancel'  OR o.status = 'missing' " +
+        "AND (o.status = 'success'OR o.status = 'cancel'  OR o.status = 'missing') " +
         "group by o.order_id",
       (error, result) => {
         if (error) return reject(error);

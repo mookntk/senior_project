@@ -36,6 +36,7 @@
                     :items="patients"
                     item-text="name"
                     v-model="patient_selected"
+                    item-value="patient_HN"
                     outlined
                     :rules="[
                       v => !!patient_selected.name || 'กรุณากรอกข้อมูล'
@@ -540,8 +541,10 @@ export default {
     },
     reset() {
       this.$refs.form.reset();
+
       this.patient_selected = {};
       this.disease = [];
+      this.$refs.form2.reset();
     },
     JSONformat() {
       this.JSON = {
@@ -604,6 +607,8 @@ export default {
                       this.reset();
                       setTimeout(() => {
                         this.success_alert = false;
+                        // this.$refs.form.reset();
+                        // this.$refs.form2.reset();
                       }, 1000);
                     })
                     .catch(e => {

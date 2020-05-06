@@ -63,7 +63,7 @@ router.post(
 var one_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      "SELECT o.order_id,p.name,p.surname,p.gender,p.telno,p.email,p.DOB,o.status,o.patient_HN_order,m.medicine_generic,m.strength,od.qty,m.unit,m.medicine_id " +
+      "SELECT o.order_id,DATE_FORMAT(o.next_due_date,'%Y %m %d') AS next_due_date,p.name,p.surname,p.gender,p.telno,p.email,p.DOB,o.status,o.patient_HN_order,m.medicine_generic,m.strength,od.qty,m.unit,m.medicine_id " +
         // "group_concat(m.medicine_generic) as medicine_generic, " +
         // "group_concat(m.strenght) as strenght, " +
         // "group_concat(od.qty) as qty, " +
@@ -103,7 +103,7 @@ router.post("/getlot", async (req, res) => {
 var getLot = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `select l.* ,o.status ,o.order_id from lot_transfer as l inner join orders as o on o.transport_id = l.transport_id where o.pharmacy_id = ? and l.medicine_id = ? and o.status in ('ready','prepare' ) and l.qty_less > 0`,
+      `select l.* ,o.status ,o.order_id from orders as o  inner join order_detail as od on o.order_id = od.order_id inner join lot_transfer as l on o.transport_id = l.transport_id and od.medicine_id = l.medicine_id where o.pharmacy_id = ? and l.medicine_id = ? and o.status in ('ready','prepare','success','cancel' ) and l.qty_less > 0`,
       [item.pharmacy_id, item.medicine_id],
       (error, result) => {
         if (error) return reject(error);
