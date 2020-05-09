@@ -24,6 +24,7 @@ import SendbackStatus from "../views/pharmacistsection/ph_SendbackStatus";
 import OrderStatus from "../views/pharmacistsection/ph_OrderStatus";
 import LotOrder from "../views/hospitalsection/hp_LotOrder";
 import PhLotOrder from "../views/pharmacistsection/ph_LotOrder";
+import ChangePassword from "../views/ChangePassword";
 
 Vue.use(VueRouter);
 
@@ -234,6 +235,11 @@ const routes = [
       requiresAuth: true,
       permission: "pharmacist",
     },
+  },
+  {
+    path: "/changepassword",
+    name: "ChangePassword",
+    component: ChangePassword,
   },
 ];
 

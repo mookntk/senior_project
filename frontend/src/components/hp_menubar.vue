@@ -69,7 +69,7 @@
           <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
         </template>
         <v-list>
-          <v-list-item v-for="item in items" :key="item" @click="logout">
+          <v-list-item v-for="item in items" :key="item" @click="menuAccount(item)">
             <v-list-item-title>{{ item }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -86,7 +86,7 @@ export default {
     return {
       username: localStorage.getItem("username"),
       name: localStorage.getItem("name"),
-      items: [localStorage.getItem("name"), "Logout"],
+      items: [localStorage.getItem("name"), "เปลี่ยนรหัสผ่าน", "ออกจากระบบ"],
       links: [
         { value: "ประวัติออร์เดอร์", route: "/order_history" },
         {
@@ -173,7 +173,6 @@ export default {
   },
   methods: {
     logout: function(e) {
-      console.log(e.currentTarget.key);
       this.$store.commit("set_user", null);
       this.$store.commit("set_staff_id", null);
       this.$store.commit("set_name", null);
@@ -183,8 +182,11 @@ export default {
       localStorage.setItem("staff_id", null);
       localStorage.setItem("user_type", null);
       this.$router.push("/");
-      // console.log(localStorage.setItem("username",null));
-      // this.$router.push("/");
+    },
+    menuAccount(item) {
+      if (item === "เปลี่ยนรหัสผ่าน") {
+        this.$router.push("/changepassword");
+      } else if (item === "ออกจากระบบ") this.logout();
     },
     setDate(date) {
       var month = [

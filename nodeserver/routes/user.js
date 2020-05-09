@@ -1,29 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const {
-  check
-} = require("express-validator");
+const { check } = require("express-validator");
 const db = require("../configs/db");
 const nodemailer = require("nodemailer");
 
 //login
 router.post(
   "/login",
-  [
-    check("username")
-    .not()
-    .isEmpty(),
-    check("password")
-    .not()
-    .isEmpty()
-  ],
+  [check("username").not().isEmpty(), check("password").not().isEmpty()],
   async (req, res) => {
     try {
       const userLogin = await Login(req.body);
       res.json(userLogin);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -32,24 +23,12 @@ router.post(
 router.post(
   "/newuser",
   [
-    check("username")
-    .not()
-    .isEmpty(),
-    check("name")
-    .not()
-    .isEmpty(),
-    check("surname")
-    .not()
-    .isEmpty(),
-    check("telno")
-    .not()
-    .isEmpty(),
-    check("email")
-    .not()
-    .isEmpty(),
-    check("sex")
-    .not()
-    .isEmpty()
+    check("username").not().isEmpty(),
+    check("name").not().isEmpty(),
+    check("surname").not().isEmpty(),
+    check("telno").not().isEmpty(),
+    check("email").not().isEmpty(),
+    check("sex").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -57,7 +36,7 @@ router.post(
       res.json(newuser);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -66,24 +45,12 @@ router.post(
 router.post(
   "/edituser",
   [
-    check("username")
-    .not()
-    .isEmpty(),
-    check("name")
-    .not()
-    .isEmpty(),
-    check("surname")
-    .not()
-    .isEmpty(),
-    check("telno")
-    .not()
-    .isEmpty(),
-    check("email")
-    .not()
-    .isEmpty(),
-    check("sex")
-    .not()
-    .isEmpty()
+    check("username").not().isEmpty(),
+    check("name").not().isEmpty(),
+    check("surname").not().isEmpty(),
+    check("telno").not().isEmpty(),
+    check("email").not().isEmpty(),
+    check("sex").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -91,7 +58,7 @@ router.post(
       res.json(edituser);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -103,7 +70,7 @@ router.post("/deleteuser", async (req, res) => {
     res.json(deleteuser);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -114,7 +81,7 @@ router.get("/showhospital", async (req, res) => {
     res.json(hos_staff);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -122,15 +89,9 @@ router.get("/showhospital", async (req, res) => {
 router.post(
   "/sendmail",
   [
-    check("username")
-    .not()
-    .isEmpty(),
-    check("email")
-    .not()
-    .isEmpty(),
-    check("password")
-    .not()
-    .isEmpty()
+    check("username").not().isEmpty(),
+    check("email").not().isEmpty(),
+    check("password").not().isEmpty(),
   ],
   async (req, res) => {
     try {
@@ -138,7 +99,7 @@ router.post(
       res.json(sendmail);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
@@ -150,7 +111,7 @@ router.get("/showallstaff", async (req, res) => {
     res.json(staff);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -192,47 +153,59 @@ var new_user = function (item) {
     }
     db.query(
       "INSERT INTO users (username,password,user_type,name,surname,telno,email,sex) VALUES ('" +
-      item.username +
-      "','" +
-      randomstring +
-      "','hos_staff','" +
-      item.name +
-      "','" +
-      item.surname +
-      "','" +
-      item.telno +
-      "','" +
-      item.email +
-      "','" +
-      item.sex +
-      "')",
+        item.username +
+        "','" +
+        randomstring +
+        "','hos_staff','" +
+        item.name +
+        "','" +
+        item.surname +
+        "','" +
+        item.telno +
+        "','" +
+        item.email +
+        "','" +
+        item.sex +
+        "')",
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
     var transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
-      secure: false, // true for 465, false for other ports
+      secure: false,
+      requireTLS: true, // true for 465, false for other ports
       auth: {
         // ข้อมูลการเข้าสู่ระบบ
         user: "seniorhospital111@gmail.com", // email user ของเรา
-        pass: "hospital111" // email password
-      }
+        pass: "hospital111", // email password
+      },
     });
     // เริ่มทำการส่งอีเมล
     var info = transporter.sendMail({
       from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
       to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-      subject: "Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)", // หัวข้ออีเมล
-      text: "ยินดีต้อนรับคุณ" + item.name + " " + item.surname + " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
-        "คุณคือเภสัชกรโรงพยาบาล " + "\n" +
-        "ชื่อผู้ใช้ของคุณคือ " + item.username + "\n" +
-        "รหัสผ่านคือ " + randomstring + "\n" + // plain text body
-        "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้"
+      subject:
+        "Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)", // หัวข้ออีเมล
+      text:
+        "ยินดีต้อนรับคุณ" +
+        item.name +
+        " " +
+        item.surname +
+        " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
+        "คุณคือเภสัชกรโรงพยาบาล " +
+        "\n" +
+        "ชื่อผู้ใช้ของคุณคือ " +
+        item.username +
+        "\n" +
+        "รหัสผ่านคือ " +
+        randomstring +
+        "\n" + // plain text body
+        "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้",
     });
   });
 };
@@ -246,22 +219,22 @@ var edit_user = function (item) {
     }
     db.query(
       "UPDATE users SET name='" +
-      item.name +
-      "',surname='" +
-      item.surname +
-      "',email='" +
-      item.email +
-      "',telno='" +
-      item.telno +
-      "',sex='" +
-      item.sex +
-      "' WHERE username='" +
-      item.username +
-      "'",
+        item.name +
+        "',surname='" +
+        item.surname +
+        "',email='" +
+        item.email +
+        "',telno='" +
+        item.telno +
+        "',sex='" +
+        item.sex +
+        "' WHERE username='" +
+        item.username +
+        "'",
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
@@ -276,7 +249,7 @@ var delete_user = function (item) {
       (error, result) => {
         if (error) return reject(error);
         resolve({
-          message: "success"
+          message: "success",
         });
       }
     );
@@ -298,36 +271,50 @@ var show_hospital = function () {
 
 var send_mail = function (item) {
   return new Promise((resolve, reject) => {
-
-    db.query("SELECT * FROM users AS d1  " +
-      "where d1.username='" + item.username + "'",
+    db.query(
+      "SELECT * FROM users AS d1  " +
+        "where d1.username='" +
+        item.username +
+        "'",
       (error, result) => {
-
         name = result[0].name;
         surname = result[0].surname;
 
         var transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
+          requireTLS: true,
           port: 587,
           secure: false, // true for 465, false for other ports
           auth: {
             // ข้อมูลการเข้าสู่ระบบ
             user: "seniorhospital111@gmail.com", // email user ของเรา
-            pass: "hospital111" // email password
-          }
+            pass: "hospital111", // email password
+          },
         });
         // เริ่มทำการส่งอีเมล
         var info = transporter.sendMail({
           from: '"Senior Hospital" <seniorhospital111@gmail.com>', // อีเมลผู้ส่ง
           to: item.email, // อีเมลผู้รับ สามารถกำหนดได้มากกว่า 1 อีเมล โดยขั้นด้วย ,(Comma)
-          subject: "Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)", // หัวข้ออีเมล
-          text: "ยินดีต้อนรับคุณ" + name + " " + surname + " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
-            "คุณคือเภสัชกรโรงพยาบาล " + "\n" +
-            "ชื่อผู้ใช้ของคุณคือ " + item.username + "\n" +
-            "รหัสผ่านคือ " + item.password + "\n" + // plain text body
-            "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้"
+          subject:
+            "Senior Hospital : ยินดีต้อนรับผู้ใช้ใหม่ (ระบบส่งรหัสผ่านอัตโนมัติ)", // หัวข้ออีเมล
+          text:
+            "ยินดีต้อนรับคุณ" +
+            name +
+            " " +
+            surname +
+            " เข้าสู่ระบบการจัดการยาของโรงพยาบาล Senior Hospital \n" +
+            "คุณคือเภสัชกรโรงพยาบาล " +
+            "\n" +
+            "ชื่อผู้ใช้ของคุณคือ " +
+            item.username +
+            "\n" +
+            "รหัสผ่านคือ " +
+            item.password +
+            "\n" + // plain text body
+            "โปรดป้อนรหัสผ่านที่ได้ในการลงชื่อเข้าใช้",
         });
-      });
+      }
+    );
   });
 };
 
@@ -346,7 +333,7 @@ router.post("/getuserbyid", async (req, res) => {
     res.json(staff);
   } catch (error) {
     res.status(400).json({
-      message: error.message
+      message: error.message,
     });
   }
 });
@@ -359,6 +346,39 @@ var getUserById = function (item) {
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
+      }
+    );
+  });
+};
+router.post(
+  "/changepassword",
+
+  async (req, res) => {
+    try {
+      const edituser = await changePassword(req.body);
+      res.json(edituser);
+    } catch (error) {
+      res.status(400).json({
+        message: error.message,
+      });
+    }
+  }
+);
+
+var changePassword = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      "UPDATE users SET password='" +
+        item.password +
+        "' , lastupdate_date=Now()" +
+        " WHERE staff_id='" +
+        item.staff_id +
+        "'",
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({
+          message: "success",
+        });
       }
     );
   });

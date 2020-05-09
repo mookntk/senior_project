@@ -43,13 +43,8 @@
         <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
       </template>
       <v-list>
-        <v-list-item v-for="(item, index) in items" :key="index">
-          <v-list-item-title :value="index" @click="logout">
-            {{
-            item
-            }}
-          </v-list-item-title>
-          <!-- {{ item }} -->
+        <v-list-item v-for="item in items" :key="item" @click="menuAccount(item)">
+          <v-list-item-title>{{ item }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -77,7 +72,7 @@ export default {
         { value: "ตรวจสอบและยืนยันจำนวนยา", route: "/confirm_order" }
       ],
       logged: localStorage.getItem("login"),
-      items: [localStorage.getItem("name"), "เลขใบอนุญาต", "Logout"],
+      items: [localStorage.getItem("name"), "เปลี่ยนรหัสผ่าน", "ออกจากระบบ"],
       active: [false, false],
       btncolor: "teal lighten-3",
       btncolor1: "teal lighten-3",
@@ -99,57 +94,10 @@ export default {
       localStorage.setItem("user_type", null);
       this.$router.push("/");
     },
-    click: function(e) {
-      console.log(e.currentTarget.value);
-      if (e.currentTarget.value == "returnmedicine") {
-        this.$router.push("/traceability");
-        this.btncolor = "teal lighten-1";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "transferfromhp") {
-        this.$router.push("/status_history");
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-1";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "order") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-1";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-        this.$router.push("/order_status");
-      } else if (e.currentTarget.value == "notification") {
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-1";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "้home") {
-        this.$router.push("/ready_sell");
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-3";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-1";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "orderstatus") {
-        this.$router.push("/order_status");
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-1";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      } else if (e.currentTarget.value == "prepareorder") {
-        this.$router.push("/prepare");
-        this.btncolor = "teal lighten-3";
-        this.btncolor1 = "teal lighten-1";
-        this.btncolor2 = "teal lighten-3";
-        this.btncolor3 = "teal lighten-3";
-        console.log(this.btncolor);
-      }
+    menuAccount(item) {
+      if (item === "เปลี่ยนรหัสผ่าน") {
+        this.$router.push("/changepassword");
+      } else if (item === "ออกจากระบบ") this.logout();
     }
   }
 };
