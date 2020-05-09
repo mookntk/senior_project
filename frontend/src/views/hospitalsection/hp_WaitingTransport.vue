@@ -97,13 +97,7 @@
         <template v-slot:header="{props}">
           <tr>
             <th>
-              <v-checkbox
-                primary
-                hide-details
-                label="เลือกทั้งหมด"
-                v-model="selectAll_order"
-                @change="selectAll"
-              ></v-checkbox>
+              <v-checkbox primary hide-details v-model="selectAll_order" @change="selectAll"></v-checkbox>
             </th>
             <th
               v-for="header in props.headers"
@@ -155,7 +149,7 @@ export default {
       headers: [
         {
           text: "ร้านขายยา",
-          align: "left",
+          align: "center",
           sortable: false
         },
         { text: "จังหวัด", align: "center" },
@@ -412,7 +406,7 @@ export default {
   height: 70px;
 } */
 th {
-  background-color: #ffd54f;
+  background-color: #f5ce88;
 }
 .selectedRow {
   background-color: #f0f0f0;

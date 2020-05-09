@@ -46,6 +46,7 @@
         <template v-slot:item.status="{ item }">
           <v-chip :color="getColor(item.status)">{{ setStatus(item.status) }}</v-chip>
         </template>
+        <template v-slot:no-data>ไม่มีประวัติออเดอร์</template>
       </v-data-table>
       <v-dialog v-model="dialog_detail" max-width="500" class="bg">
         <div class="blue-grey lighten-3" style="padding:20px">

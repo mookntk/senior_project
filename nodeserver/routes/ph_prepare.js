@@ -181,6 +181,7 @@ var success_prepare = function (item) {
           var transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 587,
+            requireTLS: true,
             secure: false, // true for 465, false for other ports
             auth: {
               // ข้อมูลการเข้าสู่ระบบ

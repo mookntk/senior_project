@@ -582,17 +582,19 @@ export default {
         }
         //new order
         console.log(this.JSON);
+
         if (check) {
-          console.log({
-            medicine_id: this.medicine_selected[0].medicine_id,
-            qty: this.qty_selected[0],
-            administration: this.parseString(0),
-            numpertime: this.numMed[0]
-          });
+          // console.log({
+          //   medicine_id: this.medicine_selected[0].medicine_id,
+          //   qty: this.qty_selected[0],
+          //   administration: this.parseString(0),
+          //   numpertime: this.numMed[0]
+          // });
           axios
             .post("http://localhost:3000/api/order/neworder", this.JSON)
             .then(res => {
               for (var i = 0; i < this.disease.length; i++) {
+                console.log(this.checkbox[i]);
                 if (this.checkbox[i]) {
                   axios
                     .post("http://localhost:3000/api/order/neworder_detail", {

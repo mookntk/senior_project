@@ -27,6 +27,7 @@
         <template v-slot:item.medicine>
           <v-icon color="#76C3AF" size="20">mdi-pill</v-icon>
         </template>
+        <template v-slot:no-data>ไม่มีออร์เดอร์ที่จะส่งคืน</template>
       </v-data-table>
 
       <v-dialog

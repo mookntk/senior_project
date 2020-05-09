@@ -71,7 +71,7 @@
               color="#f5ce88"
               large
               @click="confirm"
-              v-if="order[index].status=='sending'"
+              v-if="order_status_selected=='sending'"
             >ได้รับยาเรียบร้อย</v-btn>
           </v-toolbar>
           <v-card-text>
@@ -222,7 +222,8 @@ export default {
         { text: "ได้รับยาเรียบร้อย", value: "received" }
       ],
       pharmacy: [],
-      search: ""
+      search: "",
+      order_status_selected: ""
     };
   },
   components: {
@@ -274,6 +275,7 @@ export default {
     },
     selectItem(item) {
       this.index = this.order.indexOf(item);
+      this.order_status_selected = item.status;
       axios
         .post("http://localhost:3000/api/return/getonereturnorder", {
           return_id: item.return_id

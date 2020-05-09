@@ -16,7 +16,7 @@
           <v-card-text>
             <v-container>
               <v-row>
-                <v-col cols="12" md="10" sm="11">
+                <v-col cols="12" md="12" sm="12">
                   <div
                     style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4"
                   >
@@ -26,7 +26,7 @@
                     </p>
                   </div>
                 </v-col>
-                <v-col cols="12" md="4" sm="7" xs="6">
+                <v-col cols="12" md="5" sm="8">
                   <v-text-field
                     :value="oneorder[0].name + ' ' + oneorder[0].surname"
                     label="ชื่อ-นามสกุลผู้ป่วย"
@@ -40,7 +40,7 @@
                 <v-col cols="3" md="1" sm="2" xs="6">
                   <v-text-field :value="setDate2(oneorder[0].DOB)" label="อายุ" filled readonly></v-text-field>
                 </v-col>
-                <v-col cols="6" md="4" sm="4" xs="6">
+                <v-col cols="6" md="5" sm="5" xs="6">
                   <v-text-field
                     :value="setDate3(oneorder[0].DOB)"
                     label="วัน/เดือน/ปีเกิด"
@@ -67,7 +67,7 @@
 
               <v-form ref="form" v-model="valid" style="border:1px">
                 <v-row>
-                  <v-col cols="12" md="10" sm="11">
+                  <v-col cols="12" md="12" sm="12">
                     <div
                       style="border-left: 10px solid #5B48A2;padding:12px;background-color:#D4D7C4"
                     >
@@ -116,7 +116,6 @@
 
       <!-- data table -->
       <v-row style="font-size:25px;margin:10px">ออร์เดอร์ที่รอการจัดยา</v-row>
-      <v-row style="font-size:20px;margin:10px">{{ date }}</v-row>
 
       <v-data-table
         :items="p_order"
@@ -125,6 +124,7 @@
         class="elevation-1"
         @click:row="selectItem"
       >
+        <template v-slot:no-data>ไม่มีออร์เดอร์ที่รอการจัดยา</template>
         <template v-slot:item.name="{ item }">
           <p style="text-align:left;margin:auto">{{ item.name }} {{ item.surname }}</p>
         </template>
@@ -177,19 +177,6 @@ export default {
       { text: "สถานะ", align: "center", value: "status", divider: true }
       // { text: 'Actions', value: 'action', sortable: false },
     ],
-    editedIndex: -1,
-    editedItem: {
-      HN: "",
-      name: "",
-      duedate: "",
-      status: ""
-    },
-    defaultItem: {
-      HN: "",
-      name: "",
-      duedate: "",
-      status: ""
-    },
     dialog: false,
     dialog_row: false,
     index: 0,
@@ -208,16 +195,7 @@ export default {
         unit: ""
       }
     ],
-    p_order: [
-      {
-        order_id: "",
-        patient_HN_order: "",
-        name: "",
-        surname: "",
-        status: "",
-        due_date: ""
-      }
-    ]
+    p_order: []
   }),
   methods: {
     reset() {

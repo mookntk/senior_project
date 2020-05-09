@@ -228,7 +228,7 @@ export default {
       order_id: 1,
       click: false,
       dialog_row: false,
-      index: 0,
+      index: null,
       headers: [
         {
           text: "ออร์เดอร์ที่",
@@ -402,8 +402,36 @@ export default {
                 transport_id: this.transport_id,
                 order_id: this.each_transfer[index].order_id
               })
+              .then(res => {})
+              .catch(e => {
+                console.log(e);
+              });
+          });
+          this.medicineAll.forEach((e, i) => {
+            axios
+              .post("http://localhost:3000/api/lot_transfer/getlotonemed", {
+                transport_id: this.transport_id,
+                medicine_id: e.medicine_id
+              })
               .then(res => {
-                this.resetDialog();
+                var lot = res.data;
+
+                lot.forEach((item, j) => {
+                  console.log("completeoreder");
+                  console.log({
+                    lot_no_id: lot[j].lot_no_id,
+                    qty_less: lot[j].qty
+                  });
+                  axios
+                    .post("http://localhost:3000/api/lot_transfer/editlot", {
+                      lot_no_id: lot[j].lot_no_id,
+                      qty_less: lot[j].qty
+                    })
+                    .then(res => {
+                      this.transfer_order.splice(this.index, 1);
+                      this.resetDialog();
+                    });
+                });
               })
               .catch(e => {
                 console.log(e);
@@ -497,12 +525,16 @@ export default {
               }
             );
             axios
-              .post("http://localhost:3000/api/order/edit_orderstatus", {
+              .post("http://localhost:3000/api/order/edit_missingorder", {
                 status: "missing",
                 transport_id: this.transport_id,
                 order_id: this.each_transfer[index].order_id
               })
-              .then(res => {})
+              .then(res => {
+                this.transfer_order.splice(this.index, 1);
+                this.resetDialog();
+                this.dialog_missing = false;
+              })
               .catch(e => {
                 console.log(e);
               });
@@ -707,6 +739,7 @@ export default {
     },
     selectItem(item) {
       this.transport_id = item.transport_id;
+      this.index = this.transfer_order.indexOf(item);
       axios
         .post("http://localhost:3000/api/transport/transport_order", {
           transport_id: item.transport_id

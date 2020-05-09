@@ -16,7 +16,7 @@
               <v-btn
                 text
                 @click="changestatus"
-                v-if="transfer_order[index].status === 'transport'"
+                v-if="transfer_status_selected === 'transport'"
               >ได้รับยาเรียบร้อย</v-btn>
             </v-toolbar-items>
           </v-toolbar>
@@ -61,6 +61,7 @@
         <template v-slot:item.status="{item}">
           <v-chip :color="getColor(item.status)">{{setStatus(item.status)}}</v-chip>
         </template>
+        <template v-slot:no-data>ไม่มีประวัติออร์เดอร์ที่กำลังขนส่งมายังร้านขายยา</template>
       </v-data-table>
     </v-content>
   </v-app>
@@ -75,7 +76,8 @@ export default {
   data() {
     return {
       dialog_row: false,
-      transfer_order: [{ status: "" }],
+      transfer_order: [],
+      transfer_status_selected: "",
       each_order: [],
       index: 0,
       headers: [
@@ -290,6 +292,7 @@ export default {
       //add receive date
       axios
         .post("http://localhost:3000/api/receive_order/edit_receivedate", {
+          staff_id: localStorage.getItem("staff_id"),
           transport_id: this.transfer_order[this.index].transport_id
         })
         .catch(e => {
@@ -323,6 +326,7 @@ export default {
       } else if (status == "received") return "#75C3AE";
     },
     selectItem(item) {
+      this.transfer_status_selected = item.status;
       this.index = this.transfer_order.indexOf(item);
       axios
         .post("http://localhost:3000/api/receive_order/show_order", {

@@ -36,7 +36,7 @@
         :search="search"
         :headers="headers"
         :items="filterOrders"
-        :items-per-page="10"
+        :items-per-page="5"
         class="elevation-1"
         show-select
         v-model="selectedItem"

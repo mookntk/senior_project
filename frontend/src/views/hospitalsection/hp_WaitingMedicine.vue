@@ -154,7 +154,7 @@
         <template v-slot:header="{props}">
           <tr>
             <th>
-              <v-checkbox primary hide-details label="เลือกทั้งหมด" v-model="selectAll_order"></v-checkbox>
+              <v-checkbox primary hide-details v-model="selectAll_order"></v-checkbox>
             </th>
             <th
               v-for="header in props.headers"
@@ -405,11 +405,15 @@ export default {
       this.medicineAll.exp[index].splice(subindex, 1);
     },
     cancel_order(item) {
+      var status = null;
+      if (item.remark == "ยาขาด") {
+        status = "missing";
+      } else status = "create-order";
       var index = this.order_filter[this.index].indexOf(item);
       confirm("คุณต้องการที่จะลบออร์เดอร์นี้ใช่หรือไม่?") &&
         axios
           .post("http://localhost:3000/api/order/edit_orderstatus", {
-            status: "create-order",
+            status: status,
             transport_id: null,
             order_id: item.order_id
           })
@@ -419,6 +423,7 @@ export default {
       this.getInfo();
       this.dialog_details = false;
     },
+
     save() {
       var item = this.order_filter[this.index];
       //! edit lot_transfer

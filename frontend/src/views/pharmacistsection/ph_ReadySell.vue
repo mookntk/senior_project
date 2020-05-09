@@ -7,7 +7,7 @@
       <v-dialog v-model="dialog_row" fullscreen hide-overlay transition="dialog-bottom-transition">
         <v-card class="font">
           <v-toolbar color="#77B3D5">
-            <v-btn color="#C85D5C" fab small depressed @click="dialog_row = false">
+            <v-btn color="#C85D5C" fab small depressed @click="reset">
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title style="margin-left:20px">ออร์เดอร์ที่ {{ oneorder[0].order_id }}</v-toolbar-title>
@@ -167,11 +167,11 @@
                           <v-col cols="12" sm="3" md="2" :key="k">
                             <v-icon
                               @click="remove(index,k)"
-                              v-show="k>0 || ( !k && textbox[index].length > 1)"
+                              v-show="k>0 || ( !k && qty_med[index].length > 1)"
                             >mdi-minus-circle</v-icon>
                             <v-icon
                               @click="add(index)"
-                              v-show="k == textbox[index].length-1"
+                              v-show="k == qty_med[index].length-1"
                             >mdi-plus-circle</v-icon>
                           </v-col>
                         </template>
@@ -187,13 +187,13 @@
             <v-spacer></v-spacer>
             <v-btn color="#76C3AF" @click="successItem(item)" large>ผู้ป่วยรับยาเรียบร้อย</v-btn>
             <v-btn color="#C85D5C" @click="cancelItem(item)" large>ยกเลิกออร์เดอร์</v-btn>
-            <v-btn color="#bdc3c7" @click="dialog_row = false" large>ปิด</v-btn>
+            <v-btn color="#bdc3c7" @click="reset" large>ปิด</v-btn>
           </v-card-actions>
           <!-- table in pop-up page for see each of order detial -->
         </v-card>
       </v-dialog>
 
-      <v-row style="font-size:25px;margin:10px">{{ date }}</v-row>
+      <v-row style="font-size:25px;margin:10px">ออร์เดอร์ที่พร้อมจ่ายยา</v-row>
       <v-data-table
         :items="r_order"
         :items-per-page="10"
@@ -396,6 +396,7 @@ export default {
     },
     reset() {
       this.$refs.form.reset();
+      this.dialog_row = false;
     },
     setStatus: function(s) {
       if (s === "ready") {
@@ -543,6 +544,10 @@ export default {
     selectItem(item) {
       this.index = this.r_order.indexOf(item);
       this.lot_no = [];
+      this.textbox = [];
+      this.lot_med = [];
+      this.qty_med = [];
+      // patient_selected = {};
       // this.oneorder = item;
       axios
         .post("http://localhost:3000/api/ready_sell/one_order", {
@@ -615,6 +620,7 @@ export default {
                 .then(res => {
                   this.refreshOfReadyTable();
                   this.dialog_row = false;
+                  this.$refs.form.reset();
                 });
             });
           })
@@ -685,6 +691,9 @@ export default {
                       lot_no_id: element2.lot_no_id,
                       qty_less:
                         element2.qty_less - (parseInt(this.qty_med[i][j]) || 0)
+                    })
+                    .then(res => {
+                      this.$refs.form.reset();
                     })
                     .catch(e => {
                       console.log(e);

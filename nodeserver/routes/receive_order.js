@@ -131,8 +131,8 @@ router.post(
 var editReceivedate = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE orders_transport SET receive_date = NOW() ,status = ? WHERE transport_id = ?`,
-      ["received", item.transport_id],
+      `UPDATE orders_transport SET receive_date = NOW() ,status = ? ,pharmacist_id_transport=? WHERE transport_id = ?`,
+      ["received", item.staff_id, item.transport_id],
       (error, result) => {
         if (error) return reject(error);
         resolve({

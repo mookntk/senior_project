@@ -7,8 +7,8 @@
     <v-content class="font main">
       <v-row>
         <v-col align="left" style="font-size:25px">ข้อมูลผู้ป่วย</v-col>
-
-        <v-col align="center">
+        <v-spacer></v-spacer>
+        <v-col align="right">
           <!-- ช่อง search -->
           <v-text-field
             v-model="search"
@@ -16,6 +16,7 @@
             label="ค้นหา"
             single-line
             hide-details
+            solo
           ></v-text-field>
         </v-col>
 
@@ -207,8 +208,8 @@
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn @click="close" rounded color="red lighten-1" large>ปิด</v-btn>
                 <v-btn rounded color="green lighten-1" large @click="save">เสร็จสิ้น</v-btn>
+                <v-btn @click="close" rounded color="red lighten-1" large>ปิด</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -233,32 +234,32 @@
               <v-row>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    :value="patient_selected"
+                    :value="patient_selected.name+' '+patient_selected.surname"
                     label="ชื่อ-นามสกุลผู้ป่วย"
                     filled
                     readonly
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field :value="patients[index].gender" label="เพศ" filled readonly></v-text-field>
+                  <v-text-field :value="patient_selected.gender" label="เพศ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="4">
                   <v-text-field :value="age" label="อายุ" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="8">
                   <v-text-field
-                    :value="patients[index].DOB"
+                    :value="patient_selected.DOB"
                     label="วัน/เดือน/ปีเกิด"
                     filled
                     readonly
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-text-field :value="patients[index].email" label="อีเมล" filled readonly></v-text-field>
+                  <v-text-field :value="patient_selected.email" label="อีเมล" filled readonly></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    :value="patients[index].telno"
+                    :value="patient_selected.telno"
                     label="เบอร์โทรศัพท์"
                     filled
                     readonly
@@ -266,7 +267,7 @@
                 </v-col>
                 <v-col cols="12" sm="6">
                   <v-text-field
-                    :value="patients[index].pharmacy_name"
+                    :value="patient_selected.pharmacy_name"
                     label="ร้านขายยา"
                     filled
                     readonly
@@ -287,7 +288,7 @@
                 </v-col>
               </v-row>
               <v-data-table :headers="record_headers" :items="record">
-                <template v-slot:body="{ items }">
+                <!-- <template v-slot:body="{ items }">
                   <tbody>
                     <tr v-for="(item,i) in items" :key="i">
                       <td>{{ i+1 }}</td>
@@ -296,9 +297,15 @@
                       <td style="text-align:center">{{ item.height}}</td>
                       <td style="text-align:center">{{ item.pressure_sys }}/{{item.pressure_di}}</td>
                       <td style="text-align:center">{{ item.name}} {{item.surname}}</td>
+                      <td style="text-align:center">{{ item.name}} {{item.surname}}</td>
                     </tr>
                   </tbody>
-                </template>
+                </template>-->
+                <template v-slot:item.no="{item}">{{record.indexOf(item)+1}}</template>
+                <template v-slot:item.date="{item}">{{ setDate(item.date) }}</template>
+                <template v-slot:item.pressure="{item}">{{ item.pressure_sys }}/{{item.pressure_di}}</template>
+                <template v-slot:item.pharmacist="{item}">{{ item.name}} {{item.surname}}</template>
+                <template v-slot:no-data>ไม่มีประวัติการตรวจ</template>
               </v-data-table>
             </v-container>
           </v-card-text>
@@ -311,27 +318,18 @@
         :search="search"
         :items="patients"
         :items-per-page="10"
-        sort-by="name"
+        sort-by="HN"
         class="elevation-1"
       >
-        <template v-slot:body="{ items }">
-          <tbody>
-            <tr v-for="item in items" :key="item.name">
-              <td>{{ item.patient_HN }}</td>
-              <td>{{ item.name }} {{ item.surname }}</td>
-              <td style="text-align:center">{{ item.email }}</td>
-              <td style="text-align:center">{{ item.telno }}</td>
-              <td style="text-align:center">{{ item.pharmacy_name }}</td>
-              <td style="text-align:center">
-                <v-icon small class="mr-2" @click="showItem(item)">mdi-eye</v-icon>
-              </td>
-              <td style="text-align:center">
-                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-                <v-icon small class="mr-2" @click="deleteItem(item)">mdi-delete</v-icon>
-              </td>
-            </tr>
-          </tbody>
+        <template v-slot:item.name="{item}">{{item.name}} {{item.surname}}</template>
+        <template v-slot:item.history="{item}">
+          <v-icon size="20" class="mr-2" @click="showItem(item)" color="black">mdi-eye</v-icon>
         </template>
+        <template v-slot:item.action="{item}">
+          <v-icon size="20" class="mr-2" @click="editItem(item)" color="#77B3D5">mdi-pencil</v-icon>
+          <v-icon size="20" class="mr-2" @click="deleteItem(item)" color="#C85D5C">mdi-delete</v-icon>
+        </template>
+        <template v-slot:no-data>ไม่มีข้อมูลผู้ป่วย</template>
       </v-data-table>
       <!-- Data Table of patient page -->
     </v-content>
@@ -358,43 +356,94 @@ export default {
         {
           text: "HN",
           align: "left",
-          sortable: false,
-          value: "patient_HN"
+          value: "patient_HN",
+          divider: true,
+          width: "8%"
         },
-        { text: "ชื่อ-นามสกุลผู้ป่วย", align: "center", value: "name" },
-        { text: "อีเมล", align: "center", value: "email" },
-        { text: "เบอร์โทรศัพท์", align: "center", value: "telno" },
-        { text: "ร้านขายยา", align: "center", value: "pharmacy_name" },
-        { text: "ประวัติการตรวจ", align: "center", value: "history" },
-        { text: "แก้ไข/ลบ", align: "center" }
+        {
+          text: "ชื่อ-นามสกุลผู้ป่วย",
+          align: "center",
+          value: "name",
+          divider: true,
+          width: "22%"
+        },
+        {
+          text: "อีเมล",
+          align: "center",
+          value: "email",
+          divider: true,
+          width: "22%"
+        },
+        {
+          text: "เบอร์โทรศัพท์",
+          align: "center",
+          value: "telno",
+          divider: true,
+          width: "12%"
+        },
+        {
+          text: "ร้านขายยา",
+          align: "center",
+          value: "pharmacy_name",
+          divider: true,
+          width: "16%"
+        },
+        {
+          text: "ประวัติการตรวจ",
+          align: "center",
+          value: "history",
+          divider: true,
+          width: "10%"
+        },
+        { text: "แก้ไข/ลบ", align: "center", value: "action", width: "10%" }
       ],
       record_headers: [
         {
           text: "ลำดับที่",
           align: "right",
           sortable: true,
-          value: "no"
+          value: "no",
+          divider: true,
+          width: "7%"
         },
-        { text: "วันที่บันทึก", align: "center", value: "date" },
-        { text: "น้ำหนัก", align: "center", value: "weight" },
-        { text: "ส่วนสูง", align: "center", value: "height" },
-        { text: "ความดันเลือด", align: "center", value: "pressure" },
-        { text: "ผู้ตรวจ", align: "center", value: "pharmacist" }
+        {
+          text: "วันที่บันทึก",
+          align: "center",
+          value: "date",
+          divider: true,
+          width: "18%"
+        },
+        {
+          text: "น้ำหนัก",
+          align: "center",
+          value: "weight",
+          divider: true,
+          width: "10%"
+        },
+        {
+          text: "ส่วนสูง",
+          align: "center",
+          value: "height",
+          divider: true,
+          width: "10%"
+        },
+        {
+          text: "ความดันเลือด",
+          align: "center",
+          value: "pressure",
+          divider: true,
+          width: "10%"
+        },
+        { text: "ยาที่ได้", align: "center", value: "medicine", divider: true },
+        {
+          text: "ผู้ตรวจ",
+          align: "center",
+          value: "pharmacist",
+          divider: true,
+          width: "15%"
+        }
       ],
-      patients: {
-        name: "",
-        surname: "",
-        gender: "",
-        DOB: "",
-        email: "",
-        telno: "",
-        pharmacy_id_patient: "",
-        address: "",
-        subdistrict: "",
-        district: "",
-        province: "",
-        zipcode: ""
-      },
+      patients: [],
       pharmacy: [],
       emailrules: [
         v => !!v || "กรุณากรอกข้อมูล",
@@ -416,7 +465,7 @@ export default {
       ],
       addressrules: [v => !!v || "กรุณากรอกข้อมูล"],
       age: "",
-      patient_selected: null,
+      patient_selected: {},
       editedItem: {
         name: "",
         surname: "",
@@ -433,7 +482,7 @@ export default {
       },
       defaultItem: {},
       disease_selected: [],
-      record: [{}]
+      record: []
     };
   },
   computed: {
@@ -500,7 +549,7 @@ export default {
             this.disease_selected.push(res.data[i].disease_id);
             console.log(this.disease_selected);
           }
-          this.patient_selected = item.name + " " + item.surname;
+          this.patient_selected = item;
           this.index = this.patients.indexOf(item);
           this.calulate_age();
 

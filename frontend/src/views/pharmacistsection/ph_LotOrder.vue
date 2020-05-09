@@ -33,7 +33,7 @@
         <template v-slot:item.order="{item}">{{allLot.indexOf(item)+1}}</template>
         <template v-slot:item.medicine="{item}">{{item.medicine_generic}} {{item.strength}}</template>
         <template v-slot:item.exp_date="{item}">{{setDate(item.exp_date)}}</template>
-        <template v-slot:no-data>ไม่มีข้อมูล</template>
+        <template v-slot:no-data>ไม่มีข้อมูลรหัสสินค้า</template>
       </v-data-table>
 
       <v-dialog v-model="dialog_lot" fullscreen hide-overlay transition="dialog-bottom-transition">
@@ -42,7 +42,7 @@
             <v-btn color="#C85D5C" fab small depressed @click="dialog_lot = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title style="margin-left:15px">รหัสสินค้า {{allLot[index].lot_no}}</v-toolbar-title>
+            <v-toolbar-title style="margin-left:15px">รหัสสินค้า {{lot_no_selected}}</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
           <v-card-text>
@@ -185,7 +185,8 @@ export default {
       ],
       disease: [],
       search: "",
-      pharmacy_id: []
+      pharmacy_id: [],
+      lot_no_selected: ""
     };
   },
   components: {
@@ -261,6 +262,7 @@ export default {
       return str.join("");
     },
     selectItem(item) {
+      this.lot_no_selected = item.lot_no;
       this.index = this.allLot.indexOf(item);
       console.log(item.lot_no_id);
       axios

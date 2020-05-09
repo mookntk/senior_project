@@ -83,8 +83,8 @@
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field
                           ref="input"
-                          v-model="medicine_selected.strenght"
-                          label="ปริมาณยา (strenght)"
+                          v-model="medicine_selected.strength"
+                          label="ปริมาณยา (strength)"
                           :rules="[rules.required]"
                           :error-messages="errorMessages"
                           required
@@ -94,7 +94,7 @@
                         <v-text-field
                           ref="input"
                           v-model="medicine_selected.price"
-                          label="ราคาต่อหนึ่งปริมาณยา (price/strenght)"
+                          label="ราคาต่อหนึ่งปริมาณยา (price/strength)"
                           :rules="[rules.required]"
                           :error-messages="errorMessages"
                           required
@@ -266,12 +266,12 @@ export default {
       { text: "โรค", value: "disease_name", align: "center" },
       {
         text: "ปริมาณยา (strength)",
-        value: "strenght",
+        value: "strength",
         align: "center",
         sortable: false
       },
       {
-        text: "ราคาต่อหนึ่งปริมาณยา (price/strenght)",
+        text: "ราคาต่อหนึ่งปริมาณยา (price/strength)",
         value: "price",
         align: "center",
         sortable: false
@@ -294,7 +294,7 @@ export default {
       medicine_generic: "",
       medicine_trade: "",
       disease_name: "",
-      strenght: "",
+      strength: "",
       price: "",
       unit: ""
     },
@@ -303,7 +303,7 @@ export default {
       medicine_generic: "",
       medicine_trade: "",
       disease_name: "",
-      strenght: "",
+      strength: "",
       price: "",
       unit: ""
     },
@@ -544,7 +544,7 @@ export default {
                       medicine_tmt: this.medicine_selected.medicine_tmt,
                       medicine_generic: this.medicine_selected.medicine_generic,
                       medicine_trade: this.medicine_selected.medicine_trade,
-                      strenght: this.medicine_selected.strenght,
+                      strength: this.medicine_selected.strength,
                       price: this.medicine_selected.price,
                       unit: this.medicine_selected.unit,
                       disease_name: this.medicine_selected.disease_name

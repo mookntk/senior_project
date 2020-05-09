@@ -126,6 +126,28 @@ var EditOrderStatus = function (item) {
   });
 };
 
+router.post("/edit_missingorder", async (req, res) => {
+  try {
+    const item = await EditMissingOrder(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var EditMissingOrder = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `UPDATE ${order} SET status = ? ,remark='ยาขาด' transport_id =? WHERE order_id = ?`,
+      [item.status, item.transport_id, item.order_id],
+      (error, result) => {
+        if (error) return reject(error);
+        resolve({ message: "success" });
+      }
+    );
+  });
+};
+
 router.post("/getorder_status", async (req, res) => {
   try {
     const item = await GetOrderByStatus(req.body);
