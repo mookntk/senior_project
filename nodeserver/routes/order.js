@@ -138,7 +138,7 @@ router.post("/edit_missingorder", async (req, res) => {
 var EditMissingOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `UPDATE ${order} SET status = ? ,remark='ยาขาด' transport_id =? WHERE order_id = ?`,
+      `UPDATE ${order} SET status = ? ,remark='ยาขาด', transport_id =? WHERE order_id = ?`,
       [item.status, item.transport_id, item.order_id],
       (error, result) => {
         if (error) return reject(error);
@@ -401,4 +401,25 @@ var getOrderPatient = function (item) {
   });
 };
 
+router.post("/getpatientinfo", async (req, res) => {
+  try {
+    const item = await getPatientInfo(req.body);
+    res.json(item);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+var getPatientInfo = function (item) {
+  return new Promise((resolve, reject) => {
+    db.query(
+      `select o.*,od.administration,od.medicine_id,od.numpertime,m.*,d.* from orders as o inner join patients as p on o.patient_HN_order = p.patient_HN inner join order_detail as od on od.order_id = o.order_id inner join medicine as m on m.medicine_id = od.medicine_id inner join diseases as d on d.disease_id = m.disease_id_medicine where p.patient_HN = ? order by o.order_id  DESC,m.disease_id_medicine`,
+      [item.patient_HN],
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result);
+      }
+    );
+  });
+};
 module.exports = router;

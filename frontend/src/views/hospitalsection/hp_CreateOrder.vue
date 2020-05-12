@@ -192,8 +192,8 @@
                           :items="medicine[disease[index].disease_id]"
                           outlined
                           v-model="medicine_selected[index]"
+                          item-value="medicine_id"
                           @input="checkSameMed(index)"
-                          return-object
                         >
                           <template v-slot:selection="data">
                             {{ data.item.medicine_generic }}
@@ -232,7 +232,7 @@
                         >mdi-plus-circle</v-icon>
                       </v-col>
                       <v-col
-                        style="text-align:center;justify-content:center;margin-top:15px"
+                        style="text-align:center;justify-content:center;margin-top:15px;padding-right:70px"
                         cols="12"
                         sm="3"
                         md="2"
@@ -269,7 +269,7 @@
             <v-card-title style="background-color:#f5ce88">วิธีทานยา</v-card-title>
             <v-card-text>
               <div style="margin-top:10px">
-                <p style="font-size:16px">ยา : {{medInfo.medicine_generic}} {{medInfo.strength}}</p>
+                <!-- <p style="font-size:16px">ยา : {{medInfo.medicine_generic}} {{medInfo.strength}}</p> -->
                 <v-row>
                   <v-col cols="5" sm="4" md="4">
                     <p style="margin-top:20px">รับประทานครั้งละ</p>
@@ -284,7 +284,7 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="3" sm="3" md="4">
-                    <p style="margin-top:20px">{{medInfo.unit}}</p>
+                    <!-- <p style="margin-top:20px">{{medInfo.unit}}</p> -->
                   </v-col>
                 </v-row>
               </div>
@@ -400,7 +400,8 @@ export default {
       index: null,
       numMed: [],
       everyMed: [],
-      syndrometxt: []
+      syndrometxt: [],
+      pre_patientinfo: {}
     };
   },
   components: {
@@ -455,12 +456,15 @@ export default {
     calculateDay() {
       this.disease.forEach((item, i) => {
         this.qty_selected[i] = null;
+
         if (
           this.dateformat != null &&
           this.next_dateformat != null &&
           this.numMed[i] != null &&
-          this.taking_medCB[i].length > 0
+          this.taking_medCB[i].length > 0 &&
+          this.taking_medRadio[i] != "เมื่อมีอาการ"
         ) {
+          console.log("if");
           var date1 = new Date(this.date);
           var date2 = new Date(this.next_date);
           var Difference_In_Time = date2.getTime() - date1.getTime();
@@ -483,8 +487,8 @@ export default {
           var Difference_In_Time = date2.getTime() - date1.getTime();
           var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
           console.log(Difference_In_Days);
-          console.log("ddd");
           var med = 24 / parseInt(this.everyMed[i]);
+          this.qty_selected[i] = null;
           this.qty_selected[i] +=
             parseInt(Difference_In_Days) *
             parseInt(med) *
@@ -599,7 +603,7 @@ export default {
                   axios
                     .post("http://localhost:3000/api/order/neworder_detail", {
                       order_id: res.data.insertId,
-                      medicine_id: this.medicine_selected[i].medicine_id,
+                      medicine_id: this.medicine_selected[i],
                       qty: this.qty_selected[i],
                       administration: this.parseString(i),
                       numpertime: this.numMed[i]
@@ -686,20 +690,79 @@ export default {
             }
           )
           .then(res => {
-            this.disease = res.data;
-            console.log(this.disease);
-            this.qty_selected = [];
-            this.medicine_selected = [];
-            this.taking_medCB = [[]];
-            this.taking_medRadio = [];
-            for (let index = 0; index < this.disease.length; index++) {
-              this.countItem[index] = true;
-              this.qty_selected.push(null);
-              this.medicine_selected.push(null);
-              this.taking_medCB.push([null]);
-              this.taking_medRadio.push(null);
-            }
-            this.checkbox = [];
+            axios
+              .post("http://localhost:3000/api/order/getpatientinfo", {
+                patient_HN: this.patient_selected.patient_HN
+              })
+              .then(res1 => {
+                this.qty_selected = [];
+                this.medicine_selected = [];
+                this.taking_medCB = [[]];
+                this.taking_medRadio = [];
+                this.disease = res.data;
+                for (let index = 0; index < this.disease.length; index++) {
+                  this.countItem[index] = true;
+                  this.qty_selected.push(null);
+                  this.medicine_selected.push(null);
+                  this.taking_medCB.push([null]);
+                  this.taking_medRadio.push(null);
+                }
+                this.checkbox = [];
+                var count = 0;
+                if (res1.data.length > 0) {
+                  this.date = dateFormat(
+                    res1.data[0].next_due_date,
+                    "yyyy-mm-dd"
+                  );
+                  this.dateformat = this.formatDate(this.date);
+                  var order_id = res1.data[0].order_id;
+                  var disease = res1.data[0].disease_id_medicine;
+                  var j = 0;
+                  for (var i = 0; i < res1.data.length; i++) {
+                    console.log("i=" + i);
+                    console.log("count" + count);
+                    var item = res1.data[i];
+                    if (item.order_id == order_id) {
+                      if (item.disease_id_medicine == disease) {
+                        if (count != 0) {
+                          //add
+                          this.add(this.disease[i - 1]);
+                          console.log("add");
+                          count++;
+                        } else count++;
+                      } else count = 0;
+                      this.medicine_selected[i] = item.medicine_id;
+                      this.numMed[i] = item.numpertime;
+                      var administration = item.administration.split("*");
+                      this.taking_medRadio[i] = administration[0];
+                      if (administration[0] == "เมื่อมีอาการ") {
+                        this.syndrometxt[i] = administration[1];
+                        this.everyMed[i] = parseInt(administration[2]);
+                      } else {
+                        for (var k = 1; k < administration.length; k++) {
+                          this.taking_medCB[i][k - 1] = administration[k];
+                        }
+                      }
+                    } else {
+                      break;
+                    }
+                    order_id = res1.data[i].order_id;
+                    disease = res1.data[i].disease_id_medicine;
+                    j++;
+                  }
+                  this.checkbox = [];
+                } else {
+                  this.date = null;
+                  for (let index = 0; index < this.disease.length; index++) {
+                    this.countItem[index] = true;
+                    this.qty_selected.push(null);
+                    this.medicine_selected.push(null);
+                    this.taking_medCB.push([null]);
+                    this.taking_medRadio.push(null);
+                  }
+                  this.checkbox = [];
+                }
+              });
           })
           .catch(e => {
             console.log("getdisease error " + e);
@@ -726,10 +789,10 @@ export default {
         }
         this.checkbox[i] = checked;
       }
-    },
-    countItem() {
-      console.log(this.countItem);
     }
+    // medicine_selected() {
+    //   console.log(this.medicine_selected);
+    // }
   }
 };
 </script>
