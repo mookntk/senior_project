@@ -318,6 +318,7 @@ export default {
         date.getDate() + " " + (date.getMonth() + 1) + " " + date.getFullYear();
 
       this.transfer_order[this.index].receive_date = date_format;
+      this.transfer_order[this.index].name = localStorage.getItem("name");
       this.dialog_row = false;
     },
     getColor(status) {

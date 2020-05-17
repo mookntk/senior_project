@@ -9,7 +9,7 @@
           <v-col cols="12" sm="8" md="4">
             <v-card class="elevation-12 font" width="400px" height="330px">
               <v-toolbar class="teal lighten-2" dark flat>
-                <v-toolbar-title>Hospital</v-toolbar-title>
+                <v-toolbar-title></v-toolbar-title>
                 <div class="flex-grow-1"></div>
               </v-toolbar>
               <v-card-text>
@@ -64,7 +64,7 @@ import axios from "axios";
 export default {
   data() {
     return {
-      username: "hos_staff",
+      username: "",
       password: "",
       type: "",
       data: "",

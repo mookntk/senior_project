@@ -478,47 +478,6 @@ export default {
         return dob_date3;
       } else return "";
     },
-    // setMed: function(m) {
-    //   console.log("เข้าsetMed");
-    //   console.log("m= " + m);
-    //   if (m != null) {
-    //     var med_detail = m.split(";");
-    //     var med_name = med_detail[0];
-    //     var med_name2 = med_name.split(",");
-    //     var med_strenght = med_detail[1];
-    //     var med_strenght2 = med_strenght.split(",");
-    //     var med_qty = med_detail[2];
-    //     var med_qty2 = med_qty.split(",");
-    //     var med_unit = med_detail[3];
-    //     var med_unit2 = med_unit.split(",");
-
-    //     var med_show = "";
-    //     for (var i = 0; i < med_name2.length; i++) {
-    //       if (i === med_name2.length - 1) {
-    //         med_show +=
-    //           med_name2[i] +
-    //           " " +
-    //           med_strenght2[i] +
-    //           " " +
-    //           med_qty2[i] +
-    //           " " +
-    //           med_unit2[i];
-    //       } else {
-    //         med_show +=
-    //           med_name2[i] +
-    //           " " +
-    //           med_strenght2[i] +
-    //           " " +
-    //           med_qty2[i] +
-    //           " " +
-    //           med_unit2[i] +
-    //           "/";
-    //       }
-    //       console.log("med_show = " + med_show);
-    //     }
-    //     return med_show;
-    //   }
-    // },
     add(index) {
       console.log("index=" + index);
       if (this.lot_med[index].length < this.lot_no[index].length) {
@@ -533,14 +492,6 @@ export default {
       this.lot_med[index].splice(subindex, 1);
       this.qty_med[index].splice(subindex, 1);
     },
-    // dialog: function(e) {
-    //   alert(e.currentTarget);
-    // },
-    // logout: function() {
-    //   localStorage.setItem("login", "false");
-    //   console.log(localStorage.getItem("login"));
-    //   this.$router.push("/");
-    // },
     selectItem(item) {
       this.index = this.r_order.indexOf(item);
       this.lot_no = [];
@@ -570,6 +521,8 @@ export default {
               })
               .then(res => {
                 this.lot_no.push(res.data);
+                console.log("lot_no");
+                console.log(this.lot_no);
                 this.dialog_row = true;
               });
           });
@@ -765,12 +718,12 @@ export default {
             console.log({
               medicine_id: onemed.medicine_id,
               order_id: this.oneorder[0].order_id,
-              received: this.selected[m] || false
+              received: this.selected[m] || "false"
             });
             axios.post("http://localhost:3000/api/ready_sell/editreceived", {
               medicine_id: onemed.medicine_id,
               order_id: this.oneorder[0].order_id,
-              received: this.selected[m] || false
+              received: this.selected[m] || "false"
             });
           });
           var month = [

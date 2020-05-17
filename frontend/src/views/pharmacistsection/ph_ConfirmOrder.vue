@@ -530,15 +530,14 @@ export default {
                 transport_id: this.transport_id,
                 order_id: this.each_transfer[index].order_id
               })
-              .then(res => {
-                this.transfer_order.splice(this.index, 1);
-                this.resetDialog();
-                this.dialog_missing = false;
-              })
+              .then(res => {})
               .catch(e => {
                 console.log(e);
               });
             // }
+            this.transfer_order.splice(this.index, 1);
+            this.resetDialog();
+            this.dialog_missing = false;
           }
         });
         //loop by no of medicineAll
@@ -615,7 +614,6 @@ export default {
               console.log(e);
             });
         });
-        this.dialog_missing = true;
       }
     },
     getMissingLotno() {

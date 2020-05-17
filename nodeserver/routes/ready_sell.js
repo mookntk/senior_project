@@ -178,6 +178,11 @@ router.post("/editreceived", async (req, res) => {
 
 var editReceived = function (item) {
   return new Promise((resolve, reject) => {
+    if (item.received == "1") {
+      item.received = "true";
+    } else if (item.received == "0") {
+      item.received = "false";
+    }
     db.query(
       `UPDATE order_detail SET received=? WHERE order_id=? AND medicine_id=?`,
       [item.received, item.order_id, item.medicine_id],

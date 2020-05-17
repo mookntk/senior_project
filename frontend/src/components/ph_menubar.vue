@@ -42,7 +42,7 @@
       <template v-slot:activator="{ on }">
         <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
       </template>
-      <v-list>
+      <v-list class="font">
         <v-list-item v-for="item in items" :key="item" @click="menuAccount(item)">
           <v-list-item-title>{{ item }}</v-list-item-title>
         </v-list-item>

@@ -17,7 +17,7 @@ router.post(
   }
 );
 
-var newRecord = function(item) {
+var newRecord = function (item) {
   return new Promise((resolve, reject) => {
     db.query(`INSERT INTO ${record} SET ?`, item, (error, result) => {
       if (error) return reject(error);
@@ -39,10 +39,10 @@ router.post(
   }
 );
 
-var getRecord = function(item) {
+var getRecord = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
-      `SELECT record.*, users.name,users.surname FROM ${record} left join users on record.staff_id_record = users.staff_id WHERE patient_HN_record = ? order by date desc`,
+      `SELECT record.*, users.name,users.surname,group_concat(m.medicine_generic," ",m.strength," ",od.qty," ",m.unit SEPARATOR ',') as medicine FROM record left join users on record.staff_id_record = users.staff_id inner join order_detail as od on od.order_id = record.order_id_record inner join medicine as m on m.medicine_id = od.medicine_id WHERE patient_HN_record = ? group by od.order_id order by date desc`,
       [item.patient_HN],
       (error, result) => {
         if (error) return reject(error);
@@ -65,7 +65,7 @@ router.post(
   }
 );
 
-var getRecordOrder = function(item) {
+var getRecordOrder = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       `SELECT * FROM ${record} WHERE order_id_record = ? `,
@@ -81,24 +81,20 @@ var getRecordOrder = function(item) {
 //cancel order in prepare medication
 router.post(
   "/cancel_order",
-  [
-    check("order_id")
-      .not()
-      .isEmpty()
-  ],
+  [check("order_id").not().isEmpty()],
   async (req, res) => {
     try {
       const cancel = await cancel_order(req.body);
       res.json(cancel);
     } catch (error) {
       res.status(400).json({
-        message: error.message
+        message: error.message,
       });
     }
   }
 );
 
-var cancel_order = function(item) {
+var cancel_order = function (item) {
   return new Promise((resolve, reject) => {
     db.query(
       "UPDATE orders SET status='cancel'" +

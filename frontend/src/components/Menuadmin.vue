@@ -15,7 +15,7 @@
           <v-btn color="primary" dark v-on="on" text>{{username}}</v-btn>
           <!-- ต้องเปลี่ยนคำว่า User ให้ขึ้นเป็น username ของUserปัจจุบันที่ใช้งานอยู่ ณ ตอนนั้น -->
         </template>
-        <v-list>
+        <v-list class="font">
           <v-list-item v-for="item in items" :key="item" @click="menuAccount(item)">
             <v-list-item-title>{{ item }}</v-list-item-title>
           </v-list-item>

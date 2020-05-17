@@ -178,6 +178,7 @@
               :items="filterOrders"
               :search="search"
               class="elevation-1"
+              sort-by="return_id"
             >
               <template v-slot:top>
                 <v-toolbar flat>
@@ -247,7 +248,12 @@ export default {
         divider: true
       },
       { text: "สถานะ", align: "center", value: "status", divider: true },
-      { text: " ", align: "center", value: "return_id", divider: true }
+      {
+        text: " ",
+        align: "center",
+        value: "return_id",
+        divider: true
+      }
       // ,
       // { text: "Actions", value: "action", sortable: false }
     ],
@@ -650,6 +656,30 @@ export default {
                         console.log(e);
                       });
                   }
+                  var today = new Date();
+                  this.date_now = today;
+
+                  axios
+                    .post("http://localhost:3000/api/user/getuserbyid", {
+                      staff_id: localStorage.getItem("staff_id")
+                    })
+                    .then(res => {
+                      this.pharmacy_id = res.data[0].pharmacy_id_pharmacist;
+
+                      axios
+                        .post(
+                          "http://localhost:3000/api/order_status/order_with_status",
+                          {
+                            pharmacy_id: this.pharmacy_id
+                          }
+                        )
+                        .then(res => {
+                          this.s_order = res.data;
+                        });
+                    })
+                    .catch(e => {
+                      console.log(e);
+                    });
                 });
 
               //edit lot qty_less
