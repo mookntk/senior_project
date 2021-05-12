@@ -23,7 +23,7 @@
     "@mdi/js": "^4.9.95",
     "concurrently": "^5.1.0",
     "dateformat": "^3.0.3",
-    "nodemailer": "^6.4.2",
+    "nodemailer": "^6.4.16",
     "vue-password": "^2.0.3",
     "vue-thailand-address-autocomplete": "0.0.8",
     "zxcvbn": "^4.4.2"
